@@ -1,0 +1,33 @@
+author: Daniel Scalzi
+description: Utility plugin that will unzip the files you specify.
+main: com.dscalzi.zipextractor.ZipExtractor
+name: ZipExtractor
+version: AvSoft 1.0
+commands:
+    zipextractor:
+        description: Accesses plugin commands.
+        usage: /ZipExtractor
+        aliases: [ze]
+permissions:
+    zipextractor.admin.use:
+        description: Allow usage of /ZipExtractor
+    zipextractor.admin.unzip:
+        description: Allow usage of /ZipExtractor unzip
+    zipextractor.admin.setsrc:
+        description: Allow usage of /ZipExtractor setsrc
+    zipextractor.admin.setdest:
+        description: Allow usage of /ZipExtractor setdest
+    zipextractor.admin.plugindir:
+        description: Allow usage of /ZipExtractor plugindir
+    zipextractor.admin.reload:
+        description: Allow usage of /ZipExtractor reload
+    zipextractor.admin.*:
+        default: OP
+        description: Access to administrator commands.
+        children:
+          zipextractor.admin.use: true
+          zipextractor.admin.unzip: true
+          zipextractor.admin.setsrc: true
+          zipextractor.admin.setdest: true
+          zipextractor.admin.plugindir: true
+          zipextractor.admin.reload: true

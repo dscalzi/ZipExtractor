@@ -1,0 +1,22 @@
+#-----------------------------------------------
+#            Zip Extractor Config
+#-----------------------------------------------
+
+#DO NOT CHANGE THIS VALUE.
+#CHANGING IT COULD RESULT IN DATA LOSS.
+ConfigVersion: 1.0
+
+#---------------[File Settings]-----------------
+# Use '/' for a file separator as shown below.
+# If your Operating System uses a different
+# character for the file seperator, that will
+# automatically be detected by the plugin and
+# it will be converted on the fly. The '/' is
+# for ease of storage.
+file_settings:
+
+  # Specify the file path of your zip file.
+  zip_directory: "C:/localhost/server/MyZip.zip"
+  
+  # Specify the file path of the destination folder.
+  destination_directory: "C:/localhost/server/MyFolder"
