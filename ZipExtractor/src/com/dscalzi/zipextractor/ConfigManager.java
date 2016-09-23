@@ -82,6 +82,10 @@ public class ConfigManager {
 		return ret;
 	}
 	
+	public boolean getLoggingProperty(){
+		return this.config.getBoolean("general_settings.log_files", false);
+	}
+	
 	public double getVersion(){
 		return this.configVersion;
 	}

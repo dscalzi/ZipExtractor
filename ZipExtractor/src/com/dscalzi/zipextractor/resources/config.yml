@@ -6,6 +6,14 @@
 #CHANGING IT COULD RESULT IN DATA LOSS.
 ConfigVersion: 1.0
 
+#--------------[General Settings]---------------
+general_settings:
+  
+  # Specify whether or not you want each file
+  # inside the archive to be logged to the
+  # console during extraction.
+  log_files: true
+
 #---------------[File Settings]-----------------
 # Use '/' for a file separator as shown below.
 # If your Operating System uses a different

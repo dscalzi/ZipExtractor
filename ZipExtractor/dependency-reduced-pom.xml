@@ -1,20 +1,21 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.dscalzi</groupId>
   <artifactId>ZipExtractor</artifactId>
-  <version>AvSoft 1.0</version>
   <name>Zip Extractor</name>
+  <version>AvSoft 1.0</version>
   <description>Utility plugin that will unzip the files you specify.</description>
   <build>
     <sourceDirectory>src</sourceDirectory>
-	<defaultGoal>package</defaultGoal>
-	<finalName>ZipExtractor</finalName>
-	<resources>
-            <resource>
-                <targetPath>.</targetPath>
-                <directory>${basedir}/src/com/dscalzi/zipextractor/resources/</directory>
-            </resource>
+    <defaultGoal>package</defaultGoal>
+    <resources>
+      <resource>
+        <targetPath>.</targetPath>
+        <directory>${basedir}/src/com/dscalzi/zipextractor/resources/</directory>
+      </resource>
     </resources>
+    <finalName>ZipExtractor</finalName>
     <plugins>
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
@@ -25,7 +26,6 @@
         </configuration>
       </plugin>
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-shade-plugin</artifactId>
         <version>2.4.3</version>
         <executions>
@@ -43,12 +43,12 @@
                   <excludes>
                     <exclude>META-INF/**</exclude>
                   </excludes>
-                </filter> 
+                </filter>
                 <filter>
                   <artifact>commons-logging:commons-logging-api</artifact>
                   <includes>
                     <include>org/apache/commons/logging/**</include>
-                  </includes> 
+                  </includes>
                 </filter>
               </filters>
               <relocations>
@@ -69,44 +69,47 @@
   </build>
   <repositories>
     <repository>
-        <id>spigot-repo</id>
-        <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
+      <id>spigot-repo</id>
+      <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
     </repository>
   </repositories>
   <dependencies>
-  	<dependency>
-           <groupId>org.spigotmc</groupId>
-           <artifactId>spigot-api</artifactId>
-           <version>1.10.2-R0.1-SNAPSHOT</version>
-           <scope>provided</scope>
-    </dependency>
-    <!-- https://mvnrepository.com/artifact/com.github.junrar/junrar -->
     <dependency>
-    	<groupId>com.github.junrar</groupId>
-    	<artifactId>junrar</artifactId>
-    	<version>0.7</version>
-    	<exclusions>
-          <exclusion>
-            <groupId>org.codehaus.plexus</groupId>
-            <artifactId>plexus-utils</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.apache.maven.scm</groupId>
-            <artifactId>maven-scm-api</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.apache.maven.scm</groupId>
-            <artifactId>maven-scm-provider-svnexe</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.apache.maven.scm</groupId>
-            <artifactId>maven-scm-provider-svn-commons</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-vfs2</artifactId>
-          </exclusion>
-    	</exclusions>
-	</dependency>
+      <groupId>org.spigotmc</groupId>
+      <artifactId>spigot-api</artifactId>
+      <version>1.10.2-R0.1-SNAPSHOT</version>
+      <scope>provided</scope>
+      <exclusions>
+        <exclusion>
+          <artifactId>commons-lang</artifactId>
+          <groupId>commons-lang</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>json-simple</artifactId>
+          <groupId>com.googlecode.json-simple</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>guava</artifactId>
+          <groupId>com.google.guava</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>gson</artifactId>
+          <groupId>com.google.code.gson</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>ebean</artifactId>
+          <groupId>org.avaje</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>snakeyaml</artifactId>
+          <groupId>org.yaml</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>bungeecord-chat</artifactId>
+          <groupId>net.md-5</groupId>
+        </exclusion>
+      </exclusions>
+    </dependency>
   </dependencies>
 </project>
+

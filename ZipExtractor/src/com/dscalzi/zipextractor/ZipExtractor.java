@@ -21,12 +21,20 @@ public class ZipExtractor extends JavaPlugin{
     	
     	if(path == null) return null;
     	
-    	if(path.contains("%plugindir%")) path = path.replace("%plugindir%", this.getDataFolder().getAbsolutePath());
+    	if(path.contains("*plugindir*")) path = path.replace("*plugindir*", this.getDataFolder().getAbsolutePath());
     	
-    	path = path.replaceAll("/|\\\\", "\\%sep\\%");
-    	if(forStorage)
-    		path = path.replace("%sep%", "/");
-    	else
+    	path = path.replaceAll("/|\\\\\\\\|\\\\", "/");
+    	
+    	String[] cleaner = path.split("\\/");
+    	path = "";
+    	for(int i=0; i<cleaner.length; ++i){
+    		cleaner[i] = cleaner[i].trim();
+    		path += cleaner[i] + "/";
+    	}
+    	path = path.substring(0, (path.lastIndexOf("/") != -1) ? path.lastIndexOf("/") : path.length());
+    		
+    	
+    	if(!forStorage)
     		path = path.replace("%sep%", File.separator);
     	
     	return path;
