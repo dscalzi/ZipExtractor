@@ -113,15 +113,15 @@ public class MessageManager {
 		sendError(sender, "The " + action + " file path you've selected is not valid, aborting.");
 	}
 	
-	public void extractionInProccess(CommandSender sender){
+	public void taskInProcess(CommandSender sender){
 		sendError(sender, "Please wait until the current task has finished.");
 	}
 	
-	public void startingExtraction(CommandSender sender, String fileName){
+	public void startingProcess(CommandSender sender, String process, String fileName){
 		if(!(sender instanceof ConsoleCommandSender)){
-			sendSuccess(sender, "Starting extraction of '" + fileName + "'.. See the console for more details.");
+			sendSuccess(sender, "Starting " + process + " of '" + fileName + "'.. See the console for more details.");
 		}
-		getLogger().info("Starting asynchronous extraction of the file '" + fileName + "'..");
+		getLogger().info("Starting asynchronous " + process + " of the file '" + fileName + "'..");
 	}
 	
 	public void extractionComplete(CommandSender sender, String destPath){
@@ -130,7 +130,17 @@ public class MessageManager {
 		}
 		getLogger().info("---------------------------------------------------");
 		getLogger().info("Extraction complete.");
-		getLogger().info("The archive's contents have been saved to\n" + destPath);
+		getLogger().info("The archive's contents have been extracted to\n" + destPath);
+		getLogger().info("---------------------------------------------------");
+	}
+	
+	public void compressionComplete(CommandSender sender, String destPath){
+		if(!(sender instanceof ConsoleCommandSender)){
+			sendSuccess(sender, "Compression complete.");
+		}
+		getLogger().info("---------------------------------------------------");
+		getLogger().info("Compression complete.");
+		getLogger().info("The folder's contents have been compressed to\n" + destPath);
 		getLogger().info("---------------------------------------------------");
 	}
 	
@@ -154,8 +164,10 @@ public class MessageManager {
 		}
 		if(sender.hasPermission("zipextractor.admin.extract"))
 			cmds.add(listPrefix + "/ZipExtractor extract " + cTrim + "- Extract the specified file.");
+		if(sender.hasPermission("zipextractor.admin.compress"))
+			cmds.add(listPrefix + "/ZipExtractor compress " + cTrim + "- Compress the specified file.");
 		if(sender.hasPermission("zipextractor.admin.setsrc"))
-			cmds.add(listPrefix + "/ZipExtractor setsrc <path> " + cTrim + "- Set the archive's filepath.");
+			cmds.add(listPrefix + "/ZipExtractor setsrc <path> " + cTrim + "- Set the source's filepath.");
 		if(sender.hasPermission("zipextractor.admin.setdest"))
 			cmds.add(listPrefix + "/ZipExtractor setdest <path> " + cTrim + "- Set the destination's filepath.");
 		if(sender.hasPermission("zipextractor.admin.plugindir"))
@@ -184,12 +196,20 @@ public class MessageManager {
 			sendMessage(sender, cPrimary + "This command will extract the archive you specified in the config.yml. That value can be edited directly in the file or via the command /ZipExtractor setsrc <File Path>. The zip contents will be copied into the folder specified in the config.yml. That value can be edited directly in the file or via the command /ZipExtractor setdest <File Path>.");
 			return;
 		}
+		if(cmd.equalsIgnoreCase("compress")){
+			if(!sender.hasPermission("zipextractor.admin.compress")){
+				noInfoPermission(sender);
+				return;
+			}
+			sendMessage(sender, cPrimary + "This command will compress the folder you specified in the config.yml. That value can be edited directly in the file or via the command /ZipExtractor setsrc <File Path>. The folder contents will be compressed into the archive at the location specified specified in the config.yml. That value can be edited directly in the file or via the command /ZipExtractor setdest <File Path>.");
+			return;
+		}
 		if(cmd.equalsIgnoreCase("setsrc")){
 			if(!sender.hasPermission("zipextractor.admin.setsrc")){
 				noInfoPermission(sender);
 				return;
 			}
-			sendMessage(sender, cPrimary + "This command will directly update the 'zip_directory' field in the configuration file. \nPlease use \\\\ for a file separator.\nSyntax is /ZipExtractor setsrc <File Path>");
+			sendMessage(sender, cPrimary + "This command will directly update the 'source_directory' field in the configuration file. \nPlease use / for a file separator.\nSyntax is /ZipExtractor setsrc <File Path>");
 			return;
 		}
 		if(cmd.equalsIgnoreCase("setdest")){
@@ -197,7 +217,7 @@ public class MessageManager {
 				noInfoPermission(sender);
 				return;
 			}
-			sendMessage(sender, cPrimary + "This command will directly update the 'destination_directory' field in the configuration file. \nPlease use \\\\ for a file separator.\nSyntax is /ZipExtractor setdest <File Path>");
+			sendMessage(sender, cPrimary + "This command will directly update the 'destination_directory' field in the configuration file. \nPlease use / for a file separator.\nSyntax is /ZipExtractor setdest <File Path>");
 			return;
 		}
 		if(cmd.equalsIgnoreCase("plugindir")){

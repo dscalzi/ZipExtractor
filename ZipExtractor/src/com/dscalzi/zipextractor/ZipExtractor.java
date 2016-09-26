@@ -35,9 +35,17 @@ public class ZipExtractor extends JavaPlugin{
     		
     	
     	if(!forStorage)
-    		path = path.replace("%sep%", File.separator);
+    		path = path.replace("/", File.separator);
     	
     	return path;
+    }
+    
+    public String getFileExtension(File f){
+    	String fileExtension = "";
+    	String path = f.getAbsolutePath();
+		if(path.lastIndexOf(".") != -1 && !f.isDirectory()) 
+			fileExtension = path.substring(path.lastIndexOf(".")).toLowerCase();
+		return fileExtension;
     }
     
 }

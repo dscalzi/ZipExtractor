@@ -24,7 +24,7 @@ general_settings:
 file_settings:
 
   # Specify the file path of your zip file.
-  zip_directory: "C:/localhost/server/MyZip.zip"
+  source_directory: "C:/localhost/server/MyZip.zip"
   
   # Specify the file path of the destination folder.
   destination_directory: "C:/localhost/server/MyFolder"

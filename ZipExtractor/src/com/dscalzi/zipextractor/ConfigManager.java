@@ -63,7 +63,7 @@ public class ConfigManager {
 	/* Configuration Accessors */
 	
 	public String getSourcePath(){
-		return this.config.getString("file_settings.zip_directory", null);
+		return this.config.getString("file_settings.source_directory", null);
 	}
 	
 	public String getDestPath(){
@@ -71,7 +71,7 @@ public class ConfigManager {
 	}
 	
 	public boolean setSourcePath(String path){
-		boolean ret = this.updateValue("file_settings.zip_directory", path);
+		boolean ret = this.updateValue("file_settings.source_directory", path);
 		this.plugin.saveDefaultConfig();
 		return ret;
 	}

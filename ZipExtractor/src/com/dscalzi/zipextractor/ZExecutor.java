@@ -17,6 +17,7 @@ import java.util.jar.JarFile;
 import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+import java.util.zip.ZipOutputStream;
 
 import org.bukkit.command.BlockCommandSender;
 import org.bukkit.command.Command;
@@ -33,13 +34,13 @@ public class ZExecutor implements CommandExecutor{
 	private final ConfigManager cm;
 	private final MessageManager mm;
 	
-	private volatile boolean extracting;
+	private volatile boolean processing;
 	
 	private ZipExtractor plugin;
 	
 	public ZExecutor(ZipExtractor plugin){
 		this.plugin = plugin;
-		this.extracting = false;
+		this.processing = false;
 		this.cm = ConfigManager.getInstance();
 		this.mm = MessageManager.getInstance();
 	}
@@ -64,7 +65,7 @@ public class ZExecutor implements CommandExecutor{
 		
 		if(args.length > 0){
 			if(args[0].equalsIgnoreCase("help")){
-				if(args.length > 1 && args[1].matches("^(?iu)(help|extract|setsrc|setdest|plugindir|reload)")){
+				if(args.length > 1 && args[1].matches("^(?iu)(help|extract|compress|setsrc|setdest|plugindir|reload)")){
 					this.cmdMoreInfo(sender, args[1]);
 					return true;
 				}
@@ -74,6 +75,10 @@ public class ZExecutor implements CommandExecutor{
 			if(args[0].equalsIgnoreCase("extract")){
 				this.cmdExtract(sender);
 				return true;
+			}
+			if(args[0].equalsIgnoreCase("compress")){
+				this.cmdCompress(sender);
+			    return true;
 			}
 			if(args[0].equalsIgnoreCase("setsrc")){
 				this.cmdSetSrc(sender, args);
@@ -115,6 +120,39 @@ public class ZExecutor implements CommandExecutor{
 			return;
 		}
 		this.asyncExecute(sender, new File(plugin.formatPath(cm.getSourcePath(), false)), new File(plugin.formatPath(cm.getDestPath(), false)));
+	}
+	
+	private void cmdCompress(CommandSender sender){
+		if(!sender.hasPermission("zipextractor.admin.compress")){
+			mm.noPermission(sender);
+			return;
+		}
+		File sourceFile = new File(plugin.formatPath(cm.getSourcePath(), false));
+		File destFile = new File(plugin.formatPath(cm.getDestPath(), false));
+		
+		if(!sourceFile.exists()){
+			mm.invalidPath(sender, "source");
+			return;
+		}
+		String fileExtension = plugin.getFileExtension(destFile);
+		String properPath = destFile.getAbsolutePath();
+		if(fileExtension.equals(""))
+			properPath = destFile.toString() + ".zip";
+		else if(!fileExtension.equals(".zip"))
+			properPath = destFile.getAbsolutePath().substring(0, destFile.getAbsolutePath().lastIndexOf(".")) + ".zip";
+		
+		File dF = new File(properPath);
+		
+		if(processing){
+			mm.taskInProcess(sender);
+			return;
+		}
+		
+		mm.startingProcess(sender, "compression", sourceFile.getName());
+		processing = true;
+		
+		new Thread(() -> compress(sender, sourceFile, dF)).start();
+		
 	}
 	
 	private void cmdSetSrc(CommandSender sender, String[] args){
@@ -184,9 +222,7 @@ public class ZExecutor implements CommandExecutor{
 	}
 	
 	private void asyncExecute(CommandSender sender, File sourceFile, File destFolder){
-		String fileExtension = "";
-		String sourcePath = sourceFile.getAbsolutePath();
-		if(sourcePath.lastIndexOf(".") != -1 && !sourceFile.isDirectory()) fileExtension = sourcePath.substring(sourcePath.lastIndexOf(".")).toLowerCase();
+		String fileExtension = plugin.getFileExtension(sourceFile);
 		if(fileExtension.length() == 0 || !sourceFile.exists()) {
 			mm.invalidPath(sender, "source");
 			return;
@@ -209,13 +245,13 @@ public class ZExecutor implements CommandExecutor{
 			}
 		}
 		
-		if(extracting){
-			mm.extractionInProccess(sender);
+		if(processing){
+			mm.taskInProcess(sender);
 			return;
 		}
 		
-		mm.startingExtraction(sender, sourceFile.getName());
-		extracting = true;
+		mm.startingProcess(sender, "extraction", sourceFile.getName());
+		processing = true;
 		
 		switch(fileExtension){
 		case ".jar":
@@ -259,7 +295,7 @@ public class ZExecutor implements CommandExecutor{
 	    } catch(IOException ex){
 	    	ex.printStackTrace();
 	    }
-		extracting = false;
+		processing = false;
 	}
 	
 	private void extractJar(CommandSender sender, File sourceFile, File destFolder){
@@ -287,7 +323,7 @@ public class ZExecutor implements CommandExecutor{
 		} catch (IOException e){
 			e.printStackTrace();
 		}
-		extracting = false;
+		processing = false;
 	}
 	
 	private void extractRar(CommandSender sender, File sourceFile, File destFolder){
@@ -324,7 +360,34 @@ public class ZExecutor implements CommandExecutor{
 			}
 		}
 		MessageManager.getInstance().extractionComplete(sender, destFolder.getAbsolutePath());
-		extracting = false;
+		processing = false;
+	}
+	
+	public void compress(CommandSender sender, File sourceFile, File destFolder){
+		Logger logger = MessageManager.getInstance().getLogger();
+		try {
+			ZipOutputStream zs = new ZipOutputStream(Files.newOutputStream(destFolder.toPath()));
+	        Path pp = sourceFile.toPath();
+	        Files.walk(pp)
+	          .filter(path -> !Files.isDirectory(path))
+	          .forEach(path -> {
+	              String sp = path.toAbsolutePath().toString().replace(pp.toAbsolutePath().toString(), "").substring(1);
+	              ZipEntry zipEntry = new ZipEntry(pp.getFileName() + File.separator + sp);
+	              try {
+	            	  logger.info("Compressing : "+ zipEntry.toString());
+	                  zs.putNextEntry(zipEntry);
+	                  zs.write(Files.readAllBytes(path));
+	                  zs.closeEntry();
+	              } catch (Exception e) {
+	            	  e.printStackTrace();
+	              }
+	          });
+	        zs.close();
+	        MessageManager.getInstance().compressionComplete(sender, destFolder.getAbsolutePath());
+	    } catch (IOException e) {
+			e.printStackTrace();
+		}
+		processing = false;
 	}
 	
 }
