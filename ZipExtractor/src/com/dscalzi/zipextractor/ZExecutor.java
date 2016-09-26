@@ -277,7 +277,7 @@ public class ZExecutor implements CommandExecutor{
 	    	while(ze!=null){
 	    		String fileName = ze.getName();
 	    		File newFile = new File(destFolder + File.separator + fileName);	    		
-	    		if(cm.getLoggingProperty())
+	    		if(ConfigManager.getInstance().getLoggingProperty())
 	    			logger.info("Extracting : "+ newFile.getAbsoluteFile());
 	    		if(newFile.getParentFile() != null)
 	    			new File(newFile.getParent()).mkdirs();         
@@ -306,7 +306,7 @@ public class ZExecutor implements CommandExecutor{
 			while (enumEntries.hasMoreElements()) {
 			    JarEntry file = enumEntries.nextElement();
 			    File f = new File(destFolder + File.separator + file.getName());
-			    if(cm.getLoggingProperty())
+			    if(ConfigManager.getInstance().getLoggingProperty())
 			    	logger.info("Extracting : "+ f.getAbsolutePath());
 			    if (file.isDirectory()) {
 			        f.mkdir();
@@ -345,7 +345,7 @@ public class ZExecutor implements CommandExecutor{
 					    throw new IllegalStateException("Couldn't create dir: " + parent);
 					}
 					try{
-						if(cm.getLoggingProperty())
+						if(ConfigManager.getInstance().getLoggingProperty())
 					    	logger.info("Extracting : "+ p.toString());
 						Files.copy(is, p, StandardCopyOption.REPLACE_EXISTING);
 					} catch (DirectoryNotEmptyException e){
@@ -374,7 +374,8 @@ public class ZExecutor implements CommandExecutor{
 	              String sp = path.toAbsolutePath().toString().replace(pp.toAbsolutePath().toString(), "").substring(1);
 	              ZipEntry zipEntry = new ZipEntry(pp.getFileName() + File.separator + sp);
 	              try {
-	            	  logger.info("Compressing : "+ zipEntry.toString());
+	            	  if(ConfigManager.getInstance().getLoggingProperty())
+	            		  logger.info("Compressing : "+ zipEntry.toString());
 	                  zs.putNextEntry(zipEntry);
 	                  zs.write(Files.readAllBytes(path));
 	                  zs.closeEntry();
