@@ -7,7 +7,7 @@ public class ZServicer {
 	private static boolean initialized;
 	private static ZServicer instance;
 	
-	private ConcurrentLinkedQueue<Thread> queue;
+	private volatile ConcurrentLinkedQueue<Thread> queue;
 	private volatile boolean inExec;
 	
 	private ZServicer(){

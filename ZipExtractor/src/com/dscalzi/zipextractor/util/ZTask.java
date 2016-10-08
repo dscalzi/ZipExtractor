@@ -1,4 +1,4 @@
-package com.dscalzi.zipextractor;
+package com.dscalzi.zipextractor.util;
 
 public enum ZTask {
 

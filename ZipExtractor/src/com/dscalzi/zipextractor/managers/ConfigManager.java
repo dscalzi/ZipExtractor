@@ -1,4 +1,4 @@
-package com.dscalzi.zipextractor;
+package com.dscalzi.zipextractor.managers;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -9,6 +9,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.bukkit.configuration.file.FileConfiguration;
+
+import com.dscalzi.zipextractor.ZipExtractor;
 
 public class ConfigManager {
 

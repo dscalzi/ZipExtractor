@@ -6,17 +6,19 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 
+import com.dscalzi.zipextractor.managers.ConfigManager;
+import com.dscalzi.zipextractor.managers.MessageManager;
 import com.dscalzi.zipextractor.util.ZCompressor;
 import com.dscalzi.zipextractor.util.ZExtractor;
 
-public class ZExecutor implements CommandExecutor{
+public class MainExecutor implements CommandExecutor{
 
 	private final MessageManager mm;
 	private final ConfigManager cm;
 	
 	private ZipExtractor plugin;
 	
-	public ZExecutor(ZipExtractor plugin){
+	public MainExecutor(ZipExtractor plugin){
 		this.mm = MessageManager.getInstance();
 		this.cm = ConfigManager.getInstance();
 		this.plugin = plugin;

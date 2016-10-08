@@ -1,4 +1,4 @@
-package com.dscalzi.zipextractor;
+package com.dscalzi.zipextractor.managers;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -7,6 +7,9 @@ import java.util.logging.Logger;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
+
+import com.dscalzi.zipextractor.ZipExtractor;
+import com.dscalzi.zipextractor.util.ZTask;
 
 public class MessageManager {
 

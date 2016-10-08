@@ -21,10 +21,9 @@ import java.util.zip.ZipInputStream;
 
 import org.bukkit.command.CommandSender;
 
-import com.dscalzi.zipextractor.ConfigManager;
-import com.dscalzi.zipextractor.MessageManager;
-import com.dscalzi.zipextractor.ZTask;
 import com.dscalzi.zipextractor.ZipExtractor;
+import com.dscalzi.zipextractor.managers.ConfigManager;
+import com.dscalzi.zipextractor.managers.MessageManager;
 import com.github.junrar.Archive;
 import com.github.junrar.exception.RarException;
 import com.github.junrar.impl.FileVolumeManager;
