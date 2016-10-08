@@ -113,6 +113,23 @@ public class MessageManager {
 		sendError(sender, "The " + action + " file path you've selected is not valid, aborting.");
 	}
 	
+	public void fileAccessDenied(CommandSender sender, ZTask t, String path){
+		if(!(sender instanceof ConsoleCommandSender)){
+			sendError(sender, "Error during " + t.getProcessName() + ". Access is denied to " + path);
+		}
+		getLogger().severe("Error during " + t.getProcessName() + ". Access is denied to " + path);
+	}
+	
+	public void invalidExtension(CommandSender sender, String extension){
+		if(extension.length() >= 1)
+			extension = Character.toUpperCase(extension.charAt(0)) + extension.substring(1).toLowerCase();
+		sendError(sender, extension + " files are not currently supported.");
+	}
+	
+	public void addToQueue(CommandSender sender, int position){
+		sendSuccess(sender, "Your task has been added to the queue. It is currently at " + position);
+	}
+	
 	public void taskInProcess(CommandSender sender){
 		sendError(sender, "Please wait until the current task has finished.");
 	}

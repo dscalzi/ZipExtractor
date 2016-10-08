@@ -3,10 +3,13 @@ package com.dscalzi.zipextractor;
 import java.io.File;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import com.dscalzi.zipextractor.util.ZServicer;
+
 public class ZipExtractor extends JavaPlugin{ 
 
     @Override
     public void onEnable(){
+    	ZServicer.initalize();
     	ConfigManager.initialize(this);
     	MessageManager.initialize(this);
     	this.getCommand("zipextractor").setExecutor(new ZExecutor(this));
