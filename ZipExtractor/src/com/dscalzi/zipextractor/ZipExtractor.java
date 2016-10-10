@@ -1,7 +1,10 @@
 package com.dscalzi.zipextractor;
 
 import java.io.File;
+import java.io.IOException;
+
 import org.bukkit.plugin.java.JavaPlugin;
+import org.mcstats.Metrics;
 
 import com.dscalzi.zipextractor.managers.ConfigManager;
 import com.dscalzi.zipextractor.managers.MessageManager;
@@ -14,12 +17,22 @@ public class ZipExtractor extends JavaPlugin{
     	ZServicer.initalize();
     	ConfigManager.initialize(this);
     	MessageManager.initialize(this);
+    	logMetrics();
     	this.getCommand("zipextractor").setExecutor(new MainExecutor(this));
     }
     
     @Override
     public void onDisable(){
     	
+    }
+    
+    private void logMetrics(){
+    	try {
+            Metrics metrics = new Metrics(this);
+            metrics.start();
+        } catch (IOException e) {
+            getLogger().severe("Unable to connect to MCStats.org, ");
+        }
     }
     
     public String formatPath(String path, boolean forStorage){

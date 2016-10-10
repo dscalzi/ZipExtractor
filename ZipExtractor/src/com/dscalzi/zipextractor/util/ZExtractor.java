@@ -101,7 +101,7 @@ public class ZExtractor {
 		}
 		if(valid) {
 			ZServicer.getInstance().submit(th);
-			mm.startingProcess(sender, "extraction", srcLoc.getName());
+			mm.addToQueue(sender, ZServicer.getInstance().getSize());
 			return ZServicer.getInstance().getSize();
 		}
 		return -1;
@@ -111,6 +111,7 @@ public class ZExtractor {
 		Logger logger = MessageManager.getInstance().getLogger();
 		boolean log = cm.getLoggingProperty();
 		byte[] buffer = new byte[1024];
+		mm.startingProcess(sender, ZTask.EXTRACT, sourceFile.getName());
 		try {
 			ZipInputStream zis = new ZipInputStream(new FileInputStream(sourceFile));
 	    	ZipEntry ze = zis.getNextEntry();
@@ -143,6 +144,7 @@ public class ZExtractor {
 	private void extractJar(CommandSender sender, File sourceFile, File destFolder){
 		Logger logger = mm.getLogger();
 		boolean log = cm.getLoggingProperty();
+		mm.startingProcess(sender, ZTask.EXTRACT, sourceFile.getName());
 		try{			
 			JarFile jar = new JarFile(sourceFile);
 			Enumeration<JarEntry> enumEntries = jar.entries();
@@ -181,6 +183,7 @@ public class ZExtractor {
 		}
 		if (a != null) {
 			FileHeader fh = a.nextFileHeader();
+			mm.startingProcess(sender, ZTask.EXTRACT, sourceFile.getName());
 			while (fh != null) {
 				try {
 					InputStream is = a.getInputStream(fh);

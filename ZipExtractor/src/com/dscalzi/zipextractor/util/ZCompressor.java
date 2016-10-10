@@ -50,20 +50,21 @@ public class ZCompressor {
 		});
 		ZServicer.getInstance().submit(th);
 		
-		mm.startingProcess(sender, "compression", srcLoc.getName());
+		mm.addToQueue(sender, ZServicer.getInstance().getSize());
 		return ZServicer.getInstance().getSize();
 	}
 	
 	private void compressToZip(CommandSender sender, File sourceFile, File destFolder){
 		Logger logger = mm.getLogger();
 		boolean log = cm.getLoggingProperty();
+		mm.startingProcess(sender, ZTask.COMPRESS, sourceFile.getName());
 		try {
 			ZipOutputStream zs = new ZipOutputStream(Files.newOutputStream(destFolder.toPath()));
 	        Path pp = sourceFile.toPath();
 	        Files.walk(pp)
 	          .filter(path -> !Files.isDirectory(path))
 	          .forEach(path -> {
-	              String sp = path.toAbsolutePath().toString().replace(pp.toAbsolutePath().toString(), "").substring(1);
+	        	  String sp = path.toAbsolutePath().toString().replace(pp.toAbsolutePath().toString(), "").substring(1);
 	              ZipEntry zipEntry = new ZipEntry(pp.getFileName() + File.separator + sp);
 	              try {
 	            	  if(log)

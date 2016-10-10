@@ -130,18 +130,17 @@ public class MessageManager {
 	}
 	
 	public void addToQueue(CommandSender sender, int position){
-		sendSuccess(sender, "Your task has been added to the queue. It is currently at " + position);
+		String ordinal;
+		if(position == 1) ordinal = "next";
+		else ordinal = ordinal(position);
+		sendSuccess(sender, "Your task has been added to the queue. It is currently " + ordinal + ".");
 	}
 	
-	public void taskInProcess(CommandSender sender){
-		sendError(sender, "Please wait until the current task has finished.");
-	}
-	
-	public void startingProcess(CommandSender sender, String process, String fileName){
+	public void startingProcess(CommandSender sender, ZTask task, String fileName){
 		if(!(sender instanceof ConsoleCommandSender)){
-			sendSuccess(sender, "Starting " + process + " of '" + fileName + "'.. See the console for more details.");
+			sendSuccess(sender, "Starting " + task.getProcessName() + " of '" + fileName + "'.. See the console for more details.");
 		}
-		getLogger().info("Starting asynchronous " + process + " of the file '" + fileName + "'..");
+		getLogger().info("Starting asynchronous " + task.getProcessName() + " of the file '" + fileName + "'..");
 	}
 	
 	public void extractionComplete(CommandSender sender, String destPath){
@@ -257,5 +256,18 @@ public class MessageManager {
 			return;
 		}
 		
+	}
+	
+	public String ordinal(int i) {
+	    int mod100 = i % 100;
+	    int mod10 = i % 10;
+	    if(mod10 == 1 && mod100 != 11)
+	        return i + "st";
+	    else if(mod10 == 2 && mod100 != 12)
+	        return i + "nd";
+	    else if(mod10 == 3 && mod100 != 13)
+	        return i + "rd";
+	    else
+	        return i + "th";
 	}
 }
