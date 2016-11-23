@@ -9,6 +9,12 @@ ConfigVersion: 1.0
 #--------------[General Settings]---------------
 general_settings:
   
+  # Specify the maximum number of tasks to be queued
+  # at a time. Enter -1 for no limit. If zero is specified
+  # you can consider this plugin disabled since no tasks
+  # will be able to run!
+  max_queue_size: 5
+  
   # Specify whether or not you want each file
   # inside the archive to be logged to the
   # console during extraction.

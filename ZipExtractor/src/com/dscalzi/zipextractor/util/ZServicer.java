@@ -2,6 +2,8 @@ package com.dscalzi.zipextractor.util;
 
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import com.dscalzi.zipextractor.managers.ConfigManager;
+
 public class ZServicer {
 
 	private static boolean initialized;
@@ -26,10 +28,13 @@ public class ZServicer {
 		return ZServicer.instance;
 	}
 	
-	public void submit(Thread th){
+	public boolean submit(Thread th){
+		int limit = ConfigManager.getInstance().getMaxQueueSize();
+		if(limit != -1 && queue.size() >= limit) return false;
 		queue.add(th);
 		if(!inExec)
 			runTasks();
+		return true;
 	}
 	
 	private void runTasks(){

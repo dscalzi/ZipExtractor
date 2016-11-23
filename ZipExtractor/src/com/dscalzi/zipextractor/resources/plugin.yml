@@ -1,5 +1,5 @@
 author: Daniel Scalzi
-description: Utility plugin that will extract the compressed files you specify.
+description: Utility plugin that can compress files and extract archives.
 main: com.dscalzi.zipextractor.ZipExtractor
 name: ZipExtractor
 version: AvSoft 1.0

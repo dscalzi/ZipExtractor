@@ -1,7 +1,5 @@
 package com.dscalzi.zipextractor.managers;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.logging.Logger;
 
 import org.bukkit.ChatColor;
@@ -9,6 +7,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 
 import com.dscalzi.zipextractor.ZipExtractor;
+import com.dscalzi.zipextractor.util.PageList;
 import com.dscalzi.zipextractor.util.ZTask;
 
 public class MessageManager {
@@ -136,6 +135,10 @@ public class MessageManager {
 		sendSuccess(sender, "Your task has been added to the queue. It is currently " + ordinal + ".");
 	}
 	
+	public void queueFull(CommandSender sender){
+		sendError(sender, "Unable to add your task to the queue, the limit of " + ConfigManager.getInstance().getMaxQueueSize() + " has been reached.");
+	}
+	
 	public void startingProcess(CommandSender sender, ZTask task, String fileName){
 		if(!(sender instanceof ConsoleCommandSender)){
 			sendSuccess(sender, "Starting " + task.getProcessName() + " of '" + fileName + "'.. See the console for more details.");
@@ -173,11 +176,11 @@ public class MessageManager {
 		}
 	}
 	
-	public void commandList(CommandSender sender){
+	public void commandList(CommandSender sender, int page){
 		final String listPrefix = cPrimary + " • ";
 		
-		List<String> cmds = new ArrayList<String>();
-		cmds.add(prefix + cPrimary + " Command List - <Required> [Optional]");
+		PageList<String> cmds = new PageList<String>(7);
+		String header = prefix + cPrimary + " Command List - <Required> [Optional]";
 		if(sender.hasPermission("zipextractor.admin.use")){
 			cmds.add(listPrefix + "/ZipExtractor help [cmd]" + cTrim + "- View command list or info.");
 		}
@@ -195,7 +198,17 @@ public class MessageManager {
 			cmds.add(listPrefix + "/ZipExtractor reload " + cTrim + "- Reload the config.yml.");
 		cmds.add(listPrefix + "/ZipExtractor version " + cTrim + "- View plugin version info.");
 		
-		for(String s : cmds) sender.sendMessage(s);
+		String footer = cPrimary + "Page " + ChatColor.DARK_GRAY + (page+1) + cPrimary + " of " + ChatColor.DARK_GRAY + cmds.size();
+		
+		if(page >= cmds.size() || page < 0){
+			sendError(sender, "Page does not exist");
+			return;
+		}
+		
+		sender.sendMessage(header);
+		for(String s : cmds.getPage(page))
+			sender.sendMessage(s);
+		sender.sendMessage(footer);
 	}
 	
 	public void commandInfo(CommandSender sender, String cmd){

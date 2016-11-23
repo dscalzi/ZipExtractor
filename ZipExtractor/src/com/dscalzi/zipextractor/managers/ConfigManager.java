@@ -88,6 +88,12 @@ public class ConfigManager {
 		return this.config.getBoolean("general_settings.log_files", false);
 	}
 	
+	public int getMaxQueueSize(){
+		int limit = this.config.getInt("general_settings.max_queue_size", 5);
+		if(limit < -1) limit = -1;
+		return limit;
+	}
+	
 	public double getVersion(){
 		return this.configVersion;
 	}

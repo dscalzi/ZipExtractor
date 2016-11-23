@@ -28,10 +28,10 @@ public class ZCompressor {
 		this.plugin = plugin;
 	}
 	
-	public int asyncCompress(CommandSender sender, File srcLoc, File destLoc){
+	public void asyncCompress(CommandSender sender, File srcLoc, File destLoc){
 		if(!srcLoc.exists()){
 			mm.invalidPath(sender, "source");
-			return -1;
+			return;
 		}
 		String fileExtension = plugin.getFileExtension(destLoc);
 		String properPath = destLoc.getAbsolutePath();
@@ -48,10 +48,10 @@ public class ZCompressor {
 				notify();
 			}
 		});
-		ZServicer.getInstance().submit(th);
-		
-		mm.addToQueue(sender, ZServicer.getInstance().getSize());
-		return ZServicer.getInstance().getSize();
+		if(ZServicer.getInstance().submit(th))
+			mm.addToQueue(sender, ZServicer.getInstance().getSize());
+		else
+			mm.queueFull(sender);
 	}
 	
 	private void compressToZip(CommandSender sender, File sourceFile, File destFolder){

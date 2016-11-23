@@ -42,18 +42,18 @@ public class ZExtractor {
 		this.plugin = plugin;
 	}
 	
-	public int asyncExtract(CommandSender sender, File srcLoc, File destLoc){
+	public void asyncExtract(CommandSender sender, File srcLoc, File destLoc){
 		String fileExtension = plugin.getFileExtension(srcLoc);
 		if(fileExtension.length() == 0 || !srcLoc.exists()) {
 			mm.invalidPath(sender, "source");
-			return -1;
+			return;
 		}
 		
 		try{
 			Paths.get(srcLoc.getAbsolutePath());
 		} catch(InvalidPathException e){
 			mm.invalidPath(sender, "destination");
-			return -1;
+			return;
 		}
 		
 		if(!destLoc.exists())
@@ -62,7 +62,7 @@ public class ZExtractor {
 		if(destLoc.exists()){
 			if(!destLoc.isDirectory()){
 				mm.destNotDirectory(sender);
-				return -1;
+				return;
 			}
 		}
 		
@@ -100,11 +100,11 @@ public class ZExtractor {
 			break;
 		}
 		if(valid) {
-			ZServicer.getInstance().submit(th);
-			mm.addToQueue(sender, ZServicer.getInstance().getSize());
-			return ZServicer.getInstance().getSize();
+			if(ZServicer.getInstance().submit(th))
+				mm.addToQueue(sender, ZServicer.getInstance().getSize());
+			else
+				mm.queueFull(sender);
 		}
-		return -1;
 	}
 	
 	private void extractZip(CommandSender sender, File sourceFile, File destFolder){

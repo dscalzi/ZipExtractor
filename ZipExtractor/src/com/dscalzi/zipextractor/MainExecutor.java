@@ -43,12 +43,20 @@ public class MainExecutor implements CommandExecutor{
 		}
 		
 		if(args.length > 0){
+			if(args[0].matches("(\\d+|-\\d+)")){
+				this.cmdList(sender, Integer.parseInt(args[0]));
+				return true;
+			}
 			if(args[0].equalsIgnoreCase("help")){
 				if(args.length > 1 && args[1].matches("^(?iu)(help|extract|compress|setsrc|setdest|plugindir|reload)")){
 					this.cmdMoreInfo(sender, args[1]);
 					return true;
 				}
-				this.cmdList(sender);
+				if(args.length > 1 && args[1].matches("(\\d+|-\\d+)")){
+					this.cmdList(sender, Integer.parseInt(args[1]));
+					return true;
+				}
+				this.cmdList(sender, 1);
 				return true;
 			}
 			if(args[0].equalsIgnoreCase("extract")){
@@ -81,12 +89,12 @@ public class MainExecutor implements CommandExecutor{
 			}
 		}
 		
-		this.cmdList(sender);
+		this.cmdList(sender, 1);
 		return true;
 	}
 
-	private void cmdList(CommandSender sender){
-		mm.commandList(sender);
+	private void cmdList(CommandSender sender, int page){
+		mm.commandList(sender, --page);
 	}
 	
 	private void cmdMoreInfo(CommandSender sender, String cmd){
