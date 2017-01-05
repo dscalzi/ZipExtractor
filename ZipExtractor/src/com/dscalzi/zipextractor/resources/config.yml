@@ -6,31 +6,58 @@
 #CHANGING IT COULD RESULT IN DATA LOSS.
 ConfigVersion: 1.0
 
-#--------------[General Settings]---------------
-general_settings:
-  
-  # Specify the maximum number of tasks to be queued
-  # at a time. Enter -1 for no limit. If zero is specified
-  # you can consider this plugin disabled since no tasks
-  # will be able to run!
-  max_queue_size: 5
-  
-  # Specify whether or not you want each file
-  # inside the archive to be logged to the
-  # console during extraction.
-  log_files: true
-
 #---------------[File Settings]-----------------
 # Use '/' for a file separator as shown below.
 # If your Operating System uses a different
 # character for the file seperator, that will
 # automatically be detected by the plugin and
-# it will be converted on the fly. The '/' is
+# will be converted on the fly. The '/' is for
 # for ease of storage.
+#
+# Current available shortcuts (do not include quotes):
+# '*plugindir*' - Points to this plugin's directory (../plugins/ZipExtractor)
 file_settings:
 
-  # Specify the file path of your zip file.
-  source_directory: "C:/localhost/server/MyZip.zip"
+  # Specify the file path of your soruce folder/file.
+  source_directory: "*plugindir*/MyArchive.zip"
   
-  # Specify the file path of the destination folder.
-  destination_directory: "C:/localhost/server/MyFolder"
+  # Specify the file path of the destination folder/file.
+  destination_directory: "C:/server/MyOutputFolder"
+
+#--------------[General Settings]---------------
+general_settings:
+  
+  # Specify whether or not you want each file
+  # inside the archive to be logged to the
+  # console during task execution.
+  log_files: true
+  
+  # Specify the maximum number of tasks to be queued
+  # at a time. This number must be an integer greater
+  # than zero. If this condition is not met, the limit
+  # will be set to an absurdley large number (2147483647)
+  # that will likely never be reached unless something
+  # shady is taking place on your server.
+  #
+  # **Changing this value while the server is running is
+  # not possibile, and it will require a restart to take
+  # effect.
+  max_queue_size: 3
+  
+  # Specify the maximum number of threads to be pooled in
+  # the plugin's executor service. This number must be an
+  # integer greater than zero, or else it will default to
+  # 1. IF YOU DO NOT KNOW WHAT THIS MEANS THEN YOU SHOULD
+  # NOT CHANGE THIS VALUE, AS POTENTIAL HARM COULD COME TO
+  # YOUR SERVER (this is on the bottom for a reason).
+  #
+  # For your own safety the core pool size is hard set at 1.
+  # If you're an advanced user and you want this value to be
+  # configurable, contact the author or manager of this plugin.
+  #
+  # The recommended value for this is 1 unless you are
+  # willing to put your server through some serious work when
+  # queues get large. Updating this value to a smaller number
+  # than the previous one while the server is running will
+  # terminate excess threads once they become idle.
+  maximum_thread_pool: 1

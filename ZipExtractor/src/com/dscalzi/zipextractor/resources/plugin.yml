@@ -21,6 +21,10 @@ permissions:
         description: Allow usage of /ZipExtractor setdest
     zipextractor.admin.plugindir:
         description: Allow usage of /ZipExtractor plugindir
+    zipextractor.admin.terminate:
+        description: Allow usage of /ZipExtractor terminate
+    zipextractor.admin.forceterminate:
+        description: Allow usage of /ZipExtractor forceterminate
     zipextractor.admin.reload:
         description: Allow usage of /ZipExtractor reload
     zipextractor.admin.*:
@@ -33,4 +37,6 @@ permissions:
           zipextractor.admin.setsrc: true
           zipextractor.admin.setdest: true
           zipextractor.admin.plugindir: true
+          zipextractor.admin.terminate: true
+          zipextractor.admin.forceterminate: true
           zipextractor.admin.reload: true

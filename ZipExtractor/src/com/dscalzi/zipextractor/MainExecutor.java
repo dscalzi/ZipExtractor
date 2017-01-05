@@ -1,6 +1,8 @@
 package com.dscalzi.zipextractor;
 
 import java.io.File;
+import java.util.logging.Level;
+
 import org.bukkit.command.BlockCommandSender;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -10,6 +12,7 @@ import com.dscalzi.zipextractor.managers.ConfigManager;
 import com.dscalzi.zipextractor.managers.MessageManager;
 import com.dscalzi.zipextractor.util.ZCompressor;
 import com.dscalzi.zipextractor.util.ZExtractor;
+import com.dscalzi.zipextractor.util.ZServicer;
 
 public class MainExecutor implements CommandExecutor{
 
@@ -48,7 +51,7 @@ public class MainExecutor implements CommandExecutor{
 				return true;
 			}
 			if(args[0].equalsIgnoreCase("help")){
-				if(args.length > 1 && args[1].matches("^(?iu)(help|extract|compress|setsrc|setdest|plugindir|reload)")){
+				if(args.length > 1 && args[1].matches("^(?iu)(help|extract|compress|setsrc|setdest|plugindir|terminate|forceterminate|reload)")){
 					this.cmdMoreInfo(sender, args[1]);
 					return true;
 				}
@@ -77,6 +80,14 @@ public class MainExecutor implements CommandExecutor{
 			}
 			if(args[0].equalsIgnoreCase("plugindir")){
 				this.cmdPluginDir(sender);
+				return true;
+			}
+			if(args[0].equalsIgnoreCase("terminate")){
+				this.cmdTerminate(sender, false);
+				return true;
+			}
+			if(args[0].equalsIgnoreCase("forceterminate")){
+				this.cmdTerminate(sender, true);
 				return true;
 			}
 			if(args[0].equalsIgnoreCase("reload")){
@@ -159,10 +170,36 @@ public class MainExecutor implements CommandExecutor{
 			mm.noPermission(sender);
 			return;
 		}
-		if(ConfigManager.reload())
-			mm.reloadSuccess(sender);
-		else
+		try{
+			if(ConfigManager.reload()){
+				ZServicer.getInstance().setMaximumPoolSize(ConfigManager.getInstance().getMaxPoolSize());
+				mm.reloadSuccess(sender);
+			}else
+				mm.reloadFailed(sender);
+		} catch (Throwable e){
 			mm.reloadFailed(sender);
+			mm.getLogger().log(Level.SEVERE, "Error while reloading the plugin", e);
+			e.printStackTrace();
+		}
+	}
+	
+	private void cmdTerminate(CommandSender sender, boolean force){
+		if(!sender.hasPermission(force ? "zipextractor.admin.forceterminate" : "zipextractor.admin.terminate")){
+			mm.noPermission(sender);
+			return;
+		}
+		ZServicer e = ZServicer.getInstance();
+		if(e.isTerminated()){
+			mm.alreadyTerminated(sender);
+			return;
+		}
+		if(e.isTerminating()){
+			mm.alreadyTerminating(sender);
+			return;
+		}
+		e.terminate(force, false);
+		if(force) mm.terminatingForcibly(sender);
+		else mm.terminating(sender);
 	}
 	
 	private void cmdVersion(CommandSender sender){

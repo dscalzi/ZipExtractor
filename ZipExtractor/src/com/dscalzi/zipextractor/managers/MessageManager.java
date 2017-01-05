@@ -1,5 +1,6 @@
 package com.dscalzi.zipextractor.managers;
 
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.bukkit.ChatColor;
@@ -139,6 +140,32 @@ public class MessageManager {
 		sendError(sender, "Unable to add your task to the queue, the limit of " + ConfigManager.getInstance().getMaxQueueSize() + " has been reached.");
 	}
 	
+	public void executorTerminated(CommandSender sender, ZTask task){
+		sendError(sender, "The execution servicer has been shutdown and therefore rejected your " + task.getProcessName() + " request.");
+	}
+	
+	public void alreadyTerminated(CommandSender sender){
+		sendError(sender, "The execution servicer has already been shutdown. This cannot be repeated or undone.");
+	}
+	
+	public void alreadyTerminating(CommandSender sender){
+		sendError(sender, "The execution servicer is currently shutting down, no further requests can be made.");
+	}
+	
+	public void terminating(CommandSender sender){
+		sendSuccess(sender, "Execution servicer is being shutdown. All queued tasks will be completed, although no further tasks will be accepted.");
+	}
+	
+	public void terminatingForcibly(CommandSender sender){
+		sendSuccess(sender, "Forcibly shutting down the execution servicer. All running and queued tasks will be interrupted and terminated.");
+	}
+	
+	public void taskInterruption(CommandSender sender, ZTask task){
+		if(!(sender instanceof ConsoleCommandSender))
+			sendError(sender, "Channel closed during " + task.getProcessName() + ", unable to continue. This is most likely due to a forced termination of the execution servicer.");
+		logger.log(Level.WARNING, "Channel closed during " + task.getProcessName() + ", unable to continue. This is most likely due to a forced termination of the execution servicer.");
+	}
+	
 	public void startingProcess(CommandSender sender, ZTask task, String fileName){
 		if(!(sender instanceof ConsoleCommandSender)){
 			sendSuccess(sender, "Starting " + task.getProcessName() + " of '" + fileName + "'.. See the console for more details.");
@@ -194,6 +221,10 @@ public class MessageManager {
 			cmds.add(listPrefix + "/ZipExtractor setdest <path> " + cTrim + "- Set the destination's filepath.");
 		if(sender.hasPermission("zipextractor.admin.plugindir"))
 			cmds.add(listPrefix + "/ZipExtractor plugindir " + cTrim + "- Get the plugin's full filepath.");
+		if(sender.hasPermission("zipextractor.admin.terminate"))
+			cmds.add(listPrefix + "/ZipExtractor terminate " + cTrim + "- Shutdown the plugin's executor and allow all outstanding tasks to complete.");
+		if(sender.hasPermission("zipextractor.admin.forceterminate"))
+			cmds.add(listPrefix + "/ZipExtractor forceterinate " + cTrim + "- Immediately shutdown the plugin's executor and terminate all outstanding tasks.");
 		if(sender.hasPermission("zipextractor.admin.reload"))
 			cmds.add(listPrefix + "/ZipExtractor reload " + cTrim + "- Reload the config.yml.");
 		cmds.add(listPrefix + "/ZipExtractor version " + cTrim + "- View plugin version info.");
@@ -258,6 +289,22 @@ public class MessageManager {
 				return;
 			}
 			sendMessage(sender, cPrimary + "This command will tell you the full path of your minecraft server's plugin directory.");
+			return;
+		}
+		if(cmd.equalsIgnoreCase("terminate")){
+			if(!sender.hasPermission("zipextractor.admin.terminate")){
+				noInfoPermission(sender);
+				return;
+			}
+			sendMessage(sender, cPrimary + "This command will initiate the shutdown proccess for the plugin's execution servicer. Any queued tasks at the time of shutdown will be allowed to finish. It is recommended not to shutdown or restart the server until this has finished.");
+			return;
+		}
+		if(cmd.equalsIgnoreCase("forceterminate")){
+			if(!sender.hasPermission("zipextractor.admin.forceterminate")){
+				noInfoPermission(sender);
+				return;
+			}
+			sendMessage(sender, cPrimary + "This command will forcibly shutdown the plugin's execution servicer and send a request to interrupt and terminate any queued and proccessing tasks. This could potentially be messy under the hood.");
 			return;
 		}
 		if(cmd.equalsIgnoreCase("reload")){

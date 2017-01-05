@@ -1,7 +1,8 @@
 package com.dscalzi.zipextractor.util;
 
 import java.io.File;
-import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.channels.ClosedByInterruptException;
 import java.nio.file.AccessDeniedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -42,30 +43,41 @@ public class ZCompressor {
 		
 		File dF = new File(properPath);
 		
-		Thread th = new Thread(() -> {
+		Runnable task = () -> {
 			compressToZip(sender, srcLoc, dF);
 			synchronized(this){
 				notify();
 			}
-		});
-		if(ZServicer.getInstance().submit(th))
+		};
+		int result = ZServicer.getInstance().submit(task);
+		if(result == 0)
 			mm.addToQueue(sender, ZServicer.getInstance().getSize());
-		else
+		else if(result == 1)
 			mm.queueFull(sender);
+		else if(result == 2)
+			mm.executorTerminated(sender, ZTask.COMPRESS);
 	}
 	
 	private void compressToZip(CommandSender sender, File sourceFile, File destFolder){
 		Logger logger = mm.getLogger();
 		boolean log = cm.getLoggingProperty();
 		mm.startingProcess(sender, ZTask.COMPRESS, sourceFile.getName());
-		try {
-			ZipOutputStream zs = new ZipOutputStream(Files.newOutputStream(destFolder.toPath()));
+		try(OutputStream os = Files.newOutputStream(destFolder.toPath());
+			ZipOutputStream zs = new ZipOutputStream(os);){
 	        Path pp = sourceFile.toPath();
 	        Files.walk(pp)
 	          .filter(path -> !Files.isDirectory(path))
 	          .forEach(path -> {
-	        	  String sp = path.toAbsolutePath().toString().replace(pp.toAbsolutePath().toString(), "").substring(1);
-	              ZipEntry zipEntry = new ZipEntry(pp.getFileName() + File.separator + sp);
+	        	  if (Thread.interrupted()) {
+	        		  throw new RuntimeException();
+	        	  }
+	        	  //Prevent recursive compressions
+	        	  if(path.equals(destFolder.toPath()))
+	        		  return;
+	        	  String sp = path.toAbsolutePath().toString().replace(pp.toAbsolutePath().toString(), "");
+	        	  if(sp.length() > 0)
+	        		  sp = sp.substring(1);
+	              ZipEntry zipEntry = new ZipEntry(pp.getFileName() + ((sp.length() > 0) ? (File.separator + sp) : ""));
 	              try {
 	            	  if(log)
 	            		  logger.info("Compressing : "+ zipEntry.toString());
@@ -76,11 +88,12 @@ public class ZCompressor {
 	            	  e.printStackTrace();
 	              }
 	          });
-	        zs.close();
 	        mm.compressionComplete(sender, destFolder.getAbsolutePath());
 	    } catch (AccessDeniedException e) {
 	    	mm.fileAccessDenied(sender, ZTask.COMPRESS, e.getMessage());
-	    } catch (IOException e) {
+	    } catch (ClosedByInterruptException | RuntimeException e) {
+	    	mm.taskInterruption(sender, ZTask.COMPRESS);
+	    } catch (Throwable e) {
 			e.printStackTrace();
 		}
 	}

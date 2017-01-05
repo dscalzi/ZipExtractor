@@ -89,9 +89,14 @@ public class ConfigManager {
 	}
 	
 	public int getMaxQueueSize(){
-		int limit = this.config.getInt("general_settings.max_queue_size", 5);
-		if(limit < -1) limit = -1;
-		return limit;
+		int limit = this.config.getInt("general_settings.max_queue_size", 3);
+		return limit > 0 ? limit : Integer.MAX_VALUE;
+	}
+	
+	public int getMaxPoolSize(){
+		int limit = this.config.getInt("general_settings.maximum_thread_pool", 1);
+		if(limit < 1) limit = 1;
+		return limit > 0 ? limit : 1;
 	}
 	
 	public double getVersion(){

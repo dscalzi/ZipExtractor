@@ -14,16 +14,16 @@ public class ZipExtractor extends JavaPlugin{
 
     @Override
     public void onEnable(){
-    	ZServicer.initalize();
     	ConfigManager.initialize(this);
     	MessageManager.initialize(this);
+    	ZServicer.initalize(ConfigManager.getInstance().getMaxQueueSize(), ConfigManager.getInstance().getMaxPoolSize());
     	logMetrics();
     	this.getCommand("zipextractor").setExecutor(new MainExecutor(this));
     }
     
     @Override
     public void onDisable(){
-    	
+    	ZServicer.getInstance().terminate(false, true);
     }
     
     private void logMetrics(){
