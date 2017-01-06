@@ -1,6 +1,10 @@
 package com.dscalzi.zipextractor.util;
 
+import java.util.Collection;
+import java.util.LinkedList;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -15,6 +19,8 @@ public class ZServicer {
 	
 	private ThreadPoolExecutor executor;
 	private ArrayBlockingQueue<Runnable> queue;
+	
+	private Collection<Future<?>> futures = new LinkedList<Future<?>>();
 	
 	private ZServicer(int maxQueueSize, int maxPoolSize){
 		this.queue = new ArrayBlockingQueue<Runnable>(maxQueueSize);
@@ -43,7 +49,7 @@ public class ZServicer {
 	 */
 	public int submit(Runnable task){
 		try{
-			executor.submit(task);
+			futures.add(executor.submit(task));
 		} catch (RejectedExecutionException e){
 			return executor.isShutdown() ? 2 : 1;
 		}
@@ -68,17 +74,26 @@ public class ZServicer {
 	}
 	
 	public void terminate(boolean force, boolean wait){
+		if(isTerminated() || isTerminating()) return;
 		try {
 			if(force){
 				MessageManager.getInstance().getLogger().info("Forcing executor service to shutdown. This could be messy if there are outstanding tasks.");
 				executor.shutdownNow();
+			} else {
+				executor.shutdown();
+				if((executor.getActiveCount() > 0 || executor.getQueue().size() > 0) && wait){
+					String info = "Waiting for any outstanding tasks to finish" + ((executor.getActiveCount() > 0) ? " | Active : " + executor.getActiveCount() : "") + ((executor.getQueue().size() > 0) ? " | Queued : " + executor.getQueue().size() : "") + ".";
+					MessageManager.getInstance().getLogger().info(info);
+					MessageManager.getInstance().sendGlobal(info, "zipextractor.harmless.notify");
+					for (Future<?> future : futures) {
+						if(future.isDone()) continue;
+					    future.get();
+					}
+					MessageManager.getInstance().sendGlobal("All tasks have been completed.", "zipextractor.harmless.notify");
+					MessageManager.getInstance().getLogger().info("All tasks have been completed.");
+				}
 			}
-			executor.shutdown();
-			if(wait){
-				MessageManager.getInstance().getLogger().info("Waiting a maximum of 15 seconds for any outstanding task to finish.");
-				executor.awaitTermination(15, TimeUnit.SECONDS);
-			}
-		} catch (InterruptedException e) {
+		} catch (InterruptedException | ExecutionException e) {
 			MessageManager.getInstance().getLogger().log(Level.SEVERE, "Executor servive termination has been interrupted.", e);
 		}
 	}

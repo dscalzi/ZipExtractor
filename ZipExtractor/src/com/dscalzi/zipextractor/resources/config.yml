@@ -27,10 +27,19 @@ file_settings:
 #--------------[General Settings]---------------
 general_settings:
   
-  # Specify whether or not you want each file
-  # inside the archive to be logged to the
+  # Specify whether or not the plugin should
+  # log each file inside the archive to the
   # console during task execution.
   log_files: true
+  
+  # Specify whether or not the plugin should wait
+  # for outstanding tasks to be completed before 
+  # the server shuts down. If false, any outstanding
+  # tasks will be interrupted and terminated.
+  #
+  # It's generally a good idea to not shut down the
+  # server while tasks are running or queued.
+  wait_on_shutdown: true
   
   # Specify the maximum number of tasks to be queued
   # at a time. This number must be an integer greater

@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InterruptedIOException;
 import java.nio.file.AccessDeniedException;
 import java.nio.file.DirectoryNotEmptyException;
 import java.nio.file.Files;
@@ -120,6 +121,9 @@ public class ZExtractor {
 			ZipEntry ze = zis.getNextEntry();
 	    	
 	    	while(ze!=null){
+	    		if (Thread.interrupted())
+	        		  throw new TaskInterruptedException();
+	    		
 	    		String fileName = ze.getName();
 	    		File newFile = new File(destFolder + File.separator + fileName);
 	    		if(log)
@@ -145,6 +149,8 @@ public class ZExtractor {
 	    	mm.extractionComplete(sender, destFolder.getAbsolutePath());
 	    } catch (AccessDeniedException e) {
 	    	mm.fileAccessDenied(sender, ZTask.EXTRACT, e.getMessage());
+	    } catch (TaskInterruptedException e) {
+	    	mm.taskInterruption(sender, ZTask.EXTRACT);
 	    } catch(IOException ex){
 	    	ex.printStackTrace();
 	    }
@@ -154,9 +160,11 @@ public class ZExtractor {
 		Logger logger = mm.getLogger();
 		boolean log = cm.getLoggingProperty();
 		mm.startingProcess(sender, ZTask.EXTRACT, sourceFile.getName());
-		try(JarFile jar = new JarFile(sourceFile)){			
+		try(JarFile jar = new JarFile(sourceFile)){
 			Enumeration<JarEntry> enumEntries = jar.entries();
 			while (enumEntries.hasMoreElements()) {
+				if (Thread.interrupted())
+	        		  throw new TaskInterruptedException();
 			    JarEntry file = enumEntries.nextElement();
 			    File f = new File(destFolder + File.separator + file.getName());
 			    if(log)
@@ -173,6 +181,8 @@ public class ZExtractor {
 			mm.extractionComplete(sender, destFolder.getAbsolutePath());
 		} catch (AccessDeniedException e) {
 	    	mm.fileAccessDenied(sender, ZTask.EXTRACT, e.getMessage());
+	    } catch (TaskInterruptedException e) {
+	    	mm.taskInterruption(sender, ZTask.EXTRACT);
 	    } catch (IOException e){
 			e.printStackTrace();
 		}
@@ -186,6 +196,8 @@ public class ZExtractor {
 				FileHeader fh = a.nextFileHeader();
 				mm.startingProcess(sender, ZTask.EXTRACT, sourceFile.getName());
 				while (fh != null) {
+					if (Thread.interrupted())
+		        		  throw new TaskInterruptedException();
 					try(InputStream is = a.getInputStream(fh)){
 						Path p = Paths.get(destFolder + File.separator + fh.getFileNameString()); 
 						File parent = p.toFile().getParentFile();
@@ -202,13 +214,18 @@ public class ZExtractor {
 						}
 					} catch (AccessDeniedException e) {
 				    	mm.fileAccessDenied(sender, ZTask.EXTRACT, e.getMessage());
+				    } catch (InterruptedIOException e){
+				    	throw new TaskInterruptedException();
 				    } catch (RarException | IOException e) {
 						e.printStackTrace();
 					}
 					fh = a.nextFileHeader();
 				}
 			} 
-		} catch (RarException | IOException e) {
+		} catch (TaskInterruptedException e) {
+	    	mm.taskInterruption(sender, ZTask.EXTRACT);
+	    	return;
+	    } catch (RarException | IOException e) {
 			e.printStackTrace();
 		}
 		mm.extractionComplete(sender, destFolder.getAbsolutePath());

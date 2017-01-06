@@ -6,6 +6,7 @@ import java.util.logging.Logger;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
+import org.bukkit.entity.Player;
 
 import com.dscalzi.zipextractor.ZipExtractor;
 import com.dscalzi.zipextractor.util.PageList;
@@ -28,7 +29,7 @@ public class MessageManager {
 		this.plugin = plugin;
 		this.logger = plugin.getLogger();
 		this.cPrimary = ChatColor.DARK_AQUA;
-		this.cTrim = ChatColor.WHITE;
+		this.cTrim = ChatColor.GRAY;
 		this.cSuccess = ChatColor.GREEN;
 		this.cError = ChatColor.RED;
 		this.prefix = cPrimary + "[" + cTrim + "ZipExtractor" + cPrimary + "]" + ChatColor.RESET;
@@ -59,6 +60,14 @@ public class MessageManager {
 	
 	public void sendError(CommandSender sender, String message){
 		sender.sendMessage(prefix + cError + " " + message);
+	}
+	
+	public void sendGlobal(String message, String permission){
+		for(Player p : plugin.getServer().getOnlinePlayers()){
+			if(p.hasPermission(permission)){
+				sendMessage(p, message);
+			}
+		}
 	}
 	
 	/* Accessors */
@@ -109,11 +118,15 @@ public class MessageManager {
 	}
 	
 	public void destNotDirectory(CommandSender sender){
-		sendError(sender, "The destination you've selected is not a directory, aborting.");
+		sendError(sender, "The destination path specified is not a directory, aborting.");
 	}
 	
 	public void invalidPath(CommandSender sender, String action){
-		sendError(sender, "The " + action + " file path you've selected is not valid, aborting.");
+		sendError(sender, "The " + action + " file path specified is not valid, aborting.");
+	}
+	
+	public void sourceNotFound(CommandSender sender){
+		sendError(sender, "The source path specified could not be found, aborting.");
 	}
 	
 	public void fileAccessDenied(CommandSender sender, ZTask t, String path){
@@ -141,7 +154,7 @@ public class MessageManager {
 	}
 	
 	public void executorTerminated(CommandSender sender, ZTask task){
-		sendError(sender, "The execution servicer has been shutdown and therefore rejected your " + task.getProcessName() + " request.");
+		sendError(sender, "The execution servicer has been shutdown and has therefore rejected your " + task.getProcessName() + " request.");
 	}
 	
 	public void alreadyTerminated(CommandSender sender){
@@ -256,7 +269,7 @@ public class MessageManager {
 				noInfoPermission(sender);
 				return;
 			}
-			sendMessage(sender, cPrimary + "This command will extract the archive you specified in the config.yml. That value can be edited directly in the file or via the command /ZipExtractor setsrc <File Path>. The zip contents will be copied into the folder specified in the config.yml. That value can be edited directly in the file or via the command /ZipExtractor setdest <File Path>.");
+			sendMessage(sender, cPrimary + "This command will extract the archive specified in the config.yml. That value can be edited directly in the file or via the command /ZipExtractor setsrc <File Path>. The zip contents will be extracted to the destination folder specified in the config.yml. That value can be edited directly in the file or via the command /ZipExtractor setdest <File Path>.");
 			return;
 		}
 		if(cmd.equalsIgnoreCase("compress")){
@@ -264,7 +277,7 @@ public class MessageManager {
 				noInfoPermission(sender);
 				return;
 			}
-			sendMessage(sender, cPrimary + "This command will compress the folder you specified in the config.yml. That value can be edited directly in the file or via the command /ZipExtractor setsrc <File Path>. The folder contents will be compressed into the archive at the location specified specified in the config.yml. That value can be edited directly in the file or via the command /ZipExtractor setdest <File Path>.");
+			sendMessage(sender, cPrimary + "This command will compress the folder specified in the config.yml. That value can be edited directly in the file or via the command /ZipExtractor setsrc <File Path>. The contents will be compressed into a new archive at the location specified specified in the config.yml. That value can be edited directly in the file or via the command /ZipExtractor setdest <File Path>.");
 			return;
 		}
 		if(cmd.equalsIgnoreCase("setsrc")){
@@ -288,7 +301,7 @@ public class MessageManager {
 				noInfoPermission(sender);
 				return;
 			}
-			sendMessage(sender, cPrimary + "This command will tell you the full path of your minecraft server's plugin directory.");
+			sendMessage(sender, cPrimary + "This command will tell you the full path of this plugin's data folder on your server. It can be easily accessed using the shortcut *plugindir*.");
 			return;
 		}
 		if(cmd.equalsIgnoreCase("terminate")){
@@ -304,7 +317,7 @@ public class MessageManager {
 				noInfoPermission(sender);
 				return;
 			}
-			sendMessage(sender, cPrimary + "This command will forcibly shutdown the plugin's execution servicer and send a request to interrupt and terminate any queued and proccessing tasks. This could potentially be messy under the hood.");
+			sendMessage(sender, cPrimary + "This command will forcibly shutdown the plugin's execution servicer and send a request to interrupt and terminate any queued and proccessing tasks. This type of termination is not recommended.");
 			return;
 		}
 		if(cmd.equalsIgnoreCase("reload")){

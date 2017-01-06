@@ -9,6 +9,8 @@ commands:
         usage: /ZipExtractor
         aliases: [ze]
 permissions:
+    zipextractor.harmless.notify:
+        description: User will be notified if the plugin broadcasts a message.
     zipextractor.admin.use:
         description: Allow usage of /ZipExtractor
     zipextractor.admin.extract:
@@ -31,6 +33,7 @@ permissions:
         default: OP
         description: Access to administrator commands.
         children:
+          zipextractor.harmless.notify: true
           zipextractor.admin.use: true
           zipextractor.admin.extract: true
           zipextractor.admin.compress: true

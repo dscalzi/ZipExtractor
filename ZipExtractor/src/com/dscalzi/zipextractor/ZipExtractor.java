@@ -23,7 +23,8 @@ public class ZipExtractor extends JavaPlugin{
     
     @Override
     public void onDisable(){
-    	ZServicer.getInstance().terminate(false, true);
+    	boolean wait = ConfigManager.getInstance().waitForTasksOnShutdown();
+    	ZServicer.getInstance().terminate(!wait, wait);
     }
     
     private void logMetrics(){

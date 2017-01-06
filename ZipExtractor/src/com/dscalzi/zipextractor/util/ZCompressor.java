@@ -2,7 +2,6 @@ package com.dscalzi.zipextractor.util;
 
 import java.io.File;
 import java.io.OutputStream;
-import java.nio.channels.ClosedByInterruptException;
 import java.nio.file.AccessDeniedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -68,9 +67,8 @@ public class ZCompressor {
 	        Files.walk(pp)
 	          .filter(path -> !Files.isDirectory(path))
 	          .forEach(path -> {
-	        	  if (Thread.interrupted()) {
-	        		  throw new RuntimeException();
-	        	  }
+	        	  if (Thread.interrupted())
+	        		  throw new TaskInterruptedException();
 	        	  //Prevent recursive compressions
 	        	  if(path.equals(destFolder.toPath()))
 	        		  return;
@@ -91,7 +89,7 @@ public class ZCompressor {
 	        mm.compressionComplete(sender, destFolder.getAbsolutePath());
 	    } catch (AccessDeniedException e) {
 	    	mm.fileAccessDenied(sender, ZTask.COMPRESS, e.getMessage());
-	    } catch (ClosedByInterruptException | RuntimeException e) {
+	    } catch (TaskInterruptedException e) {
 	    	mm.taskInterruption(sender, ZTask.COMPRESS);
 	    } catch (Throwable e) {
 			e.printStackTrace();

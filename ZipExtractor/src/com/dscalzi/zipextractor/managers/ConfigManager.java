@@ -88,6 +88,10 @@ public class ConfigManager {
 		return this.config.getBoolean("general_settings.log_files", false);
 	}
 	
+	public boolean waitForTasksOnShutdown(){
+		return this.config.getBoolean("general_settings.wait_on_shutdown", true);
+	}
+	
 	public int getMaxQueueSize(){
 		int limit = this.config.getInt("general_settings.max_queue_size", 3);
 		return limit > 0 ? limit : Integer.MAX_VALUE;
