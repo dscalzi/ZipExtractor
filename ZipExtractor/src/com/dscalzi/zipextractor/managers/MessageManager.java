@@ -28,11 +28,11 @@ public class MessageManager {
 	private MessageManager(ZipExtractor plugin){
 		this.plugin = plugin;
 		this.logger = plugin.getLogger();
-		this.cPrimary = ChatColor.DARK_AQUA;
-		this.cTrim = ChatColor.GRAY;
+		this.cPrimary = ChatColor.GRAY;
+		this.cTrim = ChatColor.DARK_AQUA;
 		this.cSuccess = ChatColor.GREEN;
 		this.cError = ChatColor.RED;
-		this.prefix = cPrimary + "[" + cTrim + "ZipExtractor" + cPrimary + "]" + ChatColor.RESET;
+		this.prefix = cPrimary + "| " + cTrim + "ZipExtractor" + cPrimary + " |" + ChatColor.RESET;
 		
 		this.plugin.getLogger().info(plugin.getDescription().getName() + " is loading.");
 	}

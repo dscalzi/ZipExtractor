@@ -17,7 +17,7 @@ public class PageList<T> implements Iterable<List<T>>{
 	}
 	
 	public PageList(List<T> list){
-		this(GLOBAL_DEFAULT_PAGE_SIZE);
+		this(GLOBAL_DEFAULT_PAGE_SIZE, list);
 	}
 	
 	public PageList(int pageSize){
