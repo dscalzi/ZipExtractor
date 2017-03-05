@@ -1,10 +1,7 @@
 package com.dscalzi.zipextractor;
 
 import java.io.File;
-import java.io.IOException;
-
 import org.bukkit.plugin.java.JavaPlugin;
-import org.mcstats.Metrics;
 
 import com.dscalzi.zipextractor.managers.ConfigManager;
 import com.dscalzi.zipextractor.managers.MessageManager;
@@ -17,7 +14,6 @@ public class ZipExtractor extends JavaPlugin{
     	ConfigManager.initialize(this);
     	MessageManager.initialize(this);
     	ZServicer.initalize(ConfigManager.getInstance().getMaxQueueSize(), ConfigManager.getInstance().getMaxPoolSize());
-    	logMetrics();
     	this.getCommand("zipextractor").setExecutor(new MainExecutor(this));
     }
     
@@ -25,15 +21,6 @@ public class ZipExtractor extends JavaPlugin{
     public void onDisable(){
     	boolean wait = ConfigManager.getInstance().waitForTasksOnShutdown();
     	ZServicer.getInstance().terminate(!wait, wait);
-    }
-    
-    private void logMetrics(){
-    	try {
-            Metrics metrics = new Metrics(this);
-            metrics.start();
-        } catch (IOException e) {
-            getLogger().severe("Unable to connect to MCStats.org, ");
-        }
     }
     
     public String formatPath(String path, boolean forStorage){
