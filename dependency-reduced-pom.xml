@@ -57,20 +57,6 @@
                   </includes>
                 </filter>
               </filters>
-              <relocations>
-                <relocation>
-                  <pattern>com.github.junrar</pattern>
-                  <shadedPattern>lib.junrar</shadedPattern>
-                </relocation>
-                <relocation>
-                  <pattern>org.apache.commons</pattern>
-                  <shadedPattern>lib.apache.commons</shadedPattern>
-                </relocation>
-                <relocation>
-                  <pattern>org.mcstats</pattern>
-                  <shadedPattern>lib.mcstats</shadedPattern>
-                </relocation>
-              </relocations>
             </configuration>
           </execution>
         </executions>
@@ -81,10 +67,6 @@
     <repository>
       <id>spigot-repo</id>
       <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
-    </repository>
-    <repository>
-      <id>Plugin Metrics</id>
-      <url>http://repo.mcstats.org/content/repositories/public</url>
     </repository>
   </repositories>
   <dependencies>
