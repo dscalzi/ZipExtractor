@@ -5,15 +5,25 @@
   <version>AvSoft 1.0</version>
   <name>Zip Extractor</name>
   <description>Utility plugin that will unzip the files you specify.</description>
+  
+  <developers>
+    <developer>
+    	<name>Daniel Scalzi (TheKraken7)</name>
+    	<roles>
+    	  <role>Project Lead</role>
+    	</roles>
+    </developer>
+  </developers>
+  
   <build>
-    <sourceDirectory>src</sourceDirectory>
 	<defaultGoal>package</defaultGoal>
 	<finalName>ZipExtractor</finalName>
+	<sourceDirectory>src</sourceDirectory>
 	<resources>
-            <resource>
-                <targetPath>.</targetPath>
-                <directory>${basedir}/src/com/dscalzi/zipextractor/resources/</directory>
-            </resource>
+      <resource>
+      	  <targetPath>.</targetPath>
+      	  <directory>${basedir}/src/com/dscalzi/zipextractor/resources/</directory>
+      </resource>
     </resources>
     <plugins>
       <plugin>
@@ -24,6 +34,7 @@
           <target>1.8</target>
         </configuration>
       </plugin>
+      
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-shade-plugin</artifactId>
@@ -37,6 +48,12 @@
             <configuration>
               <minimizeJar>true</minimizeJar>
               <finalName>ZipExtractor</finalName>
+              <relocations>
+              	<relocation>
+              		<pattern>org.bstats</pattern>
+              		<shadedPattern>lib.org.bstats</shadedPattern>
+              	</relocation>
+              </relocations>
               <filters>
                 <filter>
                   <artifact>com.github.junrar:junrar</artifact>
@@ -50,12 +67,6 @@
                     <include>org/apache/commons/logging/**</include>
                   </includes> 
                 </filter>
-                <filter>
-                  <artifact>org.mcstats.bukkit:metrics</artifact>
-                  <includes>
-                     <include>org/mcstats/**</include>
-                  </includes> 
-                </filter>
               </filters>
             </configuration>
           </execution>
@@ -63,19 +74,30 @@
       </plugin>
     </plugins>
   </build>
+  
   <repositories>
     <repository>
         <id>spigot-repo</id>
         <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
     </repository>
+    <repository>
+  		<id>bstats-repo</id>
+  		<url>http://repo.bstats.org/content/repositories/releases/</url>
+	</repository>
   </repositories>
+  
   <dependencies>
   	<dependency>
            <groupId>org.spigotmc</groupId>
            <artifactId>spigot-api</artifactId>
-           <version>1.11-R0.1-SNAPSHOT</version>
+           <version>1.11.2-R0.1-SNAPSHOT</version>
            <scope>provided</scope>
     </dependency>
+    <dependency>
+  		<groupId>org.bstats</groupId>
+ 		<artifactId>bstats-bukkit</artifactId>
+  		<version>1.1</version>
+	</dependency>
     <!-- https://mvnrepository.com/artifact/com.github.junrar/junrar -->
     <dependency>
     	<groupId>com.github.junrar</groupId>
