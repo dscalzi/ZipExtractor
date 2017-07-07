@@ -6,7 +6,9 @@
 package com.dscalzi.zipextractor;
 
 import java.io.File;
+import java.util.Optional;
 import java.util.logging.Level;
+import java.util.regex.Pattern;
 
 import org.bukkit.command.BlockCommandSender;
 import org.bukkit.command.Command;
@@ -15,12 +17,16 @@ import org.bukkit.command.CommandSender;
 
 import com.dscalzi.zipextractor.managers.ConfigManager;
 import com.dscalzi.zipextractor.managers.MessageManager;
+import com.dscalzi.zipextractor.util.PathUtils;
 import com.dscalzi.zipextractor.util.ZCompressor;
 import com.dscalzi.zipextractor.util.ZExtractor;
 import com.dscalzi.zipextractor.util.ZServicer;
 
 public class MainExecutor implements CommandExecutor{
 
+	public static final Pattern COMMANDS = Pattern.compile("^(?iu)(help|extract|compress|src|dest|setsrc|setdest|plugindir|terminate|forceterminate|reload)");
+	public static final Pattern INTEGERS = Pattern.compile("(\\\\d+|-\\\\d+)");
+	
 	private final MessageManager mm;
 	private final ConfigManager cm;
 	
@@ -56,11 +62,11 @@ public class MainExecutor implements CommandExecutor{
 				return true;
 			}
 			if(args[0].equalsIgnoreCase("help")){
-				if(args.length > 1 && args[1].matches("^(?iu)(help|extract|compress|setsrc|setdest|plugindir|terminate|forceterminate|reload)")){
+				if(args.length > 1 && COMMANDS.matcher(args[1]).matches()){
 					this.cmdMoreInfo(sender, args[1]);
 					return true;
 				}
-				if(args.length > 1 && args[1].matches("(\\d+|-\\d+)")){
+				if(args.length > 1 && INTEGERS.matcher(args[1]).matches()){
 					this.cmdList(sender, Integer.parseInt(args[1]));
 					return true;
 				}
@@ -74,6 +80,14 @@ public class MainExecutor implements CommandExecutor{
 			if(args[0].equalsIgnoreCase("compress")){
 				this.cmdCompress(sender);
 			    return true;
+			}
+			if(args[0].equalsIgnoreCase("src")){
+				this.cmdSrc(sender, args);
+				return true;
+			}
+			if(args[0].equalsIgnoreCase("dest")){
+				this.cmdDest(sender, args);
+				return true;
 			}
 			if(args[0].equalsIgnoreCase("setsrc")){
 				this.cmdSetSrc(sender, args);
@@ -123,8 +137,19 @@ public class MainExecutor implements CommandExecutor{
 			return;
 		}
 		
-		ZExtractor ze = new ZExtractor(plugin);
-		ze.asyncExtract(sender, new File(plugin.formatPath(cm.getSourcePath(), false)), new File(plugin.formatPath(cm.getDestPath(), false)));
+		Optional<File> srcOpt = cm.getSourceFile();
+		Optional<File> destOpt = cm.getDestFile();
+		if(!srcOpt.isPresent()) {
+			mm.invalidPath(sender, cm.getSourceRaw(), "source");
+			return;
+		}
+		if(!destOpt.isPresent()) {
+			mm.invalidPath(sender, cm.getDestRaw(), "destination");
+			return;
+		}
+		
+		ZExtractor ze = new ZExtractor();
+		ze.asyncExtract(sender, srcOpt.get(), destOpt.get());
 	}
 	
 	private void cmdCompress(CommandSender sender){
@@ -133,9 +158,54 @@ public class MainExecutor implements CommandExecutor{
 			return;
 		}
 		
-		ZCompressor zc = new ZCompressor(plugin);
-		zc.asyncCompress(sender, new File(plugin.formatPath(cm.getSourcePath(), false)), new File(plugin.formatPath(cm.getDestPath(), false)));
+		Optional<File> srcOpt = cm.getSourceFile();
+		Optional<File> destOpt = cm.getDestFile();
+		if(!srcOpt.isPresent()) {
+			mm.invalidPath(sender, cm.getSourceRaw(), "source");
+			return;
+		}
+		if(!destOpt.isPresent()) {
+			mm.invalidPath(sender, cm.getDestRaw(), "destination");
+			return;
+		}
 		
+		ZCompressor zc = new ZCompressor();
+		zc.asyncCompress(sender, srcOpt.get(), destOpt.get());
+		
+	}
+	
+	private void cmdSrc(CommandSender sender, String[] args){
+		if(!sender.hasPermission("zipextractor.admin.src")){
+			mm.noPermission(sender);
+			return;
+		}
+		if(args.length > 1 && args[1].equalsIgnoreCase("-absolute")) {
+			Optional<File> srcOpt = cm.getSourceFile();
+			if(!srcOpt.isPresent()) {
+				mm.invalidPath(sender, cm.getSourceRaw(), "source");
+				return;
+			}
+			mm.sendSuccess(sender, srcOpt.get().getAbsolutePath());
+		} else {
+			mm.sendSuccess(sender, cm.getSourceRaw());
+		}
+	}
+	
+	private void cmdDest(CommandSender sender, String[] args){
+		if(!sender.hasPermission("zipextractor.admin.dest")){
+			mm.noPermission(sender);
+			return;
+		}
+		if(args.length > 1 && args[1].equalsIgnoreCase("-absolute")) {
+			Optional<File> destOpt = cm.getDestFile();
+			if(!destOpt.isPresent()) {
+				mm.invalidPath(sender, cm.getDestRaw(), "destination");
+				return;
+			}
+			mm.sendSuccess(sender, destOpt.get().getAbsolutePath());
+		} else {
+			mm.sendSuccess(sender, cm.getDestRaw());
+		}
 	}
 	
 	private void cmdSetSrc(CommandSender sender, String[] args){
@@ -143,7 +213,16 @@ public class MainExecutor implements CommandExecutor{
 			mm.noPermission(sender);
 			return;
 		}
-		if(cm.setSourcePath(plugin.formatPath(formatInput(args), true)))
+		if(args.length < 2) {
+			mm.specifyAPath(sender);
+			return;
+		}
+		String path = PathUtils.formatPath(formatInput(args), true);
+		if(!PathUtils.validateFilePath(path)) {
+			mm.invalidPath(sender, path);
+			return;
+		}
+		if(cm.setSourcePath(path))
 			mm.setPathSuccess(sender, "source");
 		else
 			mm.setPathFailed(sender, "source");
@@ -155,7 +234,16 @@ public class MainExecutor implements CommandExecutor{
 			mm.noPermission(sender);
 			return;
 		}
-		if(cm.setDestPath(plugin.formatPath(formatInput(args), true)))
+		if(args.length < 2) {
+			mm.specifyAPath(sender);
+			return;
+		}
+		String path = PathUtils.formatPath(formatInput(args), true);
+		if(!PathUtils.validateFilePath(path)) {
+			mm.invalidPath(sender, path);
+			return;
+		}
+		if(cm.setDestPath(path))
 			mm.setPathSuccess(sender, "destination");
 		else
 			mm.setPathFailed(sender, "destination");
@@ -208,17 +296,17 @@ public class MainExecutor implements CommandExecutor{
 	}
 	
 	private void cmdVersion(CommandSender sender){
-		mm.sendMessage(sender, "Zip Extractor version " + plugin.getDescription().getVersion());
+		mm.cmdVersion(sender);
 	}
 	
 	private String formatInput(String[] args){
-		if(args.length < 2) return null;
 		
 		String ret = args[1];
 		if(args[1].indexOf("\"") == 0 || args[1].indexOf("'") == 0){
+			String delimeter = args[1].startsWith("\"") ? "\"" : "'";
 			for(int i=2; i<args.length; ++i){
-				if(args[i].contains("\"") || args[i].contains("'")){
-					ret += " " + args[i].substring(0, args[i].indexOf("\""));
+				if(args[i].endsWith(delimeter)){
+					ret += " " + args[i];
 					break;
 				}
 				ret += " " + args[i];

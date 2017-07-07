@@ -16,7 +16,6 @@ import java.util.zip.ZipOutputStream;
 
 import org.bukkit.command.CommandSender;
 
-import com.dscalzi.zipextractor.ZipExtractor;
 import com.dscalzi.zipextractor.managers.ConfigManager;
 import com.dscalzi.zipextractor.managers.MessageManager;
 
@@ -25,25 +24,22 @@ public class ZCompressor {
 	private final MessageManager mm;
 	private final ConfigManager cm;
 	
-	private ZipExtractor plugin;
-	
-	public ZCompressor(ZipExtractor plugin){
+	public ZCompressor(){
 		this.mm = MessageManager.getInstance();
 		this.cm = ConfigManager.getInstance();
-		this.plugin = plugin;
 	}
 	
 	public void asyncCompress(CommandSender sender, File srcLoc, File destLoc){
+		//If the source does not exist, abort.
 		if(!srcLoc.exists()){
-			mm.invalidPath(sender, "source");
+			mm.sourceNotFound(sender, srcLoc.getAbsolutePath());
 			return;
 		}
-		String fileExtension = plugin.getFileExtension(destLoc);
+		boolean validate = PathUtils.isValidPath(destLoc.toPath(), "**.zip");
 		String properPath = destLoc.getAbsolutePath();
-		if(fileExtension.equals(""))
+		if(!validate) {
 			properPath = destLoc.toString() + ".zip";
-		else if(!fileExtension.equals(".zip"))
-			properPath = destLoc.getAbsolutePath().substring(0, destLoc.getAbsolutePath().lastIndexOf(".")) + ".zip";
+		}
 		
 		File dF = new File(properPath);
 		

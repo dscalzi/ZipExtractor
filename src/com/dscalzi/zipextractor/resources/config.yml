@@ -14,15 +14,14 @@ ConfigVersion: 1.0
 # will be converted on the fly. The '/' is for
 # for ease of storage.
 #
-# Current available shortcuts (do not include quotes):
-# '*plugindir*' - Points to this plugin's directory (../plugins/ZipExtractor)
+# Both relative and absolute file paths are supported.
 file_settings:
 
   # Specify the file path of your soruce folder/file.
-  source_directory: "*plugindir*/MyArchive.zip"
+  source_directory: "plugins/ZipExtractor/MyArchive.zip"
   
   # Specify the file path of the destination folder/file.
-  destination_directory: "C:/server/MyOutputFolder"
+  destination_directory: "C:/MyServer/MyOutputFolder"
 
 #--------------[General Settings]---------------
 general_settings:

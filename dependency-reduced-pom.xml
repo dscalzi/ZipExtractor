@@ -4,7 +4,7 @@
   <groupId>com.dscalzi</groupId>
   <artifactId>ZipExtractor</artifactId>
   <name>Zip Extractor</name>
-  <version>AvSoft 1.0</version>
+  <version>0.9.0</version>
   <description>Utility plugin that will unzip the files you specify.</description>
   <developers>
     <developer>

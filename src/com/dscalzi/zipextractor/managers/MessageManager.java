@@ -122,16 +122,19 @@ public class MessageManager {
 		getLogger().severe("An error occurred during extraction. Could not locate the source file: " + path);
 	}
 	
-	public void destNotDirectory(CommandSender sender){
-		sendError(sender, "The destination path specified is not a directory, aborting.");
+	public void destNotDirectory(CommandSender sender, String filePath){
+		sendError(sender, "The destination path must be a directory:");
+		sendError(sender, ChatColor.ITALIC + filePath);
 	}
 	
-	public void invalidPath(CommandSender sender, String action){
-		sendError(sender, "The " + action + " file path specified is not valid, aborting.");
+	public void sourceNotFound(CommandSender sender, String filePath) {
+		sendError(sender, "Source file not found:");
+		sendError(sender, ChatColor.ITALIC + filePath);
 	}
 	
-	public void sourceNotFound(CommandSender sender){
-		sendError(sender, "The source path specified could not be found, aborting.");
+	public void sourceNoExt(CommandSender sender, String filePath) {
+		sendError(sender, "The source file must have an extension:");
+		sendError(sender, ChatColor.ITALIC + filePath);
 	}
 	
 	public void fileAccessDenied(CommandSender sender, ZTask t, String path){
@@ -141,10 +144,39 @@ public class MessageManager {
 		getLogger().severe("Error during " + t.getProcessName() + ". Access is denied to " + path);
 	}
 	
-	public void invalidExtension(CommandSender sender, String extension){
-		if(extension.length() >= 1)
-			extension = Character.toUpperCase(extension.charAt(0)) + extension.substring(1).toLowerCase();
-		sendError(sender, extension + " files are not currently supported.");
+	public void invalidSourceExtension(CommandSender sender){
+		sendError(sender, "Currently extractions are only supported for zip, rar, and jar files.");
+	}
+	
+	public void invalidPath(CommandSender sender, String path, String type) {
+		if(path == null || path.isEmpty()) {
+			sendError(sender, "A " + type + " path must be specified.");
+		} else {
+			sendError(sender, "Invalid " + type + " path:");
+			sendError(sender, ChatColor.ITALIC + path);
+		}
+	}
+	
+	public void invalidPath(CommandSender sender, String path) {
+		if(path == null || path.isEmpty()) {
+			sendError(sender, "A path must be specified.");
+		} else {
+			sendError(sender, "Invalid path:");
+			sendError(sender, ChatColor.ITALIC + path);
+		}
+	}
+	
+	public void invalidPathIsSet(CommandSender sender, String path) {
+		if(path == null || path.isEmpty()) {
+			sendError(sender, "No path is set.");
+		} else {
+			sendError(sender, "An invalid path is currently set:");
+			sendError(sender, ChatColor.ITALIC + path);
+		}
+	}
+	
+	public void specifyAPath(CommandSender sender){
+		sendError(sender, "Please specify a path.");
 	}
 	
 	public void addToQueue(CommandSender sender, int position){
@@ -233,6 +265,10 @@ public class MessageManager {
 			cmds.add(listPrefix + "/ZipExtractor extract " + cTrim + "- Extract the specified file.");
 		if(sender.hasPermission("zipextractor.admin.compress"))
 			cmds.add(listPrefix + "/ZipExtractor compress " + cTrim + "- Compress the specified file.");
+		if(sender.hasPermission("zipextractor.admin.src"))
+			cmds.add(listPrefix + "/ZipExtractor src [-absolute] " + cTrim + "- View the source filepath.");
+		if(sender.hasPermission("zipextractor.admin.dest"))
+			cmds.add(listPrefix + "/ZipExtractor dest [-absolute] " + cTrim + "- View the destination filepath.");
 		if(sender.hasPermission("zipextractor.admin.setsrc"))
 			cmds.add(listPrefix + "/ZipExtractor setsrc <path> " + cTrim + "- Set the source's filepath.");
 		if(sender.hasPermission("zipextractor.admin.setdest"))
@@ -285,6 +321,22 @@ public class MessageManager {
 			sendMessage(sender, cPrimary + "This command will compress the folder specified in the config.yml. That value can be edited directly in the file or via the command /ZipExtractor setsrc <File Path>. The contents will be compressed into a new archive at the location specified specified in the config.yml. That value can be edited directly in the file or via the command /ZipExtractor setdest <File Path>.");
 			return;
 		}
+		if(cmd.equalsIgnoreCase("src")){
+			if(!sender.hasPermission("zipextractor.admin.src")){
+				noInfoPermission(sender);
+				return;
+			}
+			sendMessage(sender, cPrimary + "View the currently set source file path. To view the absolute path, run the command as /ZipExtractor src -absolute");
+			return;
+		}
+		if(cmd.equalsIgnoreCase("dest")){
+			if(!sender.hasPermission("zipextractor.admin.dest")){
+				noInfoPermission(sender);
+				return;
+			}
+			sendMessage(sender, cPrimary + "View the currently set destitation file path. To view the absolute path, run the command as /ZipExtractor dest -absolute");
+			return;
+		}
 		if(cmd.equalsIgnoreCase("setsrc")){
 			if(!sender.hasPermission("zipextractor.admin.setsrc")){
 				noInfoPermission(sender);
@@ -334,6 +386,12 @@ public class MessageManager {
 			return;
 		}
 		
+	}
+	
+	public void cmdVersion(CommandSender sender){
+		sendMessage(sender, "Zip Extractor version " + plugin.getDescription().getVersion() +
+				"\n" + cPrimary + "| " + cTrim + "Source" + cPrimary + " | " + ChatColor.RESET + "https://bitbucket.org/AventiumSoftworks/zip-extractor" +
+				"\n" + cPrimary + "| " + cTrim + "Metrics" + cPrimary + " | " + ChatColor.RESET + "https://bstats.org/plugin/bukkit/ZipExtractor");
 	}
 	
 	public String ordinal(int i) {

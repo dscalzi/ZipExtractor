@@ -12,10 +12,12 @@ import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import org.bukkit.configuration.file.FileConfiguration;
 
 import com.dscalzi.zipextractor.ZipExtractor;
+import com.dscalzi.zipextractor.util.PathUtils;
 
 public class ConfigManager {
 
@@ -69,13 +71,29 @@ public class ConfigManager {
 	
 	/* Configuration Accessors */
 	
-	public String getSourcePath(){
+	public String getSourceRaw() {
 		return this.config.getString("file_settings.source_directory", null);
 	}
 	
-	public String getDestPath(){
+	public String getDestRaw() {
 		return this.config.getString("file_settings.destination_directory", null);
 	}
+	
+	private Optional<File> runValidations(String abstractPath){
+		abstractPath = PathUtils.formatPath(abstractPath, false);
+		File f = new File(abstractPath);
+		
+		return PathUtils.validateFilePath(f) ? Optional.of(f) : Optional.empty();
+	}
+	
+	public Optional<File> getSourceFile(){
+		return runValidations(getSourceRaw());
+	}
+	
+	public Optional<File> getDestFile(){
+		return runValidations(getDestRaw());
+	}
+	
 	
 	public boolean setSourcePath(String path){
 		boolean ret = this.updateValue("file_settings.source_directory", path);

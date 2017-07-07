@@ -14,7 +14,6 @@ import java.io.InterruptedIOException;
 import java.nio.file.AccessDeniedException;
 import java.nio.file.DirectoryNotEmptyException;
 import java.nio.file.Files;
-import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
@@ -22,12 +21,13 @@ import java.util.Enumeration;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import org.bukkit.command.CommandSender;
 
-import com.dscalzi.zipextractor.ZipExtractor;
 import com.dscalzi.zipextractor.managers.ConfigManager;
 import com.dscalzi.zipextractor.managers.MessageManager;
 import com.github.junrar.Archive;
@@ -37,45 +37,50 @@ import com.github.junrar.rarfile.FileHeader;
 
 public class ZExtractor {
 
+	/**
+	 * Matches if the given String ends with '.jar', '.rar', and '.zip'.
+	 */
+	public static final Pattern SUPPORTED_SRCS = Pattern.compile("(\\.jar|\\.rar|\\.zip)$");
+	
 	private final MessageManager mm;
 	private final ConfigManager cm;
 	
-	private ZipExtractor plugin;
-	
-	public ZExtractor(ZipExtractor plugin){
+	public ZExtractor(){
 		this.mm = MessageManager.getInstance();
 		this.cm = ConfigManager.getInstance();
-		this.plugin = plugin;
 	}
 	
 	public void asyncExtract(CommandSender sender, File srcLoc, File destLoc){
-		String fileExtension = plugin.getFileExtension(srcLoc);
-		if(fileExtension.length() == 0 || !srcLoc.exists()) {
-			mm.invalidPath(sender, "source");
+		Matcher m = SUPPORTED_SRCS.matcher(srcLoc.getPath());
+		
+		//If the path extension is not valid, abort.
+		if(!m.find()) {
+			mm.invalidSourceExtension(sender);
 			return;
 		}
 		
-		try{
-			Paths.get(srcLoc.getAbsolutePath());
-		} catch(InvalidPathException e){
-			mm.invalidPath(sender, "destination");
+		//If the source file does not exist, abort.
+		if(!srcLoc.exists()) {
+			mm.sourceNotFound(sender, srcLoc.getAbsolutePath());
 			return;
 		}
 		
-		if(!destLoc.exists())
+		//If the destination directory does not exist, create it.
+		if(!destLoc.exists()) {
     		destLoc.mkdir();
+		}
 		
+		//If the destination exists and it's not a directory, abort.
 		if(destLoc.exists()){
 			if(!destLoc.isDirectory()){
-				mm.destNotDirectory(sender);
+				mm.destNotDirectory(sender, destLoc.getAbsolutePath());
 				return;
 			}
 		}
 		
 		Runnable task = null;
 		
-		boolean valid = true;
-		switch(fileExtension){
+		switch(m.group(1)){
 		case ".jar":
 			task = () -> {
 					extractJar(sender, srcLoc, destLoc);
@@ -100,20 +105,14 @@ public class ZExtractor {
 					}
 				};
 			break;
-		default:
-			mm.invalidExtension(sender, fileExtension);
-			valid = false;
-			break;
 		}
-		if(valid) {
-			int result = ZServicer.getInstance().submit(task);
-			if(result == 0)
-				mm.addToQueue(sender, ZServicer.getInstance().getSize());
-			else if(result == 1)
-				mm.queueFull(sender);
-			else if(result == 2)
-				mm.executorTerminated(sender, ZTask.EXTRACT);
-		}
+		int result = ZServicer.getInstance().submit(task);
+		if(result == 0)
+			mm.addToQueue(sender, ZServicer.getInstance().getSize());
+		else if(result == 1)
+			mm.queueFull(sender);
+		else if(result == 2)
+			mm.executorTerminated(sender, ZTask.EXTRACT);
 	}
 	
 	private void extractZip(CommandSender sender, File sourceFile, File destFolder){
