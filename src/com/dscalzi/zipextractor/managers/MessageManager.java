@@ -181,7 +181,7 @@ public class MessageManager {
 	
 	public void addToQueue(CommandSender sender, int position){
 		String ordinal;
-		if(position == 1) ordinal = "next";
+		if(position == 1 || position == 0) ordinal = "next";
 		else ordinal = ordinal(position);
 		sendSuccess(sender, "Your task has been added to the queue. It is currently " + ordinal + ".");
 	}
@@ -278,7 +278,7 @@ public class MessageManager {
 		if(sender.hasPermission("zipextractor.admin.terminate"))
 			cmds.add(listPrefix + "/ZipExtractor terminate " + cTrim + "- Shutdown the plugin's executor and allow all outstanding tasks to complete.");
 		if(sender.hasPermission("zipextractor.admin.forceterminate"))
-			cmds.add(listPrefix + "/ZipExtractor forceterinate " + cTrim + "- Immediately shutdown the plugin's executor and terminate all outstanding tasks.");
+			cmds.add(listPrefix + "/ZipExtractor forceterminate " + cTrim + "- Immediately shutdown the plugin's executor and terminate all outstanding tasks.");
 		if(sender.hasPermission("zipextractor.admin.reload"))
 			cmds.add(listPrefix + "/ZipExtractor reload " + cTrim + "- Reload the config.yml.");
 		cmds.add(listPrefix + "/ZipExtractor version " + cTrim + "- View plugin version info.");

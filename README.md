@@ -28,6 +28,6 @@ You can find more extensive details on the [wiki][wiki].
 [thread_pools]: http://tutorials.jenkov.com/java-util-concurrent/threadpoolexecutor.html "Thread Pool Information"
 [bStats]: https://bstats.org/plugin/bukkit/ZipExtractor "bStats page"
 [wiki]: https://bitbucket.org/AventiumSoftworks/zip-extractor/wiki/Home "Wiki page"
-[spigot]: # "Coming Soon"
-[devbukkit]: # "Coming Soon"
+[spigot]: https://www.spigotmc.org/resources/zipextractor.43482/ "Spigot"
+[devbukkit]: https://dev.bukkit.org/projects/zipextractor "DevBukkit"
 [issues]: https://bitbucket.org/AventiumSoftworks/zip-extractor/issues?status=new&status=open "Issue Tracker"
