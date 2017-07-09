@@ -5,6 +5,8 @@
  */
 package com.dscalzi.zipextractor.managers;
 
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -15,6 +17,7 @@ import org.bukkit.entity.Player;
 
 import com.dscalzi.zipextractor.ZipExtractor;
 import com.dscalzi.zipextractor.util.PageList;
+import com.dscalzi.zipextractor.util.ZExtractor;
 import com.dscalzi.zipextractor.util.ZTask;
 
 public class MessageManager {
@@ -145,7 +148,7 @@ public class MessageManager {
 	}
 	
 	public void invalidSourceExtension(CommandSender sender){
-		sendError(sender, "Currently extractions are only supported for zip, rar, and jar files.");
+		sendError(sender, "Currently extractions are only supported for " + collectionToString(ZExtractor.supportedExtensions()) + " files.");
 	}
 	
 	public void invalidPath(CommandSender sender, String path, String type) {
@@ -405,5 +408,26 @@ public class MessageManager {
 	        return i + "rd";
 	    else
 	        return i + "th";
+	}
+	
+	public <T> String collectionToString(Collection<T> c) {
+		if(c.size() == 1) {
+			return c.iterator().next().toString();
+		} else if(c.size() == 2) {
+			Iterator<T> it = c.iterator();
+			return it.next().toString() + " and " + it.next().toString();
+		} else {
+			String vals = "";
+			int tracker = 0;
+			for(final T t : c) {
+				if(tracker == c.size()-1) {
+					vals += "and " +  t.toString();
+					break;
+				}
+				vals += t.toString() + ", ";
+				++tracker;
+			}
+			return vals;
+		}
 	}
 }

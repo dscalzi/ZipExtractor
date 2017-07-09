@@ -6,6 +6,8 @@
 package com.dscalzi.zipextractor;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.regex.Pattern;
@@ -14,6 +16,7 @@ import org.bukkit.command.BlockCommandSender;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 
 import com.dscalzi.zipextractor.managers.ConfigManager;
 import com.dscalzi.zipextractor.managers.MessageManager;
@@ -22,7 +25,7 @@ import com.dscalzi.zipextractor.util.ZCompressor;
 import com.dscalzi.zipextractor.util.ZExtractor;
 import com.dscalzi.zipextractor.util.ZServicer;
 
-public class MainExecutor implements CommandExecutor{
+public class MainExecutor implements CommandExecutor, TabCompleter{
 
 	public static final Pattern COMMANDS = Pattern.compile("^(?iu)(help|extract|compress|src|dest|setsrc|setdest|plugindir|terminate|forceterminate|reload)");
 	public static final Pattern INTEGERS = Pattern.compile("(\\\\d+|-\\\\d+)");
@@ -148,8 +151,7 @@ public class MainExecutor implements CommandExecutor{
 			return;
 		}
 		
-		ZExtractor ze = new ZExtractor();
-		ze.asyncExtract(sender, srcOpt.get(), destOpt.get());
+		ZExtractor.asyncExtract(sender, srcOpt.get(), destOpt.get());
 	}
 	
 	private void cmdCompress(CommandSender sender){
@@ -314,6 +316,61 @@ public class MainExecutor implements CommandExecutor{
 		}
 		
 		ret = ret.replace("\"", "").replace("'", "");
+		
+		return ret;
+	}
+	
+	@Override
+	public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+		List<String> ret = new ArrayList<String>();
+		
+		if(args.length == 1) {
+			ret.addAll(subCommands(sender, args));
+		}
+		
+		if(args.length == 2){
+			boolean a = sender.hasPermission("zipextractor.admin.src") && "src".startsWith(args[0].toLowerCase());
+			boolean b = sender.hasPermission("zipextractor.admin.dest") && "dest".startsWith(args[0].toLowerCase());
+			if(a | b)
+				if("-absolute".startsWith(args[1].toLowerCase()))
+					ret.add("-absolute");
+			if(sender.hasPermission("zipextractor.admin.use") && "help".startsWith(args[0].toLowerCase())) {
+				String[] newArgs = new String[args.length-1];
+				System.arraycopy(args, 1, newArgs, 0, args.length-1);
+				ret.addAll(subCommands(sender, newArgs));
+			}
+		}
+		
+		return ret;
+	}
+	
+	private List<String> subCommands(CommandSender sender, String[] args){
+		List<String> ret = new ArrayList<String>();
+		
+		if(args.length == 1) {
+			if(sender.hasPermission("zipextractor.admin.use") && "help".startsWith(args[0].toLowerCase()))
+				ret.add("help");
+			if(sender.hasPermission("zipextractor.admin.extract") && "extract".startsWith(args[0].toLowerCase())) 
+				ret.add("extract");
+			if(sender.hasPermission("zipextractor.admin.compress") && "compress".startsWith(args[0].toLowerCase())) 
+				ret.add("compress");
+			if(sender.hasPermission("zipextractor.admin.src") && "src".startsWith(args[0].toLowerCase())) 
+				ret.add("src");
+			if(sender.hasPermission("zipextractor.admin.dest") && "dest".startsWith(args[0].toLowerCase())) 
+				ret.add("dest");
+			if(sender.hasPermission("zipextractor.admin.setsrc") && "setsrc".startsWith(args[0].toLowerCase())) 
+				ret.add("setsrc");
+			if(sender.hasPermission("zipextractor.admin.setdest") && "setdest".startsWith(args[0].toLowerCase())) 
+				ret.add("setdest");
+			if(sender.hasPermission("zipextractor.admin.plugindir") && "plugindir".startsWith(args[0].toLowerCase())) 
+				ret.add("plugindir");
+			if(sender.hasPermission("zipextractor.admin.terminate") && "terminate".startsWith(args[0].toLowerCase())) 
+				ret.add("terminate");
+			if(sender.hasPermission("zipextractor.admin.forceterminate") && "forceterminate".startsWith(args[0].toLowerCase())) 
+				ret.add("forceterminate");
+			if(sender.hasPermission("zipextractor.admin.reload") && "reload".startsWith(args[0].toLowerCase())) 
+				ret.add("reload");
+		}
 		
 		return ret;
 	}
