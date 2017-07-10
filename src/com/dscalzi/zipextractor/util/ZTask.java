@@ -8,7 +8,8 @@ package com.dscalzi.zipextractor.util;
 public enum ZTask {
 
 	COMPRESS("compression"),
-	EXTRACT("extraction");
+	EXTRACT("extraction"),
+	SCAN("scan");
 	
 	private final String processName;
 	

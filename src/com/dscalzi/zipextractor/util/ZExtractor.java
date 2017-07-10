@@ -2,7 +2,11 @@ package com.dscalzi.zipextractor.util;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
 import org.bukkit.command.CommandSender;
 
 import com.dscalzi.zipextractor.managers.MessageManager;
@@ -12,16 +16,26 @@ import com.dscalzi.zipextractor.providers.RarProvider;
 import com.dscalzi.zipextractor.providers.ZipProvider;
 
 public class ZExtractor {
-
+	
 	private static final BaseProvider[] PROVIDERS = {
 			new ZipProvider(),
 			new RarProvider(),
 			new JarProvider()
 	};
-	private static Collection<String> SUPPORTED;
+	private static final Map<String, WarnData> WARNED = new HashMap<String, WarnData>();
+	private static List<String> SUPPORTED;
 	
 	public static void asyncExtract(CommandSender sender, File src, File dest) {
+		asyncExtract(sender, src, dest, false);
+	}
+	
+	public static void asyncExtract(CommandSender sender, File src, File dest, boolean override) {
 		final MessageManager mm = MessageManager.getInstance();
+		
+		//If the user was warned, clear it.
+		if(WARNED.containsKey(sender.getName())) {
+			WARNED.remove(sender.getName());
+		}
 		
 		//If the source file does not exist, abort.
 		if(!src.exists()) {
@@ -43,10 +57,20 @@ public class ZExtractor {
 		}
 				
 		Runnable task = null;
+		final boolean finalOverride = override;
 		for(final BaseProvider p : PROVIDERS) {
 			if(p.sourceMatches(src)) {
 				task = () -> {
-					p.extract(sender, src, dest);
+					List<String> atRisk = new ArrayList<String>();
+					if(!finalOverride) {
+						atRisk = p.scan(sender, src, dest);
+					}
+					if(atRisk.size() == 0 || finalOverride) {
+						p.extract(sender, src, dest);
+					} else {
+						WARNED.put(sender.getName(), new WarnData(sender, src, dest, new PageList<String>(4, atRisk)));
+						mm.warnOfOverrides(sender, atRisk.size());
+					}
 				};
 				break;
 			}
@@ -64,7 +88,7 @@ public class ZExtractor {
 		}
 	}
 	
-	public static Collection<String> supportedExtensions(){
+	public static List<String> supportedExtensions(){
 		if(SUPPORTED == null) {
 			SUPPORTED = new ArrayList<String>();
 			for(final BaseProvider p : PROVIDERS) {
@@ -72,6 +96,19 @@ public class ZExtractor {
 			}
 		}
 		return SUPPORTED;
+	}
+	
+	public static boolean wasWarned(CommandSender sender, File src, File dest) {
+		if(WARNED.containsKey(sender.getName())) {
+			final WarnData data = WARNED.get(sender.getName());
+			return data.getSrc().equals(src) && data.getDest().equals(dest);
+		} 
+		return false;
+	}
+	
+	public static Optional<WarnData> getWarnData(CommandSender sender) {
+		WarnData data = WARNED.get(sender.getName());
+		return data != null ? Optional.of(data) : Optional.empty();
 	}
 	
 }

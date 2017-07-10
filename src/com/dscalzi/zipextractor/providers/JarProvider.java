@@ -7,8 +7,8 @@ import java.io.InputStream;
 import java.nio.file.AccessDeniedException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.logging.Logger;
@@ -25,14 +25,15 @@ public class JarProvider implements BaseProvider {
 
 	//Shared pattern by JarProviders
 	public static final Pattern PATH_END = Pattern.compile("\\.jar$");
-	public static final Collection<String> SUPPORTED = new ArrayList<String>(Arrays.asList("jar"));
+	public static final List<String> SUPPORTED = new ArrayList<String>(Arrays.asList("jar"));
 	
 	@Override
-	public Collection<String> scan(CommandSender sender, File src, File dest) {
-		Collection<String> existing = new ArrayList<String>();
+	public List<String> scan(CommandSender sender, File src, File dest) {
+		List<String> existing = new ArrayList<String>();
 		final MessageManager mm = MessageManager.getInstance();
 		
 		try(JarFile jar = new JarFile(src)){
+			mm.scanningForConflics(sender);
 			Enumeration<JarEntry> enumEntries = jar.entries();
 			while (enumEntries.hasMoreElements()) {
 				if(Thread.interrupted())
@@ -94,7 +95,7 @@ public class JarProvider implements BaseProvider {
 	}
 
 	@Override
-	public Collection<String> supportedExtensions() {
+	public List<String> supportedExtensions() {
 		return SUPPORTED;
 	}
 

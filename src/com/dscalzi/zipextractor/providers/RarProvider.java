@@ -12,7 +12,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
+import java.util.List;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
@@ -31,16 +31,17 @@ public class RarProvider implements BaseProvider {
 
 	//Shared pattern by RarProviders
 	public static final Pattern PATH_END = Pattern.compile("\\.rar$");
-	public static final Collection<String> SUPPORTED = new ArrayList<String>(Arrays.asList("rar"));
+	public static final List<String> SUPPORTED = new ArrayList<String>(Arrays.asList("rar"));
 	
 	@Override
-	public Collection<String> scan(CommandSender sender, File src, File dest) {
-		Collection<String> existing = new ArrayList<String>();
+	public List<String> scan(CommandSender sender, File src, File dest) {
+		List<String> existing = new ArrayList<String>();
 		final MessageManager mm = MessageManager.getInstance();
 		
 		try(Archive a = new Archive(new FileVolumeManager(src))){
 			
 			if(a != null) {
+				mm.scanningForConflics(sender);
 				FileHeader fh = a.nextFileHeader();
 				while(fh != null) {
 					if(Thread.interrupted())
@@ -49,6 +50,7 @@ public class RarProvider implements BaseProvider {
 					if(newFile.exists()) {
 						existing.add(newFile.getAbsolutePath());
 					}
+					fh = a.nextFileHeader();
 				}
 			}
 			
@@ -113,7 +115,7 @@ public class RarProvider implements BaseProvider {
 	}
 
 	@Override
-	public Collection<String> supportedExtensions() {
+	public List<String> supportedExtensions() {
 		return SUPPORTED;
 	}
 

@@ -5,8 +5,8 @@
  */
 package com.dscalzi.zipextractor.managers;
 
-import java.util.Collection;
-import java.util.Iterator;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -22,6 +22,8 @@ import com.dscalzi.zipextractor.util.ZTask;
 
 public class MessageManager {
 
+	private static final char BULLET = (char)8226;
+	
 	private static boolean initialized;
 	private static MessageManager instance;
 	
@@ -118,6 +120,16 @@ public class MessageManager {
 		sendError(sender, "Failed to update the " + action + " file path, see the console for details.");
 	}
 	
+	public void warnOfOverrides(CommandSender sender, int amt) {
+		sendError(sender, "Warning, this extraction will override " + ChatColor.ITALIC + Integer.toString(amt) + cError + " file"
+				+ (amt == 1 ? "" : "s") + ". To view " + (amt == 1 ? "this" : "these") + " file" + (amt == 1 ? "" : "s") + " run the command " + ChatColor.ITALIC + "/ze extract view [page]");
+		sendError(sender, "To proceed with the extraction run the command again.");
+	}
+	
+	public void noWarnData(CommandSender sender) {
+		sendError(sender, "You have no data to view!");
+	}
+	
 	public void fileNotFound(CommandSender sender, String path){
 		if(!(sender instanceof ConsoleCommandSender)){
 			sendError(sender, "An error occurred during extraction. Could not locate the source file: " + ChatColor.ITALIC + path);
@@ -148,7 +160,7 @@ public class MessageManager {
 	}
 	
 	public void invalidSourceExtension(CommandSender sender){
-		sendError(sender, "Currently extractions are only supported for " + collectionToString(ZExtractor.supportedExtensions()) + " files.");
+		sendError(sender, "Currently extractions are only supported for " + listToString(ZExtractor.supportedExtensions()) + " files.");
 	}
 	
 	public void invalidPath(CommandSender sender, String path, String type) {
@@ -176,6 +188,10 @@ public class MessageManager {
 			sendError(sender, "An invalid path is currently set:");
 			sendError(sender, ChatColor.ITALIC + path);
 		}
+	}
+	
+	public void scanningForConflics(CommandSender sender) {
+		sendSuccess(sender, "Scanning for file conflicts..");
 	}
 	
 	public void specifyAPath(CommandSender sender){
@@ -256,8 +272,27 @@ public class MessageManager {
 		}
 	}
 	
+	public void invalidPage(CommandSender sender) {
+		sendError(sender, "Page does not exist.");
+	}
+	
+	public void formatWarnList(CommandSender sender, int page, PageList<String> files) {
+		final String listPrefix = cError + " " + BULLET + " ";
+		final String header = prefix + cError + " The following files would be overriden:";
+		
+		List<String> p = new ArrayList<String>(files.getPage(page));
+		p.replaceAll(s -> listPrefix + s);
+		
+		String footer = cPrimary + "Page " + ChatColor.DARK_GRAY + (page+1) + cPrimary + " of " + ChatColor.DARK_GRAY + files.size();
+	
+		sender.sendMessage(header);
+		for(String s : p)
+			sender.sendMessage(s);
+		sender.sendMessage(footer);
+	}
+	
 	public void commandList(CommandSender sender, int page){
-		final String listPrefix = cPrimary + " • ";
+		final String listPrefix = cPrimary + " " + BULLET + " ";
 		
 		PageList<String> cmds = new PageList<String>(7);
 		String header = prefix + cPrimary + " Command List - <Required> [Optional]";
@@ -289,7 +324,7 @@ public class MessageManager {
 		String footer = cPrimary + "Page " + ChatColor.DARK_GRAY + (page+1) + cPrimary + " of " + ChatColor.DARK_GRAY + cmds.size();
 		
 		if(page >= cmds.size() || page < 0){
-			sendError(sender, "Page does not exist");
+			invalidPage(sender);
 			return;
 		}
 		
@@ -410,12 +445,11 @@ public class MessageManager {
 	        return i + "th";
 	}
 	
-	public <T> String collectionToString(Collection<T> c) {
+	public <T> String listToString(List<T> c) {
 		if(c.size() == 1) {
-			return c.iterator().next().toString();
+			return c.get(0).toString();
 		} else if(c.size() == 2) {
-			Iterator<T> it = c.iterator();
-			return it.next().toString() + " and " + it.next().toString();
+			return c.get(0).toString() + " and " + c.get(1).toString();
 		} else {
 			String vals = "";
 			int tracker = 0;

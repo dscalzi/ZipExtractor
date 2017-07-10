@@ -21,6 +21,7 @@ import org.bukkit.command.TabCompleter;
 import com.dscalzi.zipextractor.managers.ConfigManager;
 import com.dscalzi.zipextractor.managers.MessageManager;
 import com.dscalzi.zipextractor.util.PathUtils;
+import com.dscalzi.zipextractor.util.WarnData;
 import com.dscalzi.zipextractor.util.ZCompressor;
 import com.dscalzi.zipextractor.util.ZExtractor;
 import com.dscalzi.zipextractor.util.ZServicer;
@@ -77,7 +78,7 @@ public class MainExecutor implements CommandExecutor, TabCompleter{
 				return true;
 			}
 			if(args[0].equalsIgnoreCase("extract")){
-				this.cmdExtract(sender);
+				this.cmdExtract(sender, args);
 				return true;
 			}
 			if(args[0].equalsIgnoreCase("compress")){
@@ -134,24 +135,51 @@ public class MainExecutor implements CommandExecutor, TabCompleter{
 		mm.commandInfo(sender, cmd);
 	}
 	
-	private void cmdExtract(CommandSender sender){
+	private void cmdExtract(CommandSender sender, String[] args){
 		if(!sender.hasPermission("zipextractor.admin.extract")){
 			mm.noPermission(sender);
 			return;
 		}
 		
-		Optional<File> srcOpt = cm.getSourceFile();
-		Optional<File> destOpt = cm.getDestFile();
-		if(!srcOpt.isPresent()) {
-			mm.invalidPath(sender, cm.getSourceRaw(), "source");
-			return;
+		if(args.length >= 2 && args[1].equalsIgnoreCase("view")) {
+			Optional<WarnData> dataOpt = ZExtractor.getWarnData(sender);
+			if(dataOpt.isPresent()) {
+				WarnData d = dataOpt.get();
+				
+				int page = 0;
+				if(args.length >= 3) {
+					try {
+						page = Integer.parseInt(args[2]);
+						if(1 > page || page > d.getFiles().size()) {
+							throw new NumberFormatException();
+						} else {
+							--page;
+						}
+					} catch(NumberFormatException e) {
+						mm.invalidPage(sender);
+						return;
+					}
+				}
+				
+				mm.formatWarnList(sender, page, d.getFiles());
+				
+			} else {
+				mm.noWarnData(sender);
+			}
+		} else {
+			Optional<File> srcOpt = cm.getSourceFile();
+			Optional<File> destOpt = cm.getDestFile();
+			if(!srcOpt.isPresent()) {
+				mm.invalidPath(sender, cm.getSourceRaw(), "source");
+				return;
+			}
+			if(!destOpt.isPresent()) {
+				mm.invalidPath(sender, cm.getDestRaw(), "destination");
+				return;
+			}
+			
+			ZExtractor.asyncExtract(sender, srcOpt.get(), destOpt.get(), ZExtractor.wasWarned(sender, srcOpt.get(), destOpt.get()));
 		}
-		if(!destOpt.isPresent()) {
-			mm.invalidPath(sender, cm.getDestRaw(), "destination");
-			return;
-		}
-		
-		ZExtractor.asyncExtract(sender, srcOpt.get(), destOpt.get());
 	}
 	
 	private void cmdCompress(CommandSender sender){

@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.nio.file.AccessDeniedException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
+import java.util.List;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
@@ -24,14 +24,15 @@ public class ZipProvider implements BaseProvider{
 
 	//Shared pattern by ZipProviders
 	public static final Pattern PATH_END = Pattern.compile("\\.zip$");
-	public static final Collection<String> SUPPORTED = new ArrayList<String>(Arrays.asList("zip"));
+	public static final List<String> SUPPORTED = new ArrayList<String>(Arrays.asList("zip"));
 	
 	@Override
-	public Collection<String> scan(CommandSender sender, File src, File dest) {
-		Collection<String> existing = new ArrayList<String>();
+	public List<String> scan(CommandSender sender, File src, File dest) {
+		List<String> existing = new ArrayList<String>();
 		final MessageManager mm = MessageManager.getInstance();
 		try(FileInputStream fis = new FileInputStream(src);
 			ZipInputStream zis = new ZipInputStream(fis);){
+			mm.scanningForConflics(sender);
 			ZipEntry ze = zis.getNextEntry();
 			
 			while(ze != null) {
@@ -42,6 +43,7 @@ public class ZipProvider implements BaseProvider{
 				if(newFile.exists()) {
 					existing.add(newFile.getAbsolutePath());
 				}
+				ze = zis.getNextEntry();
 			}
 			
 			zis.closeEntry();
@@ -107,7 +109,7 @@ public class ZipProvider implements BaseProvider{
 	}
 
 	@Override
-	public Collection<String> supportedExtensions() {
+	public List<String> supportedExtensions() {
 		return SUPPORTED;
 	}
 

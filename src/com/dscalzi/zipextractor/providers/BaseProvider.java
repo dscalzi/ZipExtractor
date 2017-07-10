@@ -1,7 +1,7 @@
 package com.dscalzi.zipextractor.providers;
 
 import java.io.File;
-import java.util.Collection;
+import java.util.List;
 
 import org.bukkit.command.CommandSender;
 
@@ -23,15 +23,15 @@ public interface BaseProvider {
 
 	/**
 	 * Scans the source file and calculates if any files in the destination directory
-	 * would be overridden by an extraction. Returns a Collection containing the paths
+	 * would be overridden by an extraction. Returns a List containing the paths
 	 * of the files which would be overridden.
 	 * 
 	 * @param sender The sender of the command, used to error relays.
 	 * @param src The source file to be scanned.
 	 * @param dest The destination file to be scanned.
-	 * @return A Collection containing the paths of the files which would be overridden.
+	 * @return A List containing the paths of the files which would be overridden.
 	 */
-	public abstract Collection<String> scan(CommandSender sender, File src, File dest);
+	public abstract List<String> scan(CommandSender sender, File src, File dest);
 	
 	/**
 	 * Extracts the source file into the destination directory.
@@ -52,10 +52,10 @@ public interface BaseProvider {
 	public abstract boolean sourceMatches(File src);
 	
 	/**
-	 * Returns a Collection of the file extensions this provider supports.
+	 * Returns a List of the file extensions this provider supports.
 	 * 
-	 * @return A Collection of the file extensions this provider supports.
+	 * @return A List of the file extensions this provider supports.
 	 */
-	public abstract Collection<String> supportedExtensions();
+	public abstract List<String> supportedExtensions();
 	
 }
