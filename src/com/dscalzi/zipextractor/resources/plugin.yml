@@ -2,7 +2,7 @@ author: Daniel Scalzi
 description: Utility plugin that can compress files and extract archives.
 main: com.dscalzi.zipextractor.ZipExtractor
 name: ZipExtractor
-version: 0.12.0
+version: 0.13.0
 commands:
     zipextractor:
         description: Accesses plugin commands.
@@ -29,6 +29,8 @@ permissions:
         description: Allow usage of /ZipExtractor setsrc
     zipextractor.admin.setdest:
         description: Allow usage of /ZipExtractor setdest
+    zipextractor.harmless.status:
+        description: Allow usage of /ZipExtractor status
     zipextractor.admin.plugindir:
         description: Allow usage of /ZipExtractor plugindir
     zipextractor.admin.terminate:
@@ -51,6 +53,7 @@ permissions:
           zipextractor.admin.dest: true
           zipextractor.admin.setsrc: true
           zipextractor.admin.setdest: true
+          zipextractor.harmless.status: true
           zipextractor.admin.plugindir: true
           zipextractor.admin.terminate: true
           zipextractor.admin.forceterminate: true

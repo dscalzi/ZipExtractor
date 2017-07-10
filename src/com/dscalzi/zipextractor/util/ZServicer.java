@@ -65,6 +65,14 @@ public class ZServicer {
 		return queue.size();
 	}
 	
+	public int getActive() {
+		return executor.getActiveCount();
+	}
+	
+	public int getQueued() {
+		return executor.getQueue().size();
+	}
+	
 	public void setMaximumPoolSize(int size){
 		if(executor.getMaximumPoolSize() == size) return;
 		executor.setMaximumPoolSize(size);

@@ -28,7 +28,7 @@ import com.dscalzi.zipextractor.util.ZServicer;
 
 public class MainExecutor implements CommandExecutor, TabCompleter{
 
-	public static final Pattern COMMANDS = Pattern.compile("^(?iu)(help|extract|compress|src|dest|setsrc|setdest|plugindir|terminate|forceterminate|reload)");
+	public static final Pattern COMMANDS = Pattern.compile("^(?iu)(help|extract|compress|src|dest|setsrc|setdest|status|plugindir|terminate|forceterminate|reload)");
 	public static final Pattern INTEGERS = Pattern.compile("(\\\\d+|-\\\\d+)");
 	
 	private final MessageManager mm;
@@ -99,6 +99,10 @@ public class MainExecutor implements CommandExecutor, TabCompleter{
 			}
 			if(args[0].equalsIgnoreCase("setdest")){
 				this.cmdSetDest(sender, args);
+				return true;
+			}
+			if(args[0].equalsIgnoreCase("status")){
+				this.cmdStatus(sender);
 				return true;
 			}
 			if(args[0].equalsIgnoreCase("plugindir")){
@@ -344,6 +348,14 @@ public class MainExecutor implements CommandExecutor, TabCompleter{
 		else mm.terminating(sender);
 	}
 	
+	private void cmdStatus(CommandSender sender) {
+		if(!sender.hasPermission("zipextractor.harmless.status")) {
+			mm.noPermission(sender);
+			return;
+		}
+		mm.cmdStatus(sender);
+	}
+	
 	private void cmdVersion(CommandSender sender){
 		mm.cmdVersion(sender);
 	}
@@ -417,6 +429,8 @@ public class MainExecutor implements CommandExecutor, TabCompleter{
 				ret.add("setsrc");
 			if(sender.hasPermission("zipextractor.admin.setdest") && "setdest".startsWith(args[0].toLowerCase())) 
 				ret.add("setdest");
+			if(sender.hasPermission("zipextractor.harmless.status") && "status".startsWith(args[0].toLowerCase())) 
+				ret.add("status");
 			if(sender.hasPermission("zipextractor.admin.plugindir") && "plugindir".startsWith(args[0].toLowerCase())) 
 				ret.add("plugindir");
 			if(sender.hasPermission("zipextractor.admin.terminate") && "terminate".startsWith(args[0].toLowerCase())) 

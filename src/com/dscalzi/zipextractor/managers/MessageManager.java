@@ -18,6 +18,7 @@ import org.bukkit.entity.Player;
 import com.dscalzi.zipextractor.ZipExtractor;
 import com.dscalzi.zipextractor.util.PageList;
 import com.dscalzi.zipextractor.util.ZExtractor;
+import com.dscalzi.zipextractor.util.ZServicer;
 import com.dscalzi.zipextractor.util.ZTask;
 
 public class MessageManager {
@@ -316,6 +317,8 @@ public class MessageManager {
 			cmds.add(listPrefix + "/ZipExtractor setsrc <path> " + cTrim + "- Set the source's filepath.");
 		if(sender.hasPermission("zipextractor.admin.setdest"))
 			cmds.add(listPrefix + "/ZipExtractor setdest <path> " + cTrim + "- Set the destination's filepath.");
+		if(sender.hasPermission("zipextractor.harmless.status"))
+			cmds.add(listPrefix + "/ZipExtractor status " + cTrim + "- View the executor's status.");
 		if(sender.hasPermission("zipextractor.admin.plugindir"))
 			cmds.add(listPrefix + "/ZipExtractor plugindir " + cTrim + "- Get the plugin's full filepath.");
 		if(sender.hasPermission("zipextractor.admin.terminate"))
@@ -396,6 +399,14 @@ public class MessageManager {
 			sendMessage(sender, cPrimary + "This command will directly update the 'destination_directory' field in the configuration file. \nPlease use / for a file separator.\nSyntax is /ZipExtractor setdest <File Path>");
 			return;
 		}
+		if(cmd.equalsIgnoreCase("status")){
+			if(!sender.hasPermission("zipextractor.harmless.status")){
+				noInfoPermission(sender);
+				return;
+			}
+			sendMessage(sender, cPrimary + "This command will display the status of the executor service. If the service has not been terminated, the number of active and queued processes will be displayed.");
+			return;
+		}
 		if(cmd.equalsIgnoreCase("plugindir")){
 			if(!sender.hasPermission("zipextractor.admin.plugindir")){
 				noInfoPermission(sender);
@@ -429,6 +440,19 @@ public class MessageManager {
 			return;
 		}
 		
+	}
+	
+	public void cmdStatus(CommandSender sender) {
+		ZServicer zs = ZServicer.getInstance();
+		if(zs == null) {
+			sendMessage(sender, "Executor Status | " + ChatColor.RED + "UNINITIALIZED");
+		} else if(zs.isTerminated()) {
+			sendMessage(sender, "Executor Status | " + ChatColor.RED + "TERMINATED");
+		} else if(zs.isTerminating()) {
+			sendMessage(sender, "Executor Status | " + ChatColor.RED + "TERMINATING");
+		} else {
+			sendMessage(sender, "Executor Status | " + ChatColor.GREEN + "READY" + ChatColor.RESET + " | Active : " + zs.getActive() + " | Queued : " + zs.getQueued());
+		}
 	}
 	
 	public void cmdVersion(CommandSender sender){
