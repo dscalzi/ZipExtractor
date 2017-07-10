@@ -82,7 +82,7 @@ public class MainExecutor implements CommandExecutor, TabCompleter{
 				return true;
 			}
 			if(args[0].equalsIgnoreCase("compress")){
-				this.cmdCompress(sender);
+				this.cmdCompress(sender, args);
 			    return true;
 			}
 			if(args[0].equalsIgnoreCase("src")){
@@ -167,6 +167,16 @@ public class MainExecutor implements CommandExecutor, TabCompleter{
 				mm.noWarnData(sender);
 			}
 		} else {
+			
+			boolean override = !cm.warnOnConflitcs();
+			if(args.length >= 2 && args[1].equalsIgnoreCase("-override")) {
+				if(!sender.hasPermission("zipextractor.admin.override.extract")){
+					mm.noPermission(sender);
+					return;
+				}
+				override = true;
+			}
+			
 			Optional<File> srcOpt = cm.getSourceFile();
 			Optional<File> destOpt = cm.getDestFile();
 			if(!srcOpt.isPresent()) {
@@ -178,14 +188,23 @@ public class MainExecutor implements CommandExecutor, TabCompleter{
 				return;
 			}
 			
-			ZExtractor.asyncExtract(sender, srcOpt.get(), destOpt.get(), ZExtractor.wasWarned(sender, srcOpt.get(), destOpt.get()));
+			ZExtractor.asyncExtract(sender, srcOpt.get(), destOpt.get(), override);
 		}
 	}
 	
-	private void cmdCompress(CommandSender sender){
+	private void cmdCompress(CommandSender sender, String[] args){
 		if(!sender.hasPermission("zipextractor.admin.compress")){
 			mm.noPermission(sender);
 			return;
+		}
+		
+		boolean override = !cm.warnOnConflitcs();
+		if(args.length >= 2 && args[1].equalsIgnoreCase("-override")) {
+			if(!sender.hasPermission("zipextractor.admin.override.compress")){
+				mm.noPermission(sender);
+				return;
+			}
+			override = true;
 		}
 		
 		Optional<File> srcOpt = cm.getSourceFile();
@@ -200,7 +219,7 @@ public class MainExecutor implements CommandExecutor, TabCompleter{
 		}
 		
 		ZCompressor zc = new ZCompressor();
-		zc.asyncCompress(sender, srcOpt.get(), destOpt.get());
+		zc.asyncCompress(sender, srcOpt.get(), destOpt.get(), override);
 		
 	}
 	
@@ -366,6 +385,14 @@ public class MainExecutor implements CommandExecutor, TabCompleter{
 				String[] newArgs = new String[args.length-1];
 				System.arraycopy(args, 1, newArgs, 0, args.length-1);
 				ret.addAll(subCommands(sender, newArgs));
+			}
+			
+			if(sender.hasPermission("zipextractor.admin.extract") && "extract".startsWith(args[0].toLowerCase())) {
+				//The override option is intentionally left out.
+				//Users must be certain during overrides - that means typing it out explicitly.
+				if(ZExtractor.getWarnData(sender).isPresent() && "view".startsWith(args[1].toLowerCase())) {
+					ret.add("view");
+				}
 			}
 		}
 		

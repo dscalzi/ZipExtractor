@@ -111,6 +111,10 @@ public class ConfigManager {
 		return this.config.getBoolean("general_settings.log_files", false);
 	}
 	
+	public boolean warnOnConflitcs() {
+		return this.config.getBoolean("general_settings.warn_on_conflics", true);
+	}
+	
 	public boolean waitForTasksOnShutdown(){
 		return this.config.getBoolean("general_settings.wait_on_shutdown", true);
 	}

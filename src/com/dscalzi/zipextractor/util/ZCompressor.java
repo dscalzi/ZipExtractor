@@ -20,7 +20,7 @@ import com.dscalzi.zipextractor.managers.ConfigManager;
 import com.dscalzi.zipextractor.managers.MessageManager;
 
 public class ZCompressor {
-
+	
 	private final MessageManager mm;
 	private final ConfigManager cm;
 	
@@ -29,7 +29,7 @@ public class ZCompressor {
 		this.cm = ConfigManager.getInstance();
 	}
 	
-	public void asyncCompress(CommandSender sender, File srcLoc, File destLoc){
+	public void asyncCompress(CommandSender sender, File srcLoc, File destLoc, boolean override){
 		//If the source does not exist, abort.
 		if(!srcLoc.exists()){
 			mm.sourceNotFound(sender, srcLoc.getAbsolutePath());
@@ -42,6 +42,10 @@ public class ZCompressor {
 		}
 		
 		File dF = new File(properPath);
+		if(dF.exists() && !override) {
+			mm.destExists(sender);
+			return;
+		}
 		
 		Runnable task = () -> {
 			compressToZip(sender, srcLoc, dF);

@@ -69,7 +69,7 @@ public class ZExtractor {
 						p.extract(sender, src, dest);
 					} else {
 						WARNED.put(sender.getName(), new WarnData(sender, src, dest, new PageList<String>(4, atRisk)));
-						mm.warnOfOverrides(sender, atRisk.size());
+						mm.warnOfConflicts(sender, atRisk.size());
 					}
 				};
 				break;

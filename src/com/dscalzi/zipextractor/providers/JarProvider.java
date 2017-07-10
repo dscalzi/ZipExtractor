@@ -42,7 +42,7 @@ public class JarProvider implements BaseProvider {
 				JarEntry file = enumEntries.nextElement();
 				File newFile = new File(dest + File.separator + file.getName());
 				if(newFile.exists()) {
-					existing.add(newFile.getAbsolutePath());
+					existing.add(file.getName());
 				}
 			}
 		} catch (TaskInterruptedException e) {

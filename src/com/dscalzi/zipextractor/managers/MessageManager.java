@@ -120,10 +120,15 @@ public class MessageManager {
 		sendError(sender, "Failed to update the " + action + " file path, see the console for details.");
 	}
 	
-	public void warnOfOverrides(CommandSender sender, int amt) {
+	public void warnOfConflicts(CommandSender sender, int amt) {
 		sendError(sender, "Warning, this extraction will override " + ChatColor.ITALIC + Integer.toString(amt) + cError + " file"
 				+ (amt == 1 ? "" : "s") + ". To view " + (amt == 1 ? "this" : "these") + " file" + (amt == 1 ? "" : "s") + " run the command " + ChatColor.ITALIC + "/ze extract view [page]");
-		sendError(sender, "To proceed with the extraction run the command again.");
+		sendError(sender, "To proceed with the extraction: " + ChatColor.ITALIC + "/ze extract -override");
+	}
+	
+	public void destExists(CommandSender sender) {
+		sendError(sender, "Warning, the destination of this compression already exists.");
+		sendError(sender, "To proceed with the compression: " + ChatColor.ITALIC + "/ze compress -override");
 	}
 	
 	public void noWarnData(CommandSender sender) {

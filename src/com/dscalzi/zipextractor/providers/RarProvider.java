@@ -48,7 +48,7 @@ public class RarProvider implements BaseProvider {
 						throw new TaskInterruptedException();
 					File newFile = Paths.get(dest + File.separator + fh.getFileNameString()).toFile();
 					if(newFile.exists()) {
-						existing.add(newFile.getAbsolutePath());
+						existing.add(fh.getFileNameString());
 					}
 					fh = a.nextFileHeader();
 				}

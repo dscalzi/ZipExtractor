@@ -41,7 +41,7 @@ public class ZipProvider implements BaseProvider{
 				
 	    		File newFile = new File(dest + File.separator + ze.getName());
 				if(newFile.exists()) {
-					existing.add(newFile.getAbsolutePath());
+					existing.add(ze.getName());
 				}
 				ze = zis.getNextEntry();
 			}
