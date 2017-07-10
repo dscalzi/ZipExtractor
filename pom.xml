@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.dscalzi</groupId>
   <artifactId>ZipExtractor</artifactId>
-  <version>0.13.0</version>
+  <version>1.0.0</version>
   <name>Zip Extractor</name>
   <description>Utility plugin that will unzip the files you specify.</description>
   

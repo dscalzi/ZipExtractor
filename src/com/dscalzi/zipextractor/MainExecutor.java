@@ -28,7 +28,7 @@ import com.dscalzi.zipextractor.util.ZServicer;
 
 public class MainExecutor implements CommandExecutor, TabCompleter{
 
-	public static final Pattern COMMANDS = Pattern.compile("^(?iu)(help|extract|compress|src|dest|setsrc|setdest|status|plugindir|terminate|forceterminate|reload)");
+	public static final Pattern COMMANDS = Pattern.compile("^(?iu)(help|extract|compress|src|dest|setsrc|setdest|status|plugindir|terminate|forceterminate|reload|version)");
 	public static final Pattern INTEGERS = Pattern.compile("(\\\\d+|-\\\\d+)");
 	
 	private final MessageManager mm;
@@ -390,6 +390,8 @@ public class MainExecutor implements CommandExecutor, TabCompleter{
 		if(args.length == 2){
 			boolean a = sender.hasPermission("zipextractor.admin.src") && "src".startsWith(args[0].toLowerCase());
 			boolean b = sender.hasPermission("zipextractor.admin.dest") && "dest".startsWith(args[0].toLowerCase());
+			boolean c = sender.hasPermission("zipextractor.admin.extract") && "extract".startsWith(args[0].toLowerCase());
+			boolean d = sender.hasPermission("zipextractor.admin.compress") && "compress".startsWith(args[0].toLowerCase());
 			if(a | b)
 				if("-absolute".startsWith(args[1].toLowerCase()))
 					ret.add("-absolute");
@@ -399,12 +401,12 @@ public class MainExecutor implements CommandExecutor, TabCompleter{
 				ret.addAll(subCommands(sender, newArgs));
 			}
 			
-			if(sender.hasPermission("zipextractor.admin.extract") && "extract".startsWith(args[0].toLowerCase())) {
-				//The override option is intentionally left out.
-				//Users must be certain during overrides - that means typing it out explicitly.
-				if(ZExtractor.getWarnData(sender).isPresent() && "view".startsWith(args[1].toLowerCase())) {
-					ret.add("view");
-				}
+			if(c && ZExtractor.getWarnData(sender).isPresent() && "view".startsWith(args[1].toLowerCase())) {
+				ret.add("view");
+			}
+			if(((c && sender.hasPermission("zipextractor.admin.override.extract")) ||
+					(d && sender.hasPermission("zipextractor.admin.override.compress"))) && "-override".startsWith(args[1].toLowerCase())) {
+				ret.add("-override");
 			}
 		}
 		
@@ -439,6 +441,8 @@ public class MainExecutor implements CommandExecutor, TabCompleter{
 				ret.add("forceterminate");
 			if(sender.hasPermission("zipextractor.admin.reload") && "reload".startsWith(args[0].toLowerCase())) 
 				ret.add("reload");
+			if("version".startsWith(args[0].toLowerCase()))
+				ret.add("version");
 		}
 		
 		return ret;

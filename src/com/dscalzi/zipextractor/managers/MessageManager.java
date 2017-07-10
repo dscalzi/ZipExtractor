@@ -303,7 +303,7 @@ public class MessageManager {
 		PageList<String> cmds = new PageList<String>(7);
 		String header = prefix + cPrimary + " Command List - <Required> [Optional]";
 		if(sender.hasPermission("zipextractor.admin.use")){
-			cmds.add(listPrefix + "/ZipExtractor help [cmd]" + cTrim + "- View command list or info.");
+			cmds.add(listPrefix + "/ZipExtractor help [cmd] " + cTrim + "- View command list or info.");
 		}
 		if(sender.hasPermission("zipextractor.admin.extract"))
 			cmds.add(listPrefix + "/ZipExtractor extract " + cTrim + "- Extract the specified file.");
@@ -439,6 +439,10 @@ public class MessageManager {
 			sendMessage(sender, cPrimary + "This command will reload the configuration file. It's necessary to do this after you edit the config file directly. If you use the built-in commands it's automatically reloaded after each edit.");
 			return;
 		}
+		if(cmd.equalsIgnoreCase("version")){
+			sendMessage(sender, cPrimary + "Displays the plugin's version information and provides links to the source code and metrics page.");
+			return;
+		}
 		
 	}
 	
@@ -451,13 +455,14 @@ public class MessageManager {
 		} else if(zs.isTerminating()) {
 			sendMessage(sender, "Executor Status | " + ChatColor.RED + "TERMINATING");
 		} else {
-			sendMessage(sender, "Executor Status | " + ChatColor.GREEN + "READY" + ChatColor.RESET + " | Active : " + zs.getActive() + " | Queued : " + zs.getQueued());
+			String status = zs.isQueueFull() ? ChatColor.RED + "FULL" : ChatColor.GREEN + "READY";
+			sendMessage(sender, "Executor Status | " + status + ChatColor.RESET + " | Active : " + zs.getActive() + " | Queued : " + zs.getQueued());
 		}
 	}
 	
 	public void cmdVersion(CommandSender sender){
 		sendMessage(sender, "Zip Extractor version " + plugin.getDescription().getVersion() +
-				"\n" + cPrimary + "| " + cTrim + "Source" + cPrimary + " | " + ChatColor.RESET + "https://bitbucket.org/AventiumSoftworks/zip-extractor" +
+				"\n" + cPrimary + "| " + cTrim + "Source" + cPrimary + " | " + ChatColor.RESET + "bitbucket.org/AventiumSoftworks/zip-extractor" +
 				"\n" + cPrimary + "| " + cTrim + "Metrics" + cPrimary + " | " + ChatColor.RESET + "https://bstats.org/plugin/bukkit/ZipExtractor");
 	}
 	

@@ -73,6 +73,10 @@ public class ZServicer {
 		return executor.getQueue().size();
 	}
 	
+	public boolean isQueueFull() {
+		return executor.getQueue().remainingCapacity() == 0;
+	}
+	
 	public void setMaximumPoolSize(int size){
 		if(executor.getMaximumPoolSize() == size) return;
 		executor.setMaximumPoolSize(size);
