@@ -29,9 +29,28 @@ public class JarProvider implements BaseProvider {
 	
 	@Override
 	public Collection<String> scan(CommandSender sender, File src, File dest) {
-		// TODO Will be completed for 1.0.0 release - support needs to be integrated elsewhere in
-		// the plugin first.
-		return null;
+		Collection<String> existing = new ArrayList<String>();
+		final MessageManager mm = MessageManager.getInstance();
+		
+		try(JarFile jar = new JarFile(src)){
+			Enumeration<JarEntry> enumEntries = jar.entries();
+			while (enumEntries.hasMoreElements()) {
+				if(Thread.interrupted())
+					throw new TaskInterruptedException();
+				
+				JarEntry file = enumEntries.nextElement();
+				File newFile = new File(dest + File.separator + file.getName());
+				if(newFile.exists()) {
+					existing.add(newFile.getAbsolutePath());
+				}
+			}
+		} catch (TaskInterruptedException e) {
+	    	mm.taskInterruption(sender, ZTask.EXTRACT);
+	    } catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		return existing;
 	}
 
 	@Override
@@ -44,8 +63,8 @@ public class JarProvider implements BaseProvider {
 		try(JarFile jar = new JarFile(src)){
 			Enumeration<JarEntry> enumEntries = jar.entries();
 			while (enumEntries.hasMoreElements()) {
-				if (Thread.interrupted())
-	        		  throw new TaskInterruptedException();
+				if(Thread.interrupted())
+					throw new TaskInterruptedException();
 			    JarEntry file = enumEntries.nextElement();
 			    File f = new File(dest + File.separator + file.getName());
 			    if(log)

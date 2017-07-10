@@ -28,9 +28,30 @@ public class ZipProvider implements BaseProvider{
 	
 	@Override
 	public Collection<String> scan(CommandSender sender, File src, File dest) {
-		// TODO Will be completed for 1.0.0 release - support needs to be integrated elsewhere in
-		// the plugin first.
-		return null;
+		Collection<String> existing = new ArrayList<String>();
+		final MessageManager mm = MessageManager.getInstance();
+		try(FileInputStream fis = new FileInputStream(src);
+			ZipInputStream zis = new ZipInputStream(fis);){
+			ZipEntry ze = zis.getNextEntry();
+			
+			while(ze != null) {
+				if(Thread.interrupted())
+					throw new TaskInterruptedException();
+				
+	    		File newFile = new File(dest + File.separator + ze.getName());
+				if(newFile.exists()) {
+					existing.add(newFile.getAbsolutePath());
+				}
+			}
+			
+			zis.closeEntry();
+		} catch (TaskInterruptedException e) {
+	    	mm.taskInterruption(sender, ZTask.EXTRACT);
+	    } catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		return existing;
 	}
 
 	@Override
@@ -45,12 +66,11 @@ public class ZipProvider implements BaseProvider{
 			ZipInputStream zis = new ZipInputStream(fis);){
 			ZipEntry ze = zis.getNextEntry();
 	    	
-	    	while(ze!=null){
-	    		if (Thread.interrupted())
-	        		  throw new TaskInterruptedException();
+	    	while(ze != null){
+	    		if(Thread.interrupted())
+	    			throw new TaskInterruptedException();
 	    		
-	    		String fileName = ze.getName();
-	    		File newFile = new File(dest + File.separator + fileName);
+	    		File newFile = new File(dest + File.separator + ze.getName());
 	    		if(log)
 	    			logger.info("Extracting : "+ newFile.getAbsoluteFile());
 	    		File parent = newFile.getParentFile();

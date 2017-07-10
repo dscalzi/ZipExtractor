@@ -35,9 +35,30 @@ public class RarProvider implements BaseProvider {
 	
 	@Override
 	public Collection<String> scan(CommandSender sender, File src, File dest) {
-		// TODO Will be completed for 1.0.0 release - support needs to be integrated elsewhere in
-		// the plugin first.
-		return null;
+		Collection<String> existing = new ArrayList<String>();
+		final MessageManager mm = MessageManager.getInstance();
+		
+		try(Archive a = new Archive(new FileVolumeManager(src))){
+			
+			if(a != null) {
+				FileHeader fh = a.nextFileHeader();
+				while(fh != null) {
+					if(Thread.interrupted())
+						throw new TaskInterruptedException();
+					File newFile = Paths.get(dest + File.separator + fh.getFileNameString()).toFile();
+					if(newFile.exists()) {
+						existing.add(newFile.getAbsolutePath());
+					}
+				}
+			}
+			
+		} catch (TaskInterruptedException e) {
+	    	mm.taskInterruption(sender, ZTask.EXTRACT);
+	    } catch (IOException | RarException e) {
+			e.printStackTrace();
+		}
+		
+		return existing;
 	}
 
 	@Override
@@ -51,8 +72,8 @@ public class RarProvider implements BaseProvider {
 				FileHeader fh = a.nextFileHeader();
 				mm.startingProcess(sender, ZTask.EXTRACT, src.getName());
 				while (fh != null) {
-					if (Thread.interrupted())
-		        		  throw new TaskInterruptedException();
+					if(Thread.interrupted())
+						throw new TaskInterruptedException();
 					try(InputStream is = a.getInputStream(fh)){
 						Path p = Paths.get(dest + File.separator + fh.getFileNameString()); 
 						File parent = p.toFile().getParentFile();
