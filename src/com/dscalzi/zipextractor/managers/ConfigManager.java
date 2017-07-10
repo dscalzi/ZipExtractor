@@ -112,7 +112,7 @@ public class ConfigManager {
 	}
 	
 	public boolean warnOnConflitcs() {
-		return this.config.getBoolean("general_settings.warn_on_conflics", true);
+		return this.config.getBoolean("general_settings.warn_on_conflicts", true);
 	}
 	
 	public boolean waitForTasksOnShutdown(){
