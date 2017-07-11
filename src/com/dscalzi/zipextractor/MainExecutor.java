@@ -172,7 +172,7 @@ public class MainExecutor implements CommandExecutor, TabCompleter{
 			}
 		} else {
 			
-			boolean override = !cm.warnOnConflitcs();
+			boolean override = !cm.warnOnConflitcts();
 			if(args.length >= 2 && args[1].equalsIgnoreCase("-override")) {
 				if(!sender.hasPermission("zipextractor.admin.override.extract")){
 					mm.noPermission(sender);
@@ -202,7 +202,7 @@ public class MainExecutor implements CommandExecutor, TabCompleter{
 			return;
 		}
 		
-		boolean override = !cm.warnOnConflitcs();
+		boolean override = !cm.warnOnConflitcts();
 		if(args.length >= 2 && args[1].equalsIgnoreCase("-override")) {
 			if(!sender.hasPermission("zipextractor.admin.override.compress")){
 				mm.noPermission(sender);

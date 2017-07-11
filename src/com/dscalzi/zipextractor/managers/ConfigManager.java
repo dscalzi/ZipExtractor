@@ -111,7 +111,7 @@ public class ConfigManager {
 		return this.config.getBoolean("general_settings.log_files", false);
 	}
 	
-	public boolean warnOnConflitcs() {
+	public boolean warnOnConflitcts() {
 		return this.config.getBoolean("general_settings.warn_on_conflicts", true);
 	}
 	

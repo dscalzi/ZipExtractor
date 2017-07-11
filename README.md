@@ -14,9 +14,22 @@ The source and destination file paths are saved inside of the config.yml. This m
 * Compression of any file into the **ZIP** format.
 * Queueable operations if you have many extractions/compressions to perform.
 * Configurable [Thread Pool Executor][thread_pools] allowing you to set a maximum queue size and maximum number of threads to run at once. Incase of an emergency the Thread Pool can be shutdown at anytime.
+* Option to be warned if an extraction/compression would result in files being overriden.
+    * If enabled, users will require an additional permission in order to proceed with the process.
+    * For extractions, you can view every file which would be overriden prior to proceeding with the process.
 * Metrics by [bStats][bStats]
 
 You can find more extensive details on the [wiki][wiki].
+
+***
+
+#Contributing
+
+If you would like to contribute to this project, feel free to submit a pull request. The project does not use a specific code style, but please keep to the conventions used throughout the code.
+
+To build this project you will need maven. Clone this repo and run `mvn clean install`.
+
+Since the main purpose of this plugin deals with archive extraction, the plugin uses a provider system so that new formats can be easily supported. If you need support for a specific file extension you can create an issue and request it or submit a pull request which adds the provider. The *BaseProvider* class is documented in the code and implementations already exist if you need examples. A reference to each provider is kept in the *ZExtractor* class.
 
 ***
 
