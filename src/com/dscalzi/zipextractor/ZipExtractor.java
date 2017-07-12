@@ -10,12 +10,23 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import com.dscalzi.zipextractor.managers.ConfigManager;
 import com.dscalzi.zipextractor.managers.MessageManager;
+import com.dscalzi.zipextractor.providers.JarProvider;
+import com.dscalzi.zipextractor.providers.PackProvider;
+import com.dscalzi.zipextractor.providers.RarProvider;
+import com.dscalzi.zipextractor.providers.TypeProvider;
+import com.dscalzi.zipextractor.providers.ZipProvider;
 import com.dscalzi.zipextractor.util.ZServicer;
 
 public class ZipExtractor extends JavaPlugin{ 
 
 	@SuppressWarnings("unused")
 	private Metrics metrics;
+	private static final TypeProvider[] PROVIDERS = {
+			new ZipProvider(),
+			new RarProvider(),
+			new JarProvider(),
+			new PackProvider()
+	};
 	
     @Override
     public void onEnable(){
@@ -30,6 +41,10 @@ public class ZipExtractor extends JavaPlugin{
     public void onDisable(){
     	boolean wait = ConfigManager.getInstance().waitForTasksOnShutdown();
     	ZServicer.getInstance().terminate(!wait, wait);
+    }
+    
+    public static TypeProvider[] getProviders() {
+    	return PROVIDERS;
     }
     
 }

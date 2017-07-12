@@ -222,8 +222,7 @@ public class MainExecutor implements CommandExecutor, TabCompleter{
 			return;
 		}
 		
-		ZCompressor zc = new ZCompressor();
-		zc.asyncCompress(sender, srcOpt.get(), destOpt.get(), override);
+		ZCompressor.asyncCompress(sender, srcOpt.get(), destOpt.get(), override);
 		
 	}
 	

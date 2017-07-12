@@ -17,6 +17,7 @@ import org.bukkit.entity.Player;
 
 import com.dscalzi.zipextractor.ZipExtractor;
 import com.dscalzi.zipextractor.util.PageList;
+import com.dscalzi.zipextractor.util.ZCompressor;
 import com.dscalzi.zipextractor.util.ZExtractor;
 import com.dscalzi.zipextractor.util.ZServicer;
 import com.dscalzi.zipextractor.util.ZTask;
@@ -165,8 +166,16 @@ public class MessageManager {
 		getLogger().severe("Error during " + t.getProcessName() + ". Access is denied to " + path);
 	}
 	
-	public void invalidSourceExtension(CommandSender sender){
+	public void invalidExtractionExtension(CommandSender sender){
 		sendError(sender, "Currently extractions are only supported for " + listToString(ZExtractor.supportedExtensions()) + " files.");
+	}
+	
+	public void invalidCompressionExtension(CommandSender sender) {
+		sendError(sender, "Currently you may only compress to the " + listToString(ZCompressor.supportedExtensions()) + " format" + (ZCompressor.supportedExtensions().size() > 1 ? "s" : "" ) + ".");
+	}
+	
+	public void invalidSourceForDest(CommandSender sender, List<String> sources, List<String> dests) {
+		sendError(sender, "Only " + listToString(sources) + " files can be compressed to " + listToString(dests) + " files.");
 	}
 	
 	public void invalidPath(CommandSender sender, String path, String type) {
@@ -480,6 +489,7 @@ public class MessageManager {
 	}
 	
 	public <T> String listToString(List<T> c) {
+		if(c == null) return "";
 		if(c.size() == 1) {
 			return c.get(0).toString();
 		} else if(c.size() == 2) {

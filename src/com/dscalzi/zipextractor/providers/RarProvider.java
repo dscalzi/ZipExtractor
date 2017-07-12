@@ -33,14 +33,14 @@ import com.github.junrar.exception.RarException;
 import com.github.junrar.impl.FileVolumeManager;
 import com.github.junrar.rarfile.FileHeader;
 
-public class RarProvider implements BaseProvider {
+public class RarProvider implements TypeProvider {
 
 	//Shared pattern by RarProviders
 	public static final Pattern PATH_END = Pattern.compile("\\.rar$");
 	public static final List<String> SUPPORTED = new ArrayList<String>(Arrays.asList("rar"));
 	
 	@Override
-	public List<String> scan(CommandSender sender, File src, File dest) {
+	public List<String> scanForExtractionConflicts(CommandSender sender, File src, File dest) {
 		List<String> existing = new ArrayList<String>();
 		final MessageManager mm = MessageManager.getInstance();
 		
@@ -74,7 +74,7 @@ public class RarProvider implements BaseProvider {
 		final ConfigManager cm = ConfigManager.getInstance();
 		final MessageManager mm = MessageManager.getInstance();
 		final Logger logger = mm.getLogger();
-		boolean log = cm.getLoggingProperty();
+		final boolean log = cm.getLoggingProperty();
 		try(Archive a = new Archive(new FileVolumeManager(src))){
 			if (a != null) {
 				FileHeader fh = a.nextFileHeader();
@@ -116,13 +116,28 @@ public class RarProvider implements BaseProvider {
 	}
 
 	@Override
-	public boolean sourceMatches(File src) {
+	public boolean validForExtraction(File src) {
 		return PATH_END.matcher(src.getAbsolutePath()).find();
 	}
 
 	@Override
-	public List<String> supportedExtensions() {
+	public boolean srcValidForCompression(File src) {
+		return false; //Compression to RAR not supported.
+	}
+	
+	@Override
+	public boolean destValidForCompression(File dest) {
+		return false; //Compression to RAR not supported.
+	}
+	
+	@Override
+	public List<String> supportedExtractionTypes() {
 		return SUPPORTED;
+	}
+	
+	@Override
+	public List<String> canCompressTo() {
+		return new ArrayList<String>();
 	}
 
 }

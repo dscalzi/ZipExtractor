@@ -26,14 +26,14 @@ import com.dscalzi.zipextractor.managers.MessageManager;
 import com.dscalzi.zipextractor.util.TaskInterruptedException;
 import com.dscalzi.zipextractor.util.ZTask;
 
-public class JarProvider implements BaseProvider {
+public class JarProvider implements TypeProvider {
 
 	//Shared pattern by JarProviders
 	public static final Pattern PATH_END = Pattern.compile("\\.jar$");
 	public static final List<String> SUPPORTED = new ArrayList<String>(Arrays.asList("jar"));
 	
 	@Override
-	public List<String> scan(CommandSender sender, File src, File dest) {
+	public List<String> scanForExtractionConflicts(CommandSender sender, File src, File dest) {
 		List<String> existing = new ArrayList<String>();
 		final MessageManager mm = MessageManager.getInstance();
 		
@@ -64,7 +64,7 @@ public class JarProvider implements BaseProvider {
 		final ConfigManager cm = ConfigManager.getInstance();
 		final MessageManager mm = MessageManager.getInstance();
 		final Logger logger = mm.getLogger();
-		boolean log = cm.getLoggingProperty();
+		final boolean log = cm.getLoggingProperty();
 		mm.startingProcess(sender, ZTask.EXTRACT, src.getName());
 		try(JarFile jar = new JarFile(src)){
 			Enumeration<JarEntry> enumEntries = jar.entries();
@@ -95,13 +95,28 @@ public class JarProvider implements BaseProvider {
 	}
 
 	@Override
-	public boolean sourceMatches(File src) {
+	public boolean validForExtraction(File src) {
 		return PATH_END.matcher(src.getAbsolutePath()).find();
+	}
+	
+	@Override
+	public boolean srcValidForCompression(File src) {
+		return false; //Compression to Jars is not supported.
+	}
+	
+	@Override
+	public boolean destValidForCompression(File dest) {
+		return false; //Compression to Jars is not supported.
 	}
 
 	@Override
-	public List<String> supportedExtensions() {
+	public List<String> supportedExtractionTypes() {
 		return SUPPORTED;
+	}
+	
+	@Override
+	public List<String> canCompressTo() {
+		return new ArrayList<String>();
 	}
 
 }

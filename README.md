@@ -29,7 +29,7 @@ If you would like to contribute to this project, feel free to submit a pull requ
 
 To build this project you will need maven. Clone this repo and run `mvn clean install`.
 
-Since the main purpose of this plugin deals with archive extraction, the plugin uses a provider system so that new formats can be easily supported. If you need support for a specific file extension you can create an issue and request it or submit a pull request which adds the provider. The *BaseProvider* class is documented in the code and implementations already exist if you need examples. A reference to each provider is kept in the *ZExtractor* class.
+Since the main purpose of this plugin deals with archive manipulation, the plugin uses a provider system so that new formats can be easily supported. If you need support for a specific file extension you can create an issue and request it or submit a pull request which adds the provider. The *TypeProvider* class is documented in the code and implementations already exist if you need examples. A reference to each provider is saved in the *ZipExtractor* class.
 
 ***
 

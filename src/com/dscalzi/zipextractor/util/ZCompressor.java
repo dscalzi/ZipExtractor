@@ -6,98 +6,65 @@
 package com.dscalzi.zipextractor.util;
 
 import java.io.File;
-import java.io.OutputStream;
-import java.nio.file.AccessDeniedException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.logging.Logger;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
-
+import java.util.ArrayList;
+import java.util.List;
 import org.bukkit.command.CommandSender;
 
-import com.dscalzi.zipextractor.managers.ConfigManager;
+import com.dscalzi.zipextractor.ZipExtractor;
 import com.dscalzi.zipextractor.managers.MessageManager;
+import com.dscalzi.zipextractor.providers.TypeProvider;
 
 public class ZCompressor {
 	
-	private final MessageManager mm;
-	private final ConfigManager cm;
+	private static List<String> SUPPORTED;
 	
-	public ZCompressor(){
-		this.mm = MessageManager.getInstance();
-		this.cm = ConfigManager.getInstance();
-	}
-	
-	public void asyncCompress(CommandSender sender, File srcLoc, File destLoc, boolean override){
+	public static void asyncCompress(CommandSender sender, File src, File dest, final boolean override){
+		final MessageManager mm = MessageManager.getInstance();
 		//If the source does not exist, abort.
-		if(!srcLoc.exists()){
-			mm.sourceNotFound(sender, srcLoc.getAbsolutePath());
-			return;
-		}
-		boolean validate = PathUtils.isValidPath(destLoc.toPath(), "**.zip");
-		String properPath = destLoc.getAbsolutePath();
-		if(!validate) {
-			properPath = destLoc.toString() + ".zip";
-		}
-		
-		File dF = new File(properPath);
-		if(dF.exists() && !override) {
-			mm.destExists(sender);
+		if(!src.exists()){
+			mm.sourceNotFound(sender, src.getAbsolutePath());
 			return;
 		}
 		
-		Runnable task = () -> {
-			compressToZip(sender, srcLoc, dF);
-			synchronized(this){
-				notify();
+		Runnable task = null;
+		for(final TypeProvider p : ZipExtractor.getProviders()) {
+			if(p.destValidForCompression(dest)) {
+				if(p.srcValidForCompression(src)) {
+					if(dest.exists() && !override) {
+						mm.destExists(sender);
+						return;
+					}
+					task = () -> {
+						p.compress(sender, src, dest);
+					};
+				} else {
+					mm.invalidSourceForDest(sender, p.canCompressFrom(), p.canCompressTo());
+					return;
+				}
 			}
-		};
-		int result = ZServicer.getInstance().submit(task);
-		if(result == 0)
-			mm.addToQueue(sender, ZServicer.getInstance().getSize());
-		else if(result == 1)
-			mm.queueFull(sender);
-		else if(result == 2)
-			mm.executorTerminated(sender, ZTask.COMPRESS);
+		}
+		
+		if(task != null) {
+			int result = ZServicer.getInstance().submit(task);
+			if(result == 0)
+				mm.addToQueue(sender, ZServicer.getInstance().getSize());
+			else if(result == 1)
+				mm.queueFull(sender);
+			else if(result == 2)
+				mm.executorTerminated(sender, ZTask.COMPRESS);
+		} else {
+			mm.invalidCompressionExtension(sender);
+		}
 	}
 	
-	private void compressToZip(CommandSender sender, File sourceFile, File destFolder){
-		Logger logger = mm.getLogger();
-		boolean log = cm.getLoggingProperty();
-		mm.startingProcess(sender, ZTask.COMPRESS, sourceFile.getName());
-		try(OutputStream os = Files.newOutputStream(destFolder.toPath());
-			ZipOutputStream zs = new ZipOutputStream(os);){
-	        Path pp = sourceFile.toPath();
-	        Files.walk(pp)
-	          .filter(path -> !Files.isDirectory(path))
-	          .forEach(path -> {
-	        	  if (Thread.interrupted())
-	        		  throw new TaskInterruptedException();
-	        	  //Prevent recursive compressions
-	        	  if(path.equals(destFolder.toPath()))
-	        		  return;
-	        	  String sp = path.toAbsolutePath().toString().replace(pp.toAbsolutePath().toString(), "");
-	        	  if(sp.length() > 0)
-	        		  sp = sp.substring(1);
-	              ZipEntry zipEntry = new ZipEntry(pp.getFileName() + ((sp.length() > 0) ? (File.separator + sp) : ""));
-	              try {
-	            	  if(log)
-	            		  logger.info("Compressing : "+ zipEntry.toString());
-	                  zs.putNextEntry(zipEntry);
-	                  zs.write(Files.readAllBytes(path));
-	                  zs.closeEntry();
-	              } catch (Exception e) {
-	            	  e.printStackTrace();
-	              }
-	          });
-	        mm.compressionComplete(sender, destFolder.getAbsolutePath());
-	    } catch (AccessDeniedException e) {
-	    	mm.fileAccessDenied(sender, ZTask.COMPRESS, e.getMessage());
-	    } catch (TaskInterruptedException e) {
-	    	mm.taskInterruption(sender, ZTask.COMPRESS);
-	    } catch (Throwable e) {
-			e.printStackTrace();
+	public static List<String> supportedExtensions(){
+		if(SUPPORTED == null) {
+			SUPPORTED = new ArrayList<String>();
+			for(final TypeProvider p : ZipExtractor.getProviders()) {
+				SUPPORTED.addAll(p.canCompressTo());
+			}
 		}
+		return SUPPORTED;
 	}
+	
 }

@@ -14,27 +14,16 @@ import java.util.Optional;
 
 import org.bukkit.command.CommandSender;
 
+import com.dscalzi.zipextractor.ZipExtractor;
 import com.dscalzi.zipextractor.managers.MessageManager;
-import com.dscalzi.zipextractor.providers.BaseProvider;
-import com.dscalzi.zipextractor.providers.JarProvider;
-import com.dscalzi.zipextractor.providers.RarProvider;
-import com.dscalzi.zipextractor.providers.ZipProvider;
+import com.dscalzi.zipextractor.providers.TypeProvider;
 
 public class ZExtractor {
 	
-	private static final BaseProvider[] PROVIDERS = {
-			new ZipProvider(),
-			new RarProvider(),
-			new JarProvider()
-	};
 	private static final Map<String, WarnData> WARNED = new HashMap<String, WarnData>();
 	private static List<String> SUPPORTED;
 	
-	public static void asyncExtract(CommandSender sender, File src, File dest) {
-		asyncExtract(sender, src, dest, false);
-	}
-	
-	public static void asyncExtract(CommandSender sender, File src, File dest, boolean override) {
+	public static void asyncExtract(CommandSender sender, File src, File dest, final boolean override) {
 		final MessageManager mm = MessageManager.getInstance();
 		
 		//If the user was warned, clear it.
@@ -62,15 +51,14 @@ public class ZExtractor {
 		}
 				
 		Runnable task = null;
-		final boolean finalOverride = override;
-		for(final BaseProvider p : PROVIDERS) {
-			if(p.sourceMatches(src)) {
+		for(final TypeProvider p : ZipExtractor.getProviders()) {
+			if(p.validForExtraction(src)) {
 				task = () -> {
 					List<String> atRisk = new ArrayList<String>();
-					if(!finalOverride) {
-						atRisk = p.scan(sender, src, dest);
+					if(!override) {
+						atRisk = p.scanForExtractionConflicts(sender, src, dest);
 					}
-					if(atRisk.size() == 0 || finalOverride) {
+					if(atRisk.size() == 0 || override) {
 						p.extract(sender, src, dest);
 					} else {
 						WARNED.put(sender.getName(), new WarnData(sender, src, dest, new PageList<String>(4, atRisk)));
@@ -89,15 +77,15 @@ public class ZExtractor {
 			else if(result == 2)
 				mm.executorTerminated(sender, ZTask.EXTRACT);
 		} else {
-			mm.invalidSourceExtension(sender);
+			mm.invalidExtractionExtension(sender);
 		}
 	}
 	
 	public static List<String> supportedExtensions(){
 		if(SUPPORTED == null) {
 			SUPPORTED = new ArrayList<String>();
-			for(final BaseProvider p : PROVIDERS) {
-				SUPPORTED.addAll(p.supportedExtensions());
+			for(final TypeProvider p : ZipExtractor.getProviders()) {
+				SUPPORTED.addAll(p.supportedExtractionTypes());
 			}
 		}
 		return SUPPORTED;
