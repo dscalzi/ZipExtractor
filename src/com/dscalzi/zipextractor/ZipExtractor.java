@@ -14,6 +14,7 @@ import com.dscalzi.zipextractor.providers.JarProvider;
 import com.dscalzi.zipextractor.providers.PackProvider;
 import com.dscalzi.zipextractor.providers.RarProvider;
 import com.dscalzi.zipextractor.providers.TypeProvider;
+import com.dscalzi.zipextractor.providers.XZProvider;
 import com.dscalzi.zipextractor.providers.ZipProvider;
 import com.dscalzi.zipextractor.util.ZServicer;
 
@@ -25,7 +26,8 @@ public class ZipExtractor extends JavaPlugin{
 			new ZipProvider(),
 			new RarProvider(),
 			new JarProvider(),
-			new PackProvider()
+			new PackProvider(),
+			new XZProvider()
 	};
 	
     @Override
