@@ -2,9 +2,9 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.dscalzi</groupId>
   <artifactId>ZipExtractor</artifactId>
-  <version>1.2.0</version>
+  <version>1.2.1</version>
   <name>Zip Extractor</name>
-  <description>Utility plugin that will unzip the files you specify.</description>
+  <description>Utility plugin to extract archives and compress files.</description>
   
   <developers>
     <developer>
@@ -18,11 +18,10 @@
   <build>
 	<defaultGoal>package</defaultGoal>
 	<finalName>ZipExtractor</finalName>
-	<sourceDirectory>src</sourceDirectory>
 	<resources>
       <resource>
-      	  <targetPath>.</targetPath>
-      	  <directory>${basedir}/src/com/dscalzi/zipextractor/resources/</directory>
+      	  <directory>src/main/resources/</directory>
+      	  <filtering>true</filtering>
       </resource>
     </resources>
     <plugins>

@@ -4,7 +4,7 @@
   <groupId>com.dscalzi</groupId>
   <artifactId>ZipExtractor</artifactId>
   <name>Zip Extractor</name>
-  <version>1.0.0</version>
+  <version>1.2.0</version>
   <description>Utility plugin that will unzip the files you specify.</description>
   <developers>
     <developer>
@@ -15,12 +15,11 @@
     </developer>
   </developers>
   <build>
-    <sourceDirectory>src</sourceDirectory>
     <defaultGoal>package</defaultGoal>
     <resources>
       <resource>
-        <targetPath>.</targetPath>
-        <directory>${basedir}/src/com/dscalzi/zipextractor/resources/</directory>
+        <filtering>true</filtering>
+        <directory>src/main/resources/</directory>
       </resource>
     </resources>
     <finalName>ZipExtractor</finalName>
