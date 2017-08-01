@@ -6,6 +6,10 @@
   <name>Zip Extractor</name>
   <description>Utility plugin to extract archives and compress files.</description>
   
+  <properties>
+  	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
+  
   <developers>
     <developer>
     	<name>Daniel Scalzi (TheKraken7)</name>
@@ -20,7 +24,7 @@
 	<finalName>ZipExtractor</finalName>
 	<resources>
       <resource>
-      	  <directory>src/main/resources/</directory>
+      	  <directory>src/main/resources</directory>
       	  <filtering>true</filtering>
       </resource>
     </resources>
