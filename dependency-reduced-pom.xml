@@ -4,8 +4,8 @@
   <groupId>com.dscalzi</groupId>
   <artifactId>ZipExtractor</artifactId>
   <name>Zip Extractor</name>
-  <version>1.2.0</version>
-  <description>Utility plugin that will unzip the files you specify.</description>
+  <version>1.2.1</version>
+  <description>Utility plugin to extract archives and compress files.</description>
   <developers>
     <developer>
       <name>Daniel Scalzi (TheKraken7)</name>
@@ -19,7 +19,7 @@
     <resources>
       <resource>
         <filtering>true</filtering>
-        <directory>src/main/resources/</directory>
+        <directory>src/main/resources</directory>
       </resource>
     </resources>
     <finalName>ZipExtractor</finalName>
@@ -118,5 +118,8 @@
       </exclusions>
     </dependency>
   </dependencies>
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
 </project>
 

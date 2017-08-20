@@ -5,7 +5,7 @@
  */
 package com.dscalzi.zipextractor;
 
-import org.bstats.Metrics;
+import org.bstats.bukkit.Metrics;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.dscalzi.zipextractor.managers.ConfigManager;
