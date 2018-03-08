@@ -471,7 +471,7 @@ public class MessageManager {
 	
 	public void cmdVersion(CommandSender sender){
 		sendMessage(sender, "Zip Extractor version " + plugin.getDescription().getVersion() +
-				"\n" + cPrimary + "| " + cTrim + "Source" + cPrimary + " | " + ChatColor.RESET + "bitbucket.org/AventiumSoftworks/zip-extractor" +
+				"\n" + cPrimary + "| " + cTrim + "Source" + cPrimary + " | " + ChatColor.RESET + "https://github.com/dscalzi/ZipExtractor" +
 				"\n" + cPrimary + "| " + cTrim + "Metrics" + cPrimary + " | " + ChatColor.RESET + "https://bstats.org/plugin/bukkit/ZipExtractor");
 	}
 	
