@@ -8,7 +8,7 @@ The source and destination file paths are saved inside of the config.yml. This m
 
 ---
 
-#Feature List
+# Feature List
 
 * Extraction of **ZIP**, **RAR**, and **JAR** archives.
 * Compression of any file into the **ZIP** format.
@@ -23,7 +23,7 @@ You can find more extensive details on the [wiki][wiki].
 
 ***
 
-#Contributing
+# Contributing
 
 If you would like to contribute to this project, feel free to submit a pull request. The project does not use a specific code style, but please keep to the conventions used throughout the code.
 
@@ -33,7 +33,7 @@ Since the main purpose of this plugin deals with archive manipulation, the plugi
 
 ***
 
-#Links
+# Links
 * [Spigot Resource Page][spigot]
 * [Dev Bukkit Page][devbukkit]
 * [Suggest Features or Report Bugs][issues]
