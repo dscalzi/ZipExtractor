@@ -2,9 +2,10 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.dscalzi</groupId>
   <artifactId>ZipExtractor</artifactId>
-  <version>1.2.1</version>
+  <version>1.2.0</version>
   <name>Zip Extractor</name>
   <description>Utility plugin to extract archives and compress files.</description>
+  <url>https://github.com/dscalzi/ZipExtractor</url>
   
   <properties>
   	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -30,8 +31,9 @@
     </resources>
     <plugins>
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.5.1</version>
+        <version>3.7.0</version>
         <configuration>
           <source>1.8</source>
           <target>1.8</target>
@@ -41,7 +43,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-shade-plugin</artifactId>
-        <version>2.4.3</version>
+        <version>3.1.0</version>
         <executions>
           <execution>
             <phase>package</phase>
@@ -50,7 +52,7 @@
             </goals>
             <configuration>
               <minimizeJar>true</minimizeJar>
-              <finalName>ZipExtractor</finalName>
+              <finalName>ZipExtractor-${version}</finalName>
               <relocations>
               	<relocation>
               		<pattern>org.bstats</pattern>
@@ -135,4 +137,5 @@
     	</exclusions>
 	</dependency>
   </dependencies>
+  
 </project>

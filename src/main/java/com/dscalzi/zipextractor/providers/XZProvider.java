@@ -30,7 +30,8 @@ public class XZProvider implements TypeProvider {
 
 	//Shared pattern by ZipProviders
 	public static final Pattern PATH_END = Pattern.compile("\\.xz$");
-	public static final List<String> SUPPORTED = new ArrayList<String>(Arrays.asList("xz"));
+	public static final List<String> SUPPORTED_EXTRACT = new ArrayList<String>(Arrays.asList("xz"));
+	public static final List<String> SUPPORTED_COMPRESS = new ArrayList<String>(Arrays.asList("non-directory"));
 	
 	@Override
 	public List<String> scanForExtractionConflicts(CommandSender sender, File src, File dest) {
@@ -48,7 +49,7 @@ public class XZProvider implements TypeProvider {
 	public void extract(CommandSender sender, File src, File dest) {
 		final ConfigManager cm = ConfigManager.getInstance();
 		final MessageManager mm = MessageManager.getInstance();
-		final Logger logger = MessageManager.getInstance().getLogger();
+		final Logger logger = mm.getLogger();
 		final boolean log = cm.getLoggingProperty();
 		mm.startingProcess(sender, ZTask.EXTRACT, src.getName());
 		File realDest = new File(dest.getAbsolutePath(), PATH_END.matcher(src.getName()).replaceAll(""));
@@ -76,7 +77,7 @@ public class XZProvider implements TypeProvider {
 	public void compress(CommandSender sender, File src, File dest) {
 		final ConfigManager cm = ConfigManager.getInstance();
 		final MessageManager mm = MessageManager.getInstance();
-		final Logger logger = MessageManager.getInstance().getLogger();
+		final Logger logger = mm.getLogger();
 		final boolean log = cm.getLoggingProperty();
 		mm.startingProcess(sender, ZTask.COMPRESS, src.getName());
 		try(FileOutputStream fos = new FileOutputStream(dest);
@@ -97,7 +98,7 @@ public class XZProvider implements TypeProvider {
 
 	@Override
 	public boolean srcValidForCompression(File src) {
-		return true; //Any source file can be compressed to .xz.
+		return !src.isDirectory();
 	}
 
 	@Override
@@ -107,12 +108,17 @@ public class XZProvider implements TypeProvider {
 
 	@Override
 	public List<String> supportedExtractionTypes() {
-		return SUPPORTED;
+		return SUPPORTED_EXTRACT;
 	}
 
 	@Override
 	public List<String> canCompressTo() {
-		return SUPPORTED;
+		return SUPPORTED_EXTRACT;
+	}
+	
+	@Override
+	public List<String> canCompressFrom() {
+		return SUPPORTED_COMPRESS;
 	}
 
 }
