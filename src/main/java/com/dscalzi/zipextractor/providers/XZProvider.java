@@ -1,7 +1,7 @@
 /*
  * ZipExtractor
  * Copyright (C) 2016-2018 Daniel D. Scalzi
- * See License.txt for license information.
+ * See LICENSE for license information.
  */
 package com.dscalzi.zipextractor.providers;
 
@@ -28,7 +28,7 @@ import com.dscalzi.zipextractor.util.ZTask;
 
 public class XZProvider implements TypeProvider {
 
-	//Shared pattern by ZipProviders
+	//Shared pattern by XZProviders
 	public static final Pattern PATH_END = Pattern.compile("\\.xz$");
 	public static final List<String> SUPPORTED_EXTRACT = new ArrayList<String>(Arrays.asList("xz"));
 	public static final List<String> SUPPORTED_COMPRESS = new ArrayList<String>(Arrays.asList("non-directory"));
