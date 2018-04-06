@@ -1,6 +1,6 @@
-![# Header](http://i.imgur.com/NNwBkWb.png)
+![# Header](https://i.imgur.com/NNwBkWb.png)
 
-[![](http://ci.aventiumsoftworks.com/jenkins/job/ZipExtractor/badge/icon)](http://ci.aventiumsoftworks.com/jenkins/job/ZipExtractor/) [![](https://img.shields.io/badge/license-AGPL-blue.svg)](https://github.com/dscalzi/ZipExtractor/blob/master/LICENSE) ![](https://img.shields.io/badge/Spigot-1.8--1.12-orange.svg) ![](https://img.shields.io/badge/Java-8+-ec2025.svg) [![](https://discordapp.com/api/guilds/211524927831015424/widget.png)](https://discordapp.com/invite/Fcrh6PT)
+[<img src="https://ci.appveyor.com/api/projects/status/e9h6l9fu137jr5ek?retina=true" height="20.74px"></img>](https://ci.appveyor.com/project/dscalzi/zipextractor) [![](https://img.shields.io/github/license/dscalzi/ZipExtractor.svg)](https://github.com/dscalzi/ZipExtractor/blob/master/LICENSE) ![](https://img.shields.io/badge/Spigot-1.8.x--1.12.x-orange.svg) ![](https://img.shields.io/badge/Java-8+-ec2025.svg) [![](https://discordapp.com/api/guilds/211524927831015424/widget.png)](https://discordapp.com/invite/Fcrh6PT)
 
 ZipExtractor is an administrative utility plugin allowing the compression/extraction of archived files through minecraft command. This plugin is extremely useful for dealing with archives over FTP, which does not provide support for neither compression nor extraction. While using this plugin please note that **there is no undo button**. Overridden files **cannot** be recovered.
 
@@ -10,7 +10,7 @@ The source and destination file paths are saved inside of the config.yml. This m
 
 # Feature List
 
-* Extraction of **ZIP**, **RAR**, and **JAR**, **PACK**, and **XZ** archives.
+* Extraction of **ZIP**, **RAR**, **JAR**, **PACK**, and **XZ** archives.
 * Compression of any file or directory into the **ZIP** format.
 * Compression of any **JAR** file to the **PACK** format, and any non-directory file to the **XZ** format.
 * Queueable operations if you have many extractions/compressions to perform.
