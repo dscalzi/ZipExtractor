@@ -34,109 +34,109 @@ import com.github.junrar.rarfile.FileHeader;
 
 public class RarProvider implements TypeProvider {
 
-	//Shared pattern by RarProviders
-	public static final Pattern PATH_END = Pattern.compile("\\.rar$");
-	public static final List<String> SUPPORTED = new ArrayList<String>(Arrays.asList("rar"));
-	
-	@Override
-	public List<String> scanForExtractionConflicts(CommandSender sender, File src, File dest) {
-		List<String> existing = new ArrayList<String>();
-		final MessageManager mm = MessageManager.getInstance();
-		
-		try(Archive a = new Archive(new FileVolumeManager(src))){
-			
-			if(a != null) {
-				mm.scanningForConflics(sender);
-				FileHeader fh = a.nextFileHeader();
-				while(fh != null) {
-					if(Thread.interrupted())
-						throw new TaskInterruptedException();
-					File newFile = Paths.get(dest + File.separator + fh.getFileNameString()).toFile();
-					if(newFile.exists()) {
-						existing.add(fh.getFileNameString());
-					}
-					fh = a.nextFileHeader();
-				}
-			}
-			
-		} catch (TaskInterruptedException e) {
-	    	mm.taskInterruption(sender, ZTask.EXTRACT);
-	    } catch (IOException | RarException e) {
-			e.printStackTrace();
-		}
-		
-		return existing;
-	}
+    // Shared pattern by RarProviders
+    public static final Pattern PATH_END = Pattern.compile("\\.rar$");
+    public static final List<String> SUPPORTED = new ArrayList<String>(Arrays.asList("rar"));
 
-	@Override
-	public void extract(CommandSender sender, File src, File dest) {
-		final ConfigManager cm = ConfigManager.getInstance();
-		final MessageManager mm = MessageManager.getInstance();
-		final Logger logger = mm.getLogger();
-		final boolean log = cm.getLoggingProperty();
-		try(Archive a = new Archive(new FileVolumeManager(src))){
-			if (a != null) {
-				FileHeader fh = a.nextFileHeader();
-				mm.startingProcess(sender, ZTask.EXTRACT, src.getName());
-				while (fh != null) {
-					if(Thread.interrupted())
-						throw new TaskInterruptedException();
-					try(InputStream is = a.getInputStream(fh)){
-						Path p = Paths.get(dest + File.separator + fh.getFileNameString()); 
-						File parent = p.toFile().getParentFile();
-						if(!parent.exists() && !parent.mkdirs()){
-						    throw new IllegalStateException("Couldn't create dir: " + parent);
-						}
-						try{
-							if(log)
-						    	logger.info("Extracting : "+ p.toString());
-							Files.copy(is, p, StandardCopyOption.REPLACE_EXISTING);
-						} catch (DirectoryNotEmptyException e){
-							fh = a.nextFileHeader();
-							continue;
-						}
-					} catch (AccessDeniedException e) {
-				    	mm.fileAccessDenied(sender, ZTask.EXTRACT, e.getMessage());
-				    } catch (InterruptedIOException e){
-				    	throw new TaskInterruptedException();
-				    } catch (RarException | IOException e) {
-						e.printStackTrace();
-					}
-					fh = a.nextFileHeader();
-				}
-			} 
-		} catch (TaskInterruptedException e) {
-	    	mm.taskInterruption(sender, ZTask.EXTRACT);
-	    	return;
-	    } catch (RarException | IOException e) {
-			e.printStackTrace();
-		}
-		mm.extractionComplete(sender, dest.getAbsolutePath());
-	}
+    @Override
+    public List<String> scanForExtractionConflicts(CommandSender sender, File src, File dest) {
+        List<String> existing = new ArrayList<String>();
+        final MessageManager mm = MessageManager.getInstance();
 
-	@Override
-	public boolean validForExtraction(File src) {
-		return PATH_END.matcher(src.getAbsolutePath()).find();
-	}
+        try (Archive a = new Archive(new FileVolumeManager(src))) {
 
-	@Override
-	public boolean srcValidForCompression(File src) {
-		return false; //Compression to RAR not supported.
-	}
-	
-	@Override
-	public boolean destValidForCompression(File dest) {
-		return false; //Compression to RAR not supported.
-	}
-	
-	@Override
-	public List<String> supportedExtractionTypes() {
-		return SUPPORTED;
-	}
-	
-	@Override
-	public List<String> canCompressTo() {
-		return new ArrayList<String>();
-	}
+            if (a != null) {
+                mm.scanningForConflics(sender);
+                FileHeader fh = a.nextFileHeader();
+                while (fh != null) {
+                    if (Thread.interrupted())
+                        throw new TaskInterruptedException();
+                    File newFile = Paths.get(dest + File.separator + fh.getFileNameString()).toFile();
+                    if (newFile.exists()) {
+                        existing.add(fh.getFileNameString());
+                    }
+                    fh = a.nextFileHeader();
+                }
+            }
+
+        } catch (TaskInterruptedException e) {
+            mm.taskInterruption(sender, ZTask.EXTRACT);
+        } catch (IOException | RarException e) {
+            e.printStackTrace();
+        }
+
+        return existing;
+    }
+
+    @Override
+    public void extract(CommandSender sender, File src, File dest) {
+        final ConfigManager cm = ConfigManager.getInstance();
+        final MessageManager mm = MessageManager.getInstance();
+        final Logger logger = mm.getLogger();
+        final boolean log = cm.getLoggingProperty();
+        try (Archive a = new Archive(new FileVolumeManager(src))) {
+            if (a != null) {
+                FileHeader fh = a.nextFileHeader();
+                mm.startingProcess(sender, ZTask.EXTRACT, src.getName());
+                while (fh != null) {
+                    if (Thread.interrupted())
+                        throw new TaskInterruptedException();
+                    try (InputStream is = a.getInputStream(fh)) {
+                        Path p = Paths.get(dest + File.separator + fh.getFileNameString());
+                        File parent = p.toFile().getParentFile();
+                        if (!parent.exists() && !parent.mkdirs()) {
+                            throw new IllegalStateException("Couldn't create dir: " + parent);
+                        }
+                        try {
+                            if (log)
+                                logger.info("Extracting : " + p.toString());
+                            Files.copy(is, p, StandardCopyOption.REPLACE_EXISTING);
+                        } catch (DirectoryNotEmptyException e) {
+                            fh = a.nextFileHeader();
+                            continue;
+                        }
+                    } catch (AccessDeniedException e) {
+                        mm.fileAccessDenied(sender, ZTask.EXTRACT, e.getMessage());
+                    } catch (InterruptedIOException e) {
+                        throw new TaskInterruptedException();
+                    } catch (RarException | IOException e) {
+                        e.printStackTrace();
+                    }
+                    fh = a.nextFileHeader();
+                }
+            }
+        } catch (TaskInterruptedException e) {
+            mm.taskInterruption(sender, ZTask.EXTRACT);
+            return;
+        } catch (RarException | IOException e) {
+            e.printStackTrace();
+        }
+        mm.extractionComplete(sender, dest.getAbsolutePath());
+    }
+
+    @Override
+    public boolean validForExtraction(File src) {
+        return PATH_END.matcher(src.getAbsolutePath()).find();
+    }
+
+    @Override
+    public boolean srcValidForCompression(File src) {
+        return false; // Compression to RAR not supported.
+    }
+
+    @Override
+    public boolean destValidForCompression(File dest) {
+        return false; // Compression to RAR not supported.
+    }
+
+    @Override
+    public List<String> supportedExtractionTypes() {
+        return SUPPORTED;
+    }
+
+    @Override
+    public List<String> canCompressTo() {
+        return new ArrayList<String>();
+    }
 
 }

@@ -28,97 +28,98 @@ import com.dscalzi.zipextractor.util.ZTask;
 
 public class XZProvider implements TypeProvider {
 
-	//Shared pattern by XZProviders
-	public static final Pattern PATH_END = Pattern.compile("\\.xz$");
-	public static final List<String> SUPPORTED_EXTRACT = new ArrayList<String>(Arrays.asList("xz"));
-	public static final List<String> SUPPORTED_COMPRESS = new ArrayList<String>(Arrays.asList("non-directory"));
-	
-	@Override
-	public List<String> scanForExtractionConflicts(CommandSender sender, File src, File dest) {
-		final MessageManager mm = MessageManager.getInstance();
-		mm.scanningForConflics(sender);
-		File realDest = new File(dest.getAbsolutePath(), PATH_END.matcher(src.getName()).replaceAll(""));
-		List<String> ret = new ArrayList<String>();
-		if(realDest.exists()) {
-			ret.add(realDest.getAbsolutePath());
-		}
-		return ret;
-	}
-	
-	@Override
-	public void extract(CommandSender sender, File src, File dest) {
-		final ConfigManager cm = ConfigManager.getInstance();
-		final MessageManager mm = MessageManager.getInstance();
-		final Logger logger = mm.getLogger();
-		final boolean log = cm.getLoggingProperty();
-		mm.startingProcess(sender, ZTask.EXTRACT, src.getName());
-		File realDest = new File(dest.getAbsolutePath(), PATH_END.matcher(src.getName()).replaceAll(""));
-		try(FileInputStream fis = new FileInputStream(src);
-			XZInputStream xzis = new XZInputStream(fis);
-			FileOutputStream fos = new FileOutputStream(realDest)){
-			if(log)	logger.info("Extracting : " + src.getAbsoluteFile());
-			byte[] buf = new byte[65536];
-			int read = xzis.read(buf);
-    		while (read >= 1) {
-    			if(Thread.interrupted())
-    				throw new TaskInterruptedException();
-    			fos.write(buf, 0, read);
-    			read = xzis.read(buf);
-    		}
-    		mm.extractionComplete(sender, realDest.getAbsolutePath());
-		} catch (TaskInterruptedException e) {
-	    	mm.taskInterruption(sender, ZTask.EXTRACT);
-	    } catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-	
-	@Override
-	public void compress(CommandSender sender, File src, File dest) {
-		final ConfigManager cm = ConfigManager.getInstance();
-		final MessageManager mm = MessageManager.getInstance();
-		final Logger logger = mm.getLogger();
-		final boolean log = cm.getLoggingProperty();
-		mm.startingProcess(sender, ZTask.COMPRESS, src.getName());
-		try(FileOutputStream fos = new FileOutputStream(dest);
-			XZOutputStream xzos = new XZOutputStream(fos, new LZMA2Options());){
-			if(log)
-	        	logger.info("Compressing : " + src.getAbsolutePath());
-			xzos.write(Files.readAllBytes(src.toPath()));
-			mm.compressionComplete(sender, dest.getAbsolutePath());
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-	
-	@Override
-	public boolean validForExtraction(File src) {
-		return PATH_END.matcher(src.getAbsolutePath()).find();
-	}
+    // Shared pattern by XZProviders
+    public static final Pattern PATH_END = Pattern.compile("\\.xz$");
+    public static final List<String> SUPPORTED_EXTRACT = new ArrayList<String>(Arrays.asList("xz"));
+    public static final List<String> SUPPORTED_COMPRESS = new ArrayList<String>(Arrays.asList("non-directory"));
 
-	@Override
-	public boolean srcValidForCompression(File src) {
-		return !src.isDirectory();
-	}
+    @Override
+    public List<String> scanForExtractionConflicts(CommandSender sender, File src, File dest) {
+        final MessageManager mm = MessageManager.getInstance();
+        mm.scanningForConflics(sender);
+        File realDest = new File(dest.getAbsolutePath(), PATH_END.matcher(src.getName()).replaceAll(""));
+        List<String> ret = new ArrayList<String>();
+        if (realDest.exists()) {
+            ret.add(realDest.getAbsolutePath());
+        }
+        return ret;
+    }
 
-	@Override
-	public boolean destValidForCompression(File dest) {
-		return validForExtraction(dest);
-	}
+    @Override
+    public void extract(CommandSender sender, File src, File dest) {
+        final ConfigManager cm = ConfigManager.getInstance();
+        final MessageManager mm = MessageManager.getInstance();
+        final Logger logger = mm.getLogger();
+        final boolean log = cm.getLoggingProperty();
+        mm.startingProcess(sender, ZTask.EXTRACT, src.getName());
+        File realDest = new File(dest.getAbsolutePath(), PATH_END.matcher(src.getName()).replaceAll(""));
+        try (FileInputStream fis = new FileInputStream(src);
+                XZInputStream xzis = new XZInputStream(fis);
+                FileOutputStream fos = new FileOutputStream(realDest)) {
+            if (log)
+                logger.info("Extracting : " + src.getAbsoluteFile());
+            byte[] buf = new byte[65536];
+            int read = xzis.read(buf);
+            while (read >= 1) {
+                if (Thread.interrupted())
+                    throw new TaskInterruptedException();
+                fos.write(buf, 0, read);
+                read = xzis.read(buf);
+            }
+            mm.extractionComplete(sender, realDest.getAbsolutePath());
+        } catch (TaskInterruptedException e) {
+            mm.taskInterruption(sender, ZTask.EXTRACT);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
-	@Override
-	public List<String> supportedExtractionTypes() {
-		return SUPPORTED_EXTRACT;
-	}
+    @Override
+    public void compress(CommandSender sender, File src, File dest) {
+        final ConfigManager cm = ConfigManager.getInstance();
+        final MessageManager mm = MessageManager.getInstance();
+        final Logger logger = mm.getLogger();
+        final boolean log = cm.getLoggingProperty();
+        mm.startingProcess(sender, ZTask.COMPRESS, src.getName());
+        try (FileOutputStream fos = new FileOutputStream(dest);
+                XZOutputStream xzos = new XZOutputStream(fos, new LZMA2Options());) {
+            if (log)
+                logger.info("Compressing : " + src.getAbsolutePath());
+            xzos.write(Files.readAllBytes(src.toPath()));
+            mm.compressionComplete(sender, dest.getAbsolutePath());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
-	@Override
-	public List<String> canCompressTo() {
-		return SUPPORTED_EXTRACT;
-	}
-	
-	@Override
-	public List<String> canCompressFrom() {
-		return SUPPORTED_COMPRESS;
-	}
+    @Override
+    public boolean validForExtraction(File src) {
+        return PATH_END.matcher(src.getAbsolutePath()).find();
+    }
+
+    @Override
+    public boolean srcValidForCompression(File src) {
+        return !src.isDirectory();
+    }
+
+    @Override
+    public boolean destValidForCompression(File dest) {
+        return validForExtraction(dest);
+    }
+
+    @Override
+    public List<String> supportedExtractionTypes() {
+        return SUPPORTED_EXTRACT;
+    }
+
+    @Override
+    public List<String> canCompressTo() {
+        return SUPPORTED_EXTRACT;
+    }
+
+    @Override
+    public List<String> canCompressFrom() {
+        return SUPPORTED_COMPRESS;
+    }
 
 }
