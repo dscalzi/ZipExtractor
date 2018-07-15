@@ -7,9 +7,9 @@ package com.dscalzi.zipextractor.providers;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.AccessDeniedException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -97,8 +97,8 @@ public class JarProvider implements TypeProvider {
             }
             jis.closeEntry();
             mm.extractionComplete(sender, dest.getAbsolutePath());
-        } catch (FileNotFoundException e) {
-            mm.fileNotFound(sender, src.getAbsolutePath());
+        } catch (AccessDeniedException e) {
+            mm.fileAccessDenied(sender, ZTask.EXTRACT, e.getMessage());
         } catch (TaskInterruptedException e) {
             mm.taskInterruption(sender, ZTask.EXTRACT);
         } catch (IOException e) {
