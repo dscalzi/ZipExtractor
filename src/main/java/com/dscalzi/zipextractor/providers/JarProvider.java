@@ -6,19 +6,17 @@
 package com.dscalzi.zipextractor.providers;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.AccessDeniedException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Enumeration;
 import java.util.List;
 import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
+import java.util.jar.JarInputStream;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
-
 import org.bukkit.command.CommandSender;
 
 import com.dscalzi.zipextractor.managers.ConfigManager;
@@ -34,22 +32,25 @@ public class JarProvider implements TypeProvider {
 
     @Override
     public List<String> scanForExtractionConflicts(CommandSender sender, File src, File dest) {
+        
         List<String> existing = new ArrayList<String>();
         final MessageManager mm = MessageManager.getInstance();
+        mm.scanningForConflics(sender);
+        try (FileInputStream fis = new FileInputStream(src); JarInputStream jis = new JarInputStream(fis);) {
+            JarEntry je = jis.getNextJarEntry();
 
-        try (JarFile jar = new JarFile(src)) {
-            mm.scanningForConflics(sender);
-            Enumeration<JarEntry> enumEntries = jar.entries();
-            while (enumEntries.hasMoreElements()) {
+            while (je != null) {
                 if (Thread.interrupted())
                     throw new TaskInterruptedException();
 
-                JarEntry file = enumEntries.nextElement();
-                File newFile = new File(dest + File.separator + file.getName());
+                File newFile = new File(dest + File.separator + je.getName());
                 if (newFile.exists()) {
-                    existing.add(file.getName());
+                    existing.add(je.getName());
                 }
+                je = jis.getNextJarEntry();
             }
+
+            jis.closeEntry();
         } catch (TaskInterruptedException e) {
             mm.taskInterruption(sender, ZTask.EXTRACT);
         } catch (IOException e) {
@@ -65,28 +66,39 @@ public class JarProvider implements TypeProvider {
         final MessageManager mm = MessageManager.getInstance();
         final Logger logger = mm.getLogger();
         final boolean log = cm.getLoggingProperty();
+        byte[] buffer = new byte[1024];
         mm.startingProcess(sender, ZTask.EXTRACT, src.getName());
-        try (JarFile jar = new JarFile(src)) {
-            Enumeration<JarEntry> enumEntries = jar.entries();
-            while (enumEntries.hasMoreElements()) {
+        try (FileInputStream fis = new FileInputStream(src); JarInputStream jis = new JarInputStream(fis);) {
+            JarEntry je = jis.getNextJarEntry();
+            
+            while(je != null) {
                 if (Thread.interrupted())
                     throw new TaskInterruptedException();
-                JarEntry file = enumEntries.nextElement();
-                File f = new File(dest + File.separator + file.getName());
+
+                File newFile = new File(dest + File.separator + je.getName());
                 if (log)
-                    logger.info("Extracting : " + f.getAbsolutePath());
-                if (file.isDirectory()) {
-                    f.mkdir();
+                    logger.info("Extracting : " + newFile.getAbsoluteFile());
+                File parent = newFile.getParentFile();
+                if (!parent.exists() && !parent.mkdirs()) {
+                    throw new IllegalStateException("Couldn't create dir: " + parent);
+                }
+                if (je.isDirectory()) {
+                    newFile.mkdir();
+                    je = jis.getNextJarEntry();
                     continue;
                 }
-                try (InputStream is = jar.getInputStream(file); FileOutputStream fos = new FileOutputStream(f);) {
-                    while (is.available() > 0)
-                        fos.write(is.read());
+                try (FileOutputStream fos = new FileOutputStream(newFile)) {
+                    int len;
+                    while ((len = jis.read(buffer)) > 0) {
+                        fos.write(buffer, 0, len);
+                    }
                 }
+                je = jis.getNextJarEntry();
             }
+            jis.closeEntry();
             mm.extractionComplete(sender, dest.getAbsolutePath());
-        } catch (AccessDeniedException e) {
-            mm.fileAccessDenied(sender, ZTask.EXTRACT, e.getMessage());
+        } catch (FileNotFoundException e) {
+            mm.fileNotFound(sender, src.getAbsolutePath());
         } catch (TaskInterruptedException e) {
             mm.taskInterruption(sender, ZTask.EXTRACT);
         } catch (IOException e) {

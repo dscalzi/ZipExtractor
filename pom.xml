@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.dscalzi</groupId>
   <artifactId>ZipExtractor</artifactId>
-  <version>1.2.0</version>
+  <version>1.2.1</version>
   <name>Zip Extractor</name>
   <description>Utility plugin to extract archives and compress files.</description>
   <url>https://github.com/dscalzi/ZipExtractor</url>
@@ -102,7 +102,7 @@
   	<dependency>
            <groupId>org.spigotmc</groupId>
            <artifactId>spigot-api</artifactId>
-           <version>1.11.2-R0.1-SNAPSHOT</version>
+           <version>1.12.2-R0.1-SNAPSHOT</version>
            <scope>provided</scope>
     </dependency>
     <dependency>
