@@ -1,0 +1,66 @@
+plugins {
+    id 'net.minecrell.licenser' version '0.4.1'
+    id 'com.github.johnrengelman.shadow' version '4.0.3'
+}
+
+allprojects {
+    group = 'com.dscalzi'
+}
+
+description = """Utility plugin to extract archives and compress files."""
+
+apply plugin: 'eclipse'
+
+subprojects {
+
+    apply plugin: 'java'
+    apply plugin: 'maven'
+    apply plugin: 'com.github.johnrengelman.shadow'
+    apply plugin: 'net.minecrell.licenser'
+
+    sourceCompatibility = 1.8
+    targetCompatibility = 1.8
+
+    def major = '2'
+    def minor = '0'
+    def spongeRevision = '0'
+    def bukkitRevision = '0'
+
+    version = "${major}.${minor}.${project.name.endsWith('Sponge') ? spongeRevision : bukkitRevision}"
+    
+    tasks.withType(JavaCompile) {
+        options.encoding = 'UTF-8'
+    }
+    
+    configurations {
+        testImplementation.extendsFrom compileOnly
+    }
+
+    license {
+        sourceSets = [project.sourceSets.main]
+        exclude '**/config.yml'
+        header = rootProject.file('HEADER.txt')
+        ext {
+            name = 'Daniel D. Scalzi'
+            year = '2016-2018'
+            url = 'https://github.com/dscalzi/ZipExtractor'
+        }
+    }
+
+    jar {
+        baseName = project.name
+
+        manifest {
+            attributes 'Implementation-Version': version, 'Specification-Version': version
+        }
+    }
+
+    build {
+        dependsOn clean
+        dependsOn shadowJar
+
+        jar.mustRunAfter clean
+        shadowJar.mustRunAfter jar
+    }
+    
+}
