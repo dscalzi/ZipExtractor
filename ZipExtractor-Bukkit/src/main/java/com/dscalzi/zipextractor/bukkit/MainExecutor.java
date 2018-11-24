@@ -32,12 +32,14 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 
 import com.dscalzi.zipextractor.bukkit.managers.ConfigManager;
-import com.dscalzi.zipextractor.bukkit.managers.MessageManager;
-import com.dscalzi.zipextractor.bukkit.util.PathUtils;
-import com.dscalzi.zipextractor.bukkit.util.WarnData;
-import com.dscalzi.zipextractor.bukkit.util.ZCompressor;
-import com.dscalzi.zipextractor.bukkit.util.ZExtractor;
-import com.dscalzi.zipextractor.bukkit.util.ZServicer;
+import com.dscalzi.zipextractor.bukkit.util.BukkitCommandSender;
+import com.dscalzi.zipextractor.core.WarnData;
+import com.dscalzi.zipextractor.core.ZCompressor;
+import com.dscalzi.zipextractor.core.ZExtractor;
+import com.dscalzi.zipextractor.core.ZServicer;
+import com.dscalzi.zipextractor.core.manager.MessageManager;
+import com.dscalzi.zipextractor.core.util.BaseCommandSender;
+import com.dscalzi.zipextractor.core.util.PathUtils;
 
 public class MainExecutor implements CommandExecutor, TabCompleter {
 
@@ -51,15 +53,17 @@ public class MainExecutor implements CommandExecutor, TabCompleter {
     private ZipExtractor plugin;
 
     public MainExecutor(ZipExtractor plugin) {
-        this.mm = MessageManager.getInstance();
+        this.mm = MessageManager.inst();
         this.cm = ConfigManager.getInstance();
         this.plugin = plugin;
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+    public boolean onCommand(CommandSender sndr, Command command, String label, String[] args) {
 
-        if (sender instanceof BlockCommandSender) {
+        BaseCommandSender sender = new BukkitCommandSender(sndr);
+        
+        if (sndr instanceof BlockCommandSender) {
             mm.denyCommandBlock(sender);
             return true;
         }
@@ -145,22 +149,22 @@ public class MainExecutor implements CommandExecutor, TabCompleter {
         return true;
     }
 
-    private void cmdList(CommandSender sender, int page) {
+    private void cmdList(BaseCommandSender sender, int page) {
         mm.commandList(sender, --page);
     }
 
-    private void cmdMoreInfo(CommandSender sender, String cmd) {
+    private void cmdMoreInfo(BaseCommandSender sender, String cmd) {
         mm.commandInfo(sender, cmd);
     }
 
-    private void cmdExtract(CommandSender sender, String[] args) {
+    private void cmdExtract(BaseCommandSender sender, String[] args) {
         if (!sender.hasPermission("zipextractor.admin.extract")) {
             mm.noPermission(sender);
             return;
         }
 
         if (args.length >= 2 && args[1].equalsIgnoreCase("view")) {
-            Optional<WarnData> dataOpt = ZExtractor.getWarnData(sender);
+            Optional<WarnData> dataOpt = ZExtractor.getWarnData(sender.getName());
             if (dataOpt.isPresent()) {
                 WarnData d = dataOpt.get();
 
@@ -206,11 +210,11 @@ public class MainExecutor implements CommandExecutor, TabCompleter {
                 return;
             }
 
-            ZExtractor.asyncExtract(sender, srcOpt.get(), destOpt.get(), override);
+            ZExtractor.asyncExtract(sender, srcOpt.get(), destOpt.get(), cm.getLoggingProperty(), override);
         }
     }
 
-    private void cmdCompress(CommandSender sender, String[] args) {
+    private void cmdCompress(BaseCommandSender sender, String[] args) {
         if (!sender.hasPermission("zipextractor.admin.compress")) {
             mm.noPermission(sender);
             return;
@@ -236,11 +240,11 @@ public class MainExecutor implements CommandExecutor, TabCompleter {
             return;
         }
 
-        ZCompressor.asyncCompress(sender, srcOpt.get(), destOpt.get(), override);
+        ZCompressor.asyncCompress(sender, srcOpt.get(), destOpt.get(), cm.getLoggingProperty(), override);
 
     }
 
-    private void cmdSrc(CommandSender sender, String[] args) {
+    private void cmdSrc(BaseCommandSender sender, String[] args) {
         if (!sender.hasPermission("zipextractor.admin.src")) {
             mm.noPermission(sender);
             return;
@@ -257,7 +261,7 @@ public class MainExecutor implements CommandExecutor, TabCompleter {
         }
     }
 
-    private void cmdDest(CommandSender sender, String[] args) {
+    private void cmdDest(BaseCommandSender sender, String[] args) {
         if (!sender.hasPermission("zipextractor.admin.dest")) {
             mm.noPermission(sender);
             return;
@@ -274,7 +278,7 @@ public class MainExecutor implements CommandExecutor, TabCompleter {
         }
     }
 
-    private void cmdSetSrc(CommandSender sender, String[] args) {
+    private void cmdSetSrc(BaseCommandSender sender, String[] args) {
         if (!sender.hasPermission("zipextractor.admin.setsrc")) {
             mm.noPermission(sender);
             return;
@@ -295,7 +299,7 @@ public class MainExecutor implements CommandExecutor, TabCompleter {
         ConfigManager.reload();
     }
 
-    private void cmdSetDest(CommandSender sender, String[] args) {
+    private void cmdSetDest(BaseCommandSender sender, String[] args) {
         if (!sender.hasPermission("zipextractor.admin.setdest")) {
             mm.noPermission(sender);
             return;
@@ -316,7 +320,7 @@ public class MainExecutor implements CommandExecutor, TabCompleter {
         ConfigManager.reload();
     }
 
-    private void cmdPluginDir(CommandSender sender) {
+    private void cmdPluginDir(BaseCommandSender sender) {
         if (!sender.hasPermission("zipextractor.admin.plugindir")) {
             mm.noPermission(sender);
             return;
@@ -324,7 +328,7 @@ public class MainExecutor implements CommandExecutor, TabCompleter {
         mm.sendMessage(sender, "Plugin Directory - " + plugin.getDataFolder().getAbsolutePath());
     }
 
-    private void cmdReload(CommandSender sender) {
+    private void cmdReload(BaseCommandSender sender) {
         if (!sender.hasPermission("zipextractor.admin.reload")) {
             mm.noPermission(sender);
             return;
@@ -342,7 +346,7 @@ public class MainExecutor implements CommandExecutor, TabCompleter {
         }
     }
 
-    private void cmdTerminate(CommandSender sender, boolean force) {
+    private void cmdTerminate(BaseCommandSender sender, boolean force) {
         if (!sender.hasPermission(force ? "zipextractor.admin.forceterminate" : "zipextractor.admin.terminate")) {
             mm.noPermission(sender);
             return;
@@ -363,7 +367,7 @@ public class MainExecutor implements CommandExecutor, TabCompleter {
             mm.terminating(sender);
     }
 
-    private void cmdStatus(CommandSender sender) {
+    private void cmdStatus(BaseCommandSender sender) {
         if (!sender.hasPermission("zipextractor.harmless.status")) {
             mm.noPermission(sender);
             return;
@@ -371,7 +375,7 @@ public class MainExecutor implements CommandExecutor, TabCompleter {
         mm.cmdStatus(sender);
     }
 
-    private void cmdVersion(CommandSender sender) {
+    private void cmdVersion(BaseCommandSender sender) {
         mm.cmdVersion(sender);
     }
 
@@ -418,7 +422,7 @@ public class MainExecutor implements CommandExecutor, TabCompleter {
                 ret.addAll(subCommands(sender, newArgs));
             }
 
-            if (c && ZExtractor.getWarnData(sender).isPresent() && "view".startsWith(args[1].toLowerCase())) {
+            if (c && ZExtractor.getWarnData(sender.getName()).isPresent() && "view".startsWith(args[1].toLowerCase())) {
                 ret.add("view");
             }
             if (((c && sender.hasPermission("zipextractor.admin.override.extract"))

@@ -1,0 +1,14 @@
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile group: 'org.tukaani', name: 'xz', version:'1.8'
+    compile(group: 'com.github.junrar', name: 'junrar', version:'3.0.0') {
+        exclude(module: 'commons-vfs2')
+    }
+}
+
+shadowJar {
+	minimize()
+}

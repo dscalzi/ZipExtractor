@@ -6,11 +6,8 @@ repositories {
 }
 
 dependencies {
+	compile project(':ZipExtractor-Core')
     compile group: 'org.bstats', name: 'bstats-bukkit', version:'1.4'
-    compile group: 'org.tukaani', name: 'xz', version:'1.8'
-    compile(group: 'com.github.junrar', name: 'junrar', version:'3.0.0') {
-        exclude(module: 'commons-vfs2')
-    }
     compileOnly group: 'org.spigotmc', name: 'spigot-api', version:'1.13.2-R0.1-SNAPSHOT'
 }
 
@@ -18,6 +15,6 @@ shadowJar {
     classifier 'dist'
 
     relocate 'org.bstats', 'com.dscalzi.zipextractor.bukkit.bstats'
-
+    
     minimize()
 }

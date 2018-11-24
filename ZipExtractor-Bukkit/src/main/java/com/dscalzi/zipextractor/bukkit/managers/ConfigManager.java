@@ -30,7 +30,7 @@ import java.util.Optional;
 import org.bukkit.configuration.file.FileConfiguration;
 
 import com.dscalzi.zipextractor.bukkit.ZipExtractor;
-import com.dscalzi.zipextractor.bukkit.util.PathUtils;
+import com.dscalzi.zipextractor.core.util.PathUtils;
 
 public class ConfigManager {
 

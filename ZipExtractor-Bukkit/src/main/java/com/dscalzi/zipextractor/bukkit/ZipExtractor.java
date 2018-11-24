@@ -18,25 +18,24 @@
 
 package com.dscalzi.zipextractor.bukkit;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.bstats.bukkit.Metrics;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.dscalzi.zipextractor.bukkit.managers.ConfigManager;
-import com.dscalzi.zipextractor.bukkit.managers.MessageManager;
-import com.dscalzi.zipextractor.bukkit.providers.JarProvider;
-import com.dscalzi.zipextractor.bukkit.providers.PackProvider;
-import com.dscalzi.zipextractor.bukkit.providers.RarProvider;
-import com.dscalzi.zipextractor.bukkit.providers.TypeProvider;
-import com.dscalzi.zipextractor.bukkit.providers.XZProvider;
-import com.dscalzi.zipextractor.bukkit.providers.ZipProvider;
-import com.dscalzi.zipextractor.bukkit.util.ZServicer;
+import com.dscalzi.zipextractor.bukkit.util.BukkitCommandSender;
+import com.dscalzi.zipextractor.core.ZServicer;
+import com.dscalzi.zipextractor.core.manager.MessageManager;
+import com.dscalzi.zipextractor.core.util.BaseCommandSender;
+import com.dscalzi.zipextractor.core.util.BasePlugin;
 
-public class ZipExtractor extends JavaPlugin {
+public class ZipExtractor extends JavaPlugin implements BasePlugin {
 
     @SuppressWarnings("unused")
     private Metrics metrics;
-    private static final TypeProvider[] PROVIDERS = { new ZipProvider(), new RarProvider(), new JarProvider(),
-            new PackProvider(), new XZProvider() };
 
     @Override
     public void onEnable() {
@@ -54,8 +53,18 @@ public class ZipExtractor extends JavaPlugin {
         ZServicer.getInstance().terminate(!wait, wait);
     }
 
-    public static TypeProvider[] getProviders() {
-        return PROVIDERS;
+    @Override
+    public String getVersion() {
+        return this.getDescription().getVersion();
+    }
+
+    @Override
+    public List<? extends BaseCommandSender> getOnlinePlayers() {
+        List<BukkitCommandSender> l = new ArrayList<BukkitCommandSender>();
+        for(Player p : this.getServer().getOnlinePlayers()) {
+            l.add(new BukkitCommandSender(p));
+        }
+        return l;
     }
 
 }

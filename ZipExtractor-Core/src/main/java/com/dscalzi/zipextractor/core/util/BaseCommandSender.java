@@ -16,40 +16,16 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.dscalzi.zipextractor.bukkit.util;
+package com.dscalzi.zipextractor.core.util;
 
-import java.io.File;
+public interface BaseCommandSender {
 
-import org.bukkit.command.CommandSender;
-
-public class WarnData {
-
-    private final CommandSender sender;
-    private final File src;
-    private final File dest;
-    private final PageList<String> files;
-
-    public WarnData(CommandSender sender, File src, File dest, PageList<String> files) {
-        this.sender = sender;
-        this.src = src;
-        this.dest = dest;
-        this.files = files;
-    }
-
-    public CommandSender getSender() {
-        return sender;
-    }
-
-    public File getSrc() {
-        return src;
-    }
-
-    public File getDest() {
-        return dest;
-    }
-
-    public PageList<String> getFiles() {
-        return files;
-    }
-
+    public void sendMessage(String msg);
+    
+    public boolean isConsole();
+    
+    public boolean hasPermission(String perm);
+    
+    public String getName();
+    
 }

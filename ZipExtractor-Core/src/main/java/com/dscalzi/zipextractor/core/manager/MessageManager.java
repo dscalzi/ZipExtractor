@@ -16,24 +16,20 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.dscalzi.zipextractor.bukkit.managers;
+package com.dscalzi.zipextractor.core.manager;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.bukkit.ChatColor;
-import org.bukkit.command.CommandSender;
-import org.bukkit.command.ConsoleCommandSender;
-import org.bukkit.entity.Player;
-
-import com.dscalzi.zipextractor.bukkit.ZipExtractor;
-import com.dscalzi.zipextractor.bukkit.util.PageList;
-import com.dscalzi.zipextractor.bukkit.util.ZCompressor;
-import com.dscalzi.zipextractor.bukkit.util.ZExtractor;
-import com.dscalzi.zipextractor.bukkit.util.ZServicer;
-import com.dscalzi.zipextractor.bukkit.util.ZTask;
+import com.dscalzi.zipextractor.core.ZCompressor;
+import com.dscalzi.zipextractor.core.ZExtractor;
+import com.dscalzi.zipextractor.core.ZServicer;
+import com.dscalzi.zipextractor.core.ZTask;
+import com.dscalzi.zipextractor.core.util.BaseCommandSender;
+import com.dscalzi.zipextractor.core.util.BasePlugin;
+import com.dscalzi.zipextractor.core.util.PageList;
 
 public class MessageManager {
 
@@ -42,53 +38,53 @@ public class MessageManager {
     private static boolean initialized;
     private static MessageManager instance;
 
-    private ZipExtractor plugin;
+    private BasePlugin plugin;
     private final Logger logger;
     private final String prefix;
-    private final ChatColor cPrimary;
-    private final ChatColor cTrim;
-    private final ChatColor cSuccess;
-    private final ChatColor cError;
+    private final String cPrimary;
+    private final String cTrim;
+    private final String cSuccess;
+    private final String cError;
 
-    private MessageManager(ZipExtractor plugin) {
+    private MessageManager(BasePlugin plugin) {
         this.plugin = plugin;
         this.logger = plugin.getLogger();
-        this.cPrimary = ChatColor.GRAY;
-        this.cTrim = ChatColor.DARK_AQUA;
-        this.cSuccess = ChatColor.GREEN;
-        this.cError = ChatColor.RED;
-        this.prefix = cPrimary + "| " + cTrim + "ZipExtractor" + cPrimary + " |" + ChatColor.RESET;
+        this.cPrimary = "&8";
+        this.cTrim = "&3";
+        this.cSuccess = "&a";
+        this.cError = "&c";
+        this.prefix = cPrimary + "| " + cTrim + "ZipExtractor" + cPrimary + " |" + "&r";
 
-        this.plugin.getLogger().info(plugin.getDescription().getName() + " is loading.");
+        this.plugin.getLogger().info(plugin.getName() + " is loading.");
     }
 
-    public static void initialize(ZipExtractor plugin) {
+    public static void initialize(BasePlugin plugin) {
         if (!initialized) {
             instance = new MessageManager(plugin);
             initialized = true;
         }
     }
 
-    public static MessageManager getInstance() {
+    public static MessageManager inst() {
         return MessageManager.instance;
     }
 
     /* Message Distribution */
 
-    public void sendMessage(CommandSender sender, String message) {
+    public void sendMessage(BaseCommandSender sender, String message) {
         sender.sendMessage(prefix + " " + message);
     }
 
-    public void sendSuccess(CommandSender sender, String message) {
+    public void sendSuccess(BaseCommandSender sender, String message) {
         sender.sendMessage(prefix + cSuccess + " " + message);
     }
 
-    public void sendError(CommandSender sender, String message) {
+    public void sendError(BaseCommandSender sender, String message) {
         sender.sendMessage(prefix + cError + " " + message);
     }
 
     public void sendGlobal(String message, String permission) {
-        for (Player p : plugin.getServer().getOnlinePlayers()) {
+        for (BaseCommandSender p : plugin.getOnlinePlayers()) {
             if (p.hasPermission(permission)) {
                 sendMessage(p, message);
             }
@@ -107,132 +103,132 @@ public class MessageManager {
 
     /* Messages */
 
-    public void noPermission(CommandSender sender) {
+    public void noPermission(BaseCommandSender sender) {
         sendError(sender, "You do not have permission to execute this command.");
     }
 
-    public void noPermissionFull(CommandSender sender) {
+    public void noPermissionFull(BaseCommandSender sender) {
         sendError(sender, "You do not have permission to use this plugin.");
     }
 
-    public void noInfoPermission(CommandSender sender) {
+    public void noInfoPermission(BaseCommandSender sender) {
         sendError(sender, "You do not have permission to view details about this command.");
     }
 
-    public void reloadSuccess(CommandSender sender) {
+    public void reloadSuccess(BaseCommandSender sender) {
         sendSuccess(sender, "Configuration successfully reloaded.");
     }
 
-    public void reloadFailed(CommandSender sender) {
+    public void reloadFailed(BaseCommandSender sender) {
         sendError(sender, "Failed to reload the configuration file, see the console for details.");
     }
 
-    public void setPathSuccess(CommandSender sender, String action) {
+    public void setPathSuccess(BaseCommandSender sender, String action) {
         sendSuccess(sender, "Successfully updated the " + action + " file path.");
     }
 
-    public void setPathFailed(CommandSender sender, String action) {
+    public void setPathFailed(BaseCommandSender sender, String action) {
         sendError(sender, "Failed to update the " + action + " file path, see the console for details.");
     }
 
-    public void warnOfConflicts(CommandSender sender, int amt) {
+    public void warnOfConflicts(BaseCommandSender sender, int amt) {
         sendError(sender,
-                "Warning, this extraction will override " + ChatColor.ITALIC + Integer.toString(amt) + cError + " file"
+                "Warning, this extraction will override " + "&o" + Integer.toString(amt) + cError + " file"
                         + (amt == 1 ? "" : "s") + ". To view " + (amt == 1 ? "this" : "these") + " file"
-                        + (amt == 1 ? "" : "s") + " run the command " + ChatColor.ITALIC + "/ze extract view [page]");
-        sendError(sender, "To proceed with the extraction: " + ChatColor.ITALIC + "/ze extract -override");
+                        + (amt == 1 ? "" : "s") + " run the command " + "&o" + "/ze extract view [page]");
+        sendError(sender, "To proceed with the extraction: " + "&o" + "/ze extract -override");
     }
 
-    public void destExists(CommandSender sender) {
+    public void destExists(BaseCommandSender sender) {
         sendError(sender, "Warning, the destination of this compression already exists.");
-        sendError(sender, "To proceed with the compression: " + ChatColor.ITALIC + "/ze compress -override");
+        sendError(sender, "To proceed with the compression: " + "&o" + "/ze compress -override");
     }
 
-    public void noWarnData(CommandSender sender) {
+    public void noWarnData(BaseCommandSender sender) {
         sendError(sender, "You have no data to view!");
     }
 
-    public void fileNotFound(CommandSender sender, String path) {
-        if (!(sender instanceof ConsoleCommandSender)) {
+    public void fileNotFound(BaseCommandSender sender, String path) {
+        if (!sender.isConsole()) {
             sendError(sender, "An error occurred during extraction. Could not locate the source file: "
-                    + ChatColor.ITALIC + path);
+                    + "&o" + path);
         }
         getLogger().severe("An error occurred during extraction. Could not locate the source file: " + path);
     }
 
-    public void destNotDirectory(CommandSender sender, String filePath) {
+    public void destNotDirectory(BaseCommandSender sender, String filePath) {
         sendError(sender, "The destination path must be a directory:");
-        sendError(sender, ChatColor.ITALIC + filePath);
+        sendError(sender, "&o" + filePath);
     }
 
-    public void sourceNotFound(CommandSender sender, String filePath) {
+    public void sourceNotFound(BaseCommandSender sender, String filePath) {
         sendError(sender, "Source file not found:");
-        sendError(sender, ChatColor.ITALIC + filePath);
+        sendError(sender, "&o" + filePath);
     }
 
-    public void sourceNoExt(CommandSender sender, String filePath) {
+    public void sourceNoExt(BaseCommandSender sender, String filePath) {
         sendError(sender, "The source file must have an extension:");
-        sendError(sender, ChatColor.ITALIC + filePath);
+        sendError(sender, "&o" + filePath);
     }
 
-    public void fileAccessDenied(CommandSender sender, ZTask t, String path) {
-        if (!(sender instanceof ConsoleCommandSender)) {
+    public void fileAccessDenied(BaseCommandSender sender, ZTask t, String path) {
+        if (!sender.isConsole()) {
             sendError(sender, "Error during " + t.getProcessName() + ". Access is denied to " + path);
         }
         getLogger().severe("Error during " + t.getProcessName() + ". Access is denied to " + path);
     }
 
-    public void invalidExtractionExtension(CommandSender sender) {
+    public void invalidExtractionExtension(BaseCommandSender sender) {
         sendError(sender, "Currently extractions are only supported for "
                 + listToString(ZExtractor.supportedExtensions()) + " files.");
     }
 
-    public void invalidCompressionExtension(CommandSender sender) {
+    public void invalidCompressionExtension(BaseCommandSender sender) {
         sendError(sender, "Currently you may only compress to the " + listToString(ZCompressor.supportedExtensions())
                 + " format" + (ZCompressor.supportedExtensions().size() > 1 ? "s" : "") + ".");
     }
 
-    public void invalidSourceForDest(CommandSender sender, List<String> sources, List<String> dests) {
+    public void invalidSourceForDest(BaseCommandSender sender, List<String> sources, List<String> dests) {
         sendError(sender,
                 "Only " + listToString(sources) + " files can be compressed to " + listToString(dests) + " files.");
     }
 
-    public void invalidPath(CommandSender sender, String path, String type) {
+    public void invalidPath(BaseCommandSender sender, String path, String type) {
         if (path == null || path.isEmpty()) {
             sendError(sender, "A " + type + " path must be specified.");
         } else {
             sendError(sender, "Invalid " + type + " path:");
-            sendError(sender, ChatColor.ITALIC + path);
+            sendError(sender, "&o" + path);
         }
     }
 
-    public void invalidPath(CommandSender sender, String path) {
+    public void invalidPath(BaseCommandSender sender, String path) {
         if (path == null || path.isEmpty()) {
             sendError(sender, "A path must be specified.");
         } else {
             sendError(sender, "Invalid path:");
-            sendError(sender, ChatColor.ITALIC + path);
+            sendError(sender, "&o" + path);
         }
     }
 
-    public void invalidPathIsSet(CommandSender sender, String path) {
+    public void invalidPathIsSet(BaseCommandSender sender, String path) {
         if (path == null || path.isEmpty()) {
             sendError(sender, "No path is set.");
         } else {
             sendError(sender, "An invalid path is currently set:");
-            sendError(sender, ChatColor.ITALIC + path);
+            sendError(sender, "&o" + path);
         }
     }
 
-    public void scanningForConflics(CommandSender sender) {
+    public void scanningForConflics(BaseCommandSender sender) {
         sendSuccess(sender, "Scanning for file conflicts..");
     }
 
-    public void specifyAPath(CommandSender sender) {
+    public void specifyAPath(BaseCommandSender sender) {
         sendError(sender, "Please specify a path.");
     }
 
-    public void addToQueue(CommandSender sender, int position) {
+    public void addToQueue(BaseCommandSender sender, int position) {
         String ordinal;
         if (position == 1 || position == 0)
             ordinal = "next";
@@ -241,52 +237,52 @@ public class MessageManager {
         sendSuccess(sender, "Your task has been added to the queue. It is currently " + ordinal + ".");
     }
 
-    public void queueFull(CommandSender sender) {
+    public void queueFull(BaseCommandSender sender, int maxQueueSize) {
         sendError(sender, "Unable to add your task to the queue, the limit of "
-                + ConfigManager.getInstance().getMaxQueueSize() + " has been reached.");
+                + maxQueueSize + " has been reached.");
     }
 
-    public void executorTerminated(CommandSender sender, ZTask task) {
+    public void executorTerminated(BaseCommandSender sender, ZTask task) {
         sendError(sender, "The execution servicer has been shutdown and has therefore rejected your "
                 + task.getProcessName() + " request.");
     }
 
-    public void alreadyTerminated(CommandSender sender) {
+    public void alreadyTerminated(BaseCommandSender sender) {
         sendError(sender, "The execution servicer has already been shutdown. This cannot be repeated or undone.");
     }
 
-    public void alreadyTerminating(CommandSender sender) {
+    public void alreadyTerminating(BaseCommandSender sender) {
         sendError(sender, "The execution servicer is currently shutting down, no further requests can be made.");
     }
 
-    public void terminating(CommandSender sender) {
+    public void terminating(BaseCommandSender sender) {
         sendSuccess(sender,
                 "Execution servicer is being shutdown. All queued tasks will be completed, although no further tasks will be accepted.");
     }
 
-    public void terminatingForcibly(CommandSender sender) {
+    public void terminatingForcibly(BaseCommandSender sender) {
         sendSuccess(sender,
                 "Forcibly shutting down the execution servicer. All running and queued tasks will be interrupted and terminated.");
     }
 
-    public void taskInterruption(CommandSender sender, ZTask task) {
-        if (!(sender instanceof ConsoleCommandSender))
+    public void taskInterruption(BaseCommandSender sender, ZTask task) {
+        if (!sender.isConsole())
             sendError(sender, "Channel closed during " + task.getProcessName()
                     + ", unable to continue. This is most likely due to a forced termination of the execution servicer.");
         logger.log(Level.WARNING, "Channel closed during " + task.getProcessName()
                 + ", unable to continue. This is most likely due to a forced termination of the execution servicer.");
     }
 
-    public void startingProcess(CommandSender sender, ZTask task, String fileName) {
-        if (!(sender instanceof ConsoleCommandSender)) {
+    public void startingProcess(BaseCommandSender sender, ZTask task, String fileName) {
+        if (!sender.isConsole()) {
             sendSuccess(sender,
                     "Starting " + task.getProcessName() + " of '" + fileName + "'.. See the console for more details.");
         }
         getLogger().info("Starting asynchronous " + task.getProcessName() + " of the file '" + fileName + "'..");
     }
 
-    public void extractionComplete(CommandSender sender, String destPath) {
-        if (!(sender instanceof ConsoleCommandSender)) {
+    public void extractionComplete(BaseCommandSender sender, String destPath) {
+        if (!sender.isConsole()) {
             sendSuccess(sender, "Extraction complete.");
         }
         getLogger().info("---------------------------------------------------");
@@ -295,8 +291,8 @@ public class MessageManager {
         getLogger().info("---------------------------------------------------");
     }
 
-    public void compressionComplete(CommandSender sender, String destPath) {
-        if (!(sender instanceof ConsoleCommandSender)) {
+    public void compressionComplete(BaseCommandSender sender, String destPath) {
+        if (!sender.isConsole()) {
             sendSuccess(sender, "Compression complete.");
         }
         getLogger().info("---------------------------------------------------");
@@ -305,28 +301,28 @@ public class MessageManager {
         getLogger().info("---------------------------------------------------");
     }
 
-    public void denyCommandBlock(CommandSender sender) {
+    public void denyCommandBlock(BaseCommandSender sender) {
         sendError(sender, "Command blocks are blocked from accessing this command for security purposes.");
     }
 
-    public void commandFormat(CommandSender sender, String cmd) {
+    public void commandFormat(BaseCommandSender sender, String cmd) {
         if (cmd.equalsIgnoreCase("setsrc") || cmd.equalsIgnoreCase("setdest")) {
             sendError(sender, "Proper usage is /" + cmd.toLowerCase() + " <File Path>");
         }
     }
 
-    public void invalidPage(CommandSender sender) {
+    public void invalidPage(BaseCommandSender sender) {
         sendError(sender, "Page does not exist.");
     }
 
-    public void formatWarnList(CommandSender sender, int page, PageList<String> files) {
+    public void formatWarnList(BaseCommandSender sender, int page, PageList<String> files) {
         final String listPrefix = cError + " " + BULLET + " ";
         final String header = prefix + cError + " The following files would be overriden:";
 
         List<String> p = new ArrayList<String>(files.getPage(page));
         p.replaceAll(s -> listPrefix + s);
 
-        String footer = cPrimary + "Page " + ChatColor.DARK_GRAY + (page + 1) + cPrimary + " of " + ChatColor.DARK_GRAY
+        String footer = cPrimary + "Page " + "&8" + (page + 1) + cPrimary + " of " + "&8"
                 + files.size();
 
         sender.sendMessage(header);
@@ -335,7 +331,7 @@ public class MessageManager {
         sender.sendMessage(footer);
     }
 
-    public void commandList(CommandSender sender, int page) {
+    public void commandList(BaseCommandSender sender, int page) {
         final String listPrefix = cPrimary + " " + BULLET + " ";
 
         PageList<String> cmds = new PageList<String>(7);
@@ -369,7 +365,7 @@ public class MessageManager {
             cmds.add(listPrefix + "/ZipExtractor reload " + cTrim + "- Reload the config.yml.");
         cmds.add(listPrefix + "/ZipExtractor version " + cTrim + "- View plugin version info.");
 
-        String footer = cPrimary + "Page " + ChatColor.DARK_GRAY + (page + 1) + cPrimary + " of " + ChatColor.DARK_GRAY
+        String footer = cPrimary + "Page " + "&8" + (page + 1) + cPrimary + " of " + "&8"
                 + cmds.size();
 
         if (page >= cmds.size() || page < 0) {
@@ -383,7 +379,7 @@ public class MessageManager {
         sender.sendMessage(footer);
     }
 
-    public void commandInfo(CommandSender sender, String cmd) {
+    public void commandInfo(BaseCommandSender sender, String cmd) {
         if (cmd.equalsIgnoreCase("help")) {
             if (!sender.hasPermission("zipextractor.admin.use")) {
                 noInfoPermission(sender);
@@ -499,26 +495,26 @@ public class MessageManager {
 
     }
 
-    public void cmdStatus(CommandSender sender) {
+    public void cmdStatus(BaseCommandSender sender) {
         ZServicer zs = ZServicer.getInstance();
         if (zs == null) {
-            sendMessage(sender, "Executor Status | " + ChatColor.RED + "UNINITIALIZED");
+            sendMessage(sender, "Executor Status | " + "&c" + "UNINITIALIZED");
         } else if (zs.isTerminated()) {
-            sendMessage(sender, "Executor Status | " + ChatColor.RED + "TERMINATED");
+            sendMessage(sender, "Executor Status | " + "&c" + "TERMINATED");
         } else if (zs.isTerminating()) {
-            sendMessage(sender, "Executor Status | " + ChatColor.RED + "TERMINATING");
+            sendMessage(sender, "Executor Status | " + "&c" + "TERMINATING");
         } else {
-            String status = zs.isQueueFull() ? ChatColor.RED + "FULL" : ChatColor.GREEN + "READY";
-            sendMessage(sender, "Executor Status | " + status + ChatColor.RESET + " | Active : " + zs.getActive()
+            String status = zs.isQueueFull() ? "&c" + "FULL" : "&a" + "READY";
+            sendMessage(sender, "Executor Status | " + status + "&r" + " | Active : " + zs.getActive()
                     + " | Queued : " + zs.getQueued());
         }
     }
 
-    public void cmdVersion(CommandSender sender) {
+    public void cmdVersion(BaseCommandSender sender) {
         sendMessage(sender,
-                "Zip Extractor version " + plugin.getDescription().getVersion() + "\n" + cPrimary + "| " + cTrim
-                        + "Source" + cPrimary + " | " + ChatColor.RESET + "https://github.com/dscalzi/ZipExtractor"
-                        + "\n" + cPrimary + "| " + cTrim + "Metrics" + cPrimary + " | " + ChatColor.RESET
+                "Zip Extractor version " + plugin.getVersion() + "\n" + cPrimary + "| " + cTrim
+                        + "Source" + cPrimary + " | " + "&r" + "https://github.com/dscalzi/ZipExtractor"
+                        + "\n" + cPrimary + "| " + cTrim + "Metrics" + cPrimary + " | " + "&r"
                         + "https://bstats.org/plugin/bukkit/ZipExtractor");
     }
 

@@ -16,20 +16,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.dscalzi.zipextractor.bukkit.util;
+package com.dscalzi.zipextractor.core.util;
 
-public enum ZTask {
-
-    COMPRESS("compression"), EXTRACT("extraction"), SCAN("scan");
-
-    private final String processName;
-
-    ZTask(String processName) {
-        this.processName = processName;
-    }
-
-    public String getProcessName() {
-        return this.processName;
-    }
+public class BaseFormat {
 
 }

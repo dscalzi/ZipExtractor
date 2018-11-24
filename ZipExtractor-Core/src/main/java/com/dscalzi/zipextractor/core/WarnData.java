@@ -16,26 +16,34 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.dscalzi.zipextractor.bukkit.util;
+package com.dscalzi.zipextractor.core;
 
-public class TaskInterruptedException extends RuntimeException {
+import java.io.File;
 
-    private static final long serialVersionUID = 3942881135656327340L;
+import com.dscalzi.zipextractor.core.util.PageList;
 
-    public TaskInterruptedException() {
+public class WarnData {
 
+    private final File src;
+    private final File dest;
+    private final PageList<String> files;
+
+    public WarnData(File src, File dest, PageList<String> files) {
+        this.src = src;
+        this.dest = dest;
+        this.files = files;
     }
 
-    public TaskInterruptedException(String paramString) {
-        super(paramString);
+    public File getSrc() {
+        return src;
     }
 
-    public TaskInterruptedException(String paramString, Throwable paramThrowable) {
-        super(paramString, paramThrowable);
+    public File getDest() {
+        return dest;
     }
 
-    public TaskInterruptedException(Throwable paramThrowable) {
-        super(paramThrowable);
+    public PageList<String> getFiles() {
+        return files;
     }
 
 }

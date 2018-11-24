@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.dscalzi.zipextractor.bukkit.providers;
+package com.dscalzi.zipextractor.core.provider;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -32,11 +32,9 @@ import java.util.jar.Pack200;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
-import org.bukkit.command.CommandSender;
-
-import com.dscalzi.zipextractor.bukkit.managers.ConfigManager;
-import com.dscalzi.zipextractor.bukkit.managers.MessageManager;
-import com.dscalzi.zipextractor.bukkit.util.ZTask;
+import com.dscalzi.zipextractor.core.ZTask;
+import com.dscalzi.zipextractor.core.manager.MessageManager;
+import com.dscalzi.zipextractor.core.util.BaseCommandSender;
 
 public class PackProvider implements TypeProvider {
 
@@ -46,8 +44,8 @@ public class PackProvider implements TypeProvider {
     public static final List<String> SUPPORTED_COMPRESS = new ArrayList<String>(Arrays.asList("jar"));
 
     @Override
-    public List<String> scanForExtractionConflicts(CommandSender sender, File src, File dest) {
-        final MessageManager mm = MessageManager.getInstance();
+    public List<String> scanForExtractionConflicts(BaseCommandSender sender, File src, File dest) {
+        final MessageManager mm = MessageManager.inst();
         mm.scanningForConflics(sender);
         File realDest = new File(dest.getAbsolutePath(), PATH_END_EXTRACT.matcher(src.getName()).replaceAll(""));
         List<String> ret = new ArrayList<String>();
@@ -58,11 +56,9 @@ public class PackProvider implements TypeProvider {
     }
 
     @Override
-    public void extract(CommandSender sender, File src, File dest) {
-        final ConfigManager cm = ConfigManager.getInstance();
-        final MessageManager mm = MessageManager.getInstance();
+    public void extract(BaseCommandSender sender, File src, File dest, boolean log) {
+        final MessageManager mm = MessageManager.inst();
         final Logger logger = mm.getLogger();
-        final boolean log = cm.getLoggingProperty();
         mm.startingProcess(sender, ZTask.EXTRACT, src.getName());
         File realDest = new File(dest.getAbsolutePath(), PATH_END_EXTRACT.matcher(src.getName()).replaceAll(""));
         try (JarOutputStream jarStream = new JarOutputStream(new FileOutputStream(realDest))) {
@@ -76,11 +72,9 @@ public class PackProvider implements TypeProvider {
     }
 
     @Override
-    public void compress(CommandSender sender, File src, File dest) {
-        final ConfigManager cm = ConfigManager.getInstance();
-        final MessageManager mm = MessageManager.getInstance();
+    public void compress(BaseCommandSender sender, File src, File dest, boolean log) {
+        final MessageManager mm = MessageManager.inst();
         final Logger logger = mm.getLogger();
-        final boolean log = cm.getLoggingProperty();
         mm.startingProcess(sender, ZTask.COMPRESS, src.getName());
         try (JarFile in = new JarFile(src); OutputStream out = Files.newOutputStream(dest.toPath())) {
             if (log)

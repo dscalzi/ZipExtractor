@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.dscalzi.zipextractor.bukkit.util;
+package com.dscalzi.zipextractor.core.util;
 
 import java.util.ArrayList;
 import java.util.Collections;

@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.dscalzi.zipextractor.bukkit.util;
+package com.dscalzi.zipextractor.core;
 
 import java.util.Collection;
 import java.util.LinkedList;
@@ -28,19 +28,22 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
-import com.dscalzi.zipextractor.bukkit.managers.MessageManager;
+import com.dscalzi.zipextractor.core.manager.MessageManager;
 
 public class ZServicer {
 
     private static boolean initialized;
     private static ZServicer instance;
 
+    private int maxQueueSize;
+    
     private ThreadPoolExecutor executor;
     private ArrayBlockingQueue<Runnable> queue;
 
     private Collection<Future<?>> futures = new LinkedList<Future<?>>();
 
     private ZServicer(int maxQueueSize, int maxPoolSize) {
+        this.maxQueueSize = maxQueueSize;
         this.queue = new ArrayBlockingQueue<Runnable>(maxQueueSize);
         this.executor = new ThreadPoolExecutor(1, maxPoolSize, 10, TimeUnit.SECONDS, queue);
     }
@@ -72,6 +75,10 @@ public class ZServicer {
         return 0;
     }
 
+    public int getMaxQueueSize() {
+        return maxQueueSize;
+    }
+    
     public int getSize() {
         return queue.size();
     }
@@ -105,9 +112,10 @@ public class ZServicer {
     public void terminate(boolean force, boolean wait) {
         if (isTerminated() || isTerminating())
             return;
+        MessageManager mm = MessageManager.inst();
         try {
             if (force) {
-                MessageManager.getInstance().getLogger().info(
+                mm.getLogger().info(
                         "Forcing executor service to shutdown. This could be messy if there are outstanding tasks.");
                 executor.shutdownNow();
             } else {
@@ -117,21 +125,20 @@ public class ZServicer {
                             + ((executor.getActiveCount() > 0) ? " | Active : " + executor.getActiveCount() : "")
                             + ((executor.getQueue().size() > 0) ? " | Queued : " + executor.getQueue().size() : "")
                             + ".";
-                    MessageManager.getInstance().getLogger().info(info);
-                    MessageManager.getInstance().sendGlobal(info, "zipextractor.harmless.notify");
+                    mm.getLogger().info(info);
+                    mm.sendGlobal(info, "zipextractor.harmless.notify");
                     for (Future<?> future : futures) {
                         if (future.isDone())
                             continue;
                         future.get();
                     }
-                    MessageManager.getInstance().sendGlobal("All tasks have been completed.",
+                    mm.sendGlobal("All tasks have been completed.",
                             "zipextractor.harmless.notify");
-                    MessageManager.getInstance().getLogger().info("All tasks have been completed.");
+                    mm.getLogger().info("All tasks have been completed.");
                 }
             }
         } catch (InterruptedException | ExecutionException e) {
-            MessageManager.getInstance().getLogger().log(Level.SEVERE,
-                    "Executor servive termination has been interrupted.", e);
+            mm.getLogger().log(Level.SEVERE, "Executor servive termination has been interrupted.", e);
         }
     }
 }

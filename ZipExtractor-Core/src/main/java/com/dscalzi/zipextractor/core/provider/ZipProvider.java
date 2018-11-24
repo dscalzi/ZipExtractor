@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.dscalzi.zipextractor.bukkit.providers;
+package com.dscalzi.zipextractor.core.provider;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -35,12 +35,10 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
-import org.bukkit.command.CommandSender;
-
-import com.dscalzi.zipextractor.bukkit.managers.ConfigManager;
-import com.dscalzi.zipextractor.bukkit.managers.MessageManager;
-import com.dscalzi.zipextractor.bukkit.util.TaskInterruptedException;
-import com.dscalzi.zipextractor.bukkit.util.ZTask;
+import com.dscalzi.zipextractor.core.TaskInterruptedException;
+import com.dscalzi.zipextractor.core.ZTask;
+import com.dscalzi.zipextractor.core.manager.MessageManager;
+import com.dscalzi.zipextractor.core.util.BaseCommandSender;
 
 public class ZipProvider implements TypeProvider {
 
@@ -49,9 +47,9 @@ public class ZipProvider implements TypeProvider {
     public static final List<String> SUPPORTED = new ArrayList<String>(Arrays.asList("zip"));
 
     @Override
-    public List<String> scanForExtractionConflicts(CommandSender sender, File src, File dest) {
+    public List<String> scanForExtractionConflicts(BaseCommandSender sender, File src, File dest) {
         List<String> existing = new ArrayList<String>();
-        final MessageManager mm = MessageManager.getInstance();
+        final MessageManager mm = MessageManager.inst();
         mm.scanningForConflics(sender);
         try (FileInputStream fis = new FileInputStream(src); ZipInputStream zis = new ZipInputStream(fis);) {
             ZipEntry ze = zis.getNextEntry();
@@ -78,11 +76,9 @@ public class ZipProvider implements TypeProvider {
     }
 
     @Override
-    public void extract(CommandSender sender, File src, File dest) {
-        final ConfigManager cm = ConfigManager.getInstance();
-        final MessageManager mm = MessageManager.getInstance();
-        final Logger logger = MessageManager.getInstance().getLogger();
-        final boolean log = cm.getLoggingProperty();
+    public void extract(BaseCommandSender sender, File src, File dest, boolean log) {
+        final MessageManager mm = MessageManager.inst();
+        final Logger logger = mm.getLogger();
         byte[] buffer = new byte[1024];
         mm.startingProcess(sender, ZTask.EXTRACT, src.getName());
         try (FileInputStream fis = new FileInputStream(src); ZipInputStream zis = new ZipInputStream(fis);) {
@@ -124,11 +120,9 @@ public class ZipProvider implements TypeProvider {
     }
 
     @Override
-    public void compress(CommandSender sender, File src, File dest) {
-        final ConfigManager cm = ConfigManager.getInstance();
-        final MessageManager mm = MessageManager.getInstance();
+    public void compress(BaseCommandSender sender, File src, File dest, boolean log) {
+        final MessageManager mm = MessageManager.inst();
         final Logger logger = mm.getLogger();
-        final boolean log = cm.getLoggingProperty();
         mm.startingProcess(sender, ZTask.COMPRESS, src.getName());
         try (OutputStream os = Files.newOutputStream(dest.toPath()); ZipOutputStream zs = new ZipOutputStream(os);) {
             Path pp = src.toPath();

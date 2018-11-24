@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.dscalzi.zipextractor.bukkit.util;
+package com.dscalzi.zipextractor.core;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -25,19 +25,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import org.bukkit.command.CommandSender;
-
-import com.dscalzi.zipextractor.bukkit.ZipExtractor;
-import com.dscalzi.zipextractor.bukkit.managers.MessageManager;
-import com.dscalzi.zipextractor.bukkit.providers.TypeProvider;
+import com.dscalzi.zipextractor.core.manager.MessageManager;
+import com.dscalzi.zipextractor.core.provider.TypeProvider;
+import com.dscalzi.zipextractor.core.util.BaseCommandSender;
+import com.dscalzi.zipextractor.core.util.PageList;
 
 public class ZExtractor {
 
     private static final Map<String, WarnData> WARNED = new HashMap<String, WarnData>();
     private static List<String> SUPPORTED;
 
-    public static void asyncExtract(CommandSender sender, File src, File dest, final boolean override) {
-        final MessageManager mm = MessageManager.getInstance();
+    public static void asyncExtract(BaseCommandSender sender, File src, File dest, boolean log, final boolean override) {
+        final MessageManager mm = MessageManager.inst();
 
         // If the user was warned, clear it.
         if (WARNED.containsKey(sender.getName())) {
@@ -64,7 +63,7 @@ public class ZExtractor {
         }
 
         Runnable task = null;
-        for (final TypeProvider p : ZipExtractor.getProviders()) {
+        for (final TypeProvider p : TypeProvider.getProviders()) {
             if (p.validForExtraction(src)) {
                 task = () -> {
                     List<String> atRisk = new ArrayList<String>();
@@ -72,9 +71,9 @@ public class ZExtractor {
                         atRisk = p.scanForExtractionConflicts(sender, src, dest);
                     }
                     if (atRisk.size() == 0 || override) {
-                        p.extract(sender, src, dest);
+                        p.extract(sender, src, dest, log);
                     } else {
-                        WARNED.put(sender.getName(), new WarnData(sender, src, dest, new PageList<String>(4, atRisk)));
+                        WARNED.put(sender.getName(), new WarnData(src, dest, new PageList<String>(4, atRisk)));
                         mm.warnOfConflicts(sender, atRisk.size());
                     }
                 };
@@ -86,7 +85,7 @@ public class ZExtractor {
             if (result == 0)
                 mm.addToQueue(sender, ZServicer.getInstance().getSize());
             else if (result == 1)
-                mm.queueFull(sender);
+                mm.queueFull(sender, ZServicer.getInstance().getMaxQueueSize());
             else if (result == 2)
                 mm.executorTerminated(sender, ZTask.EXTRACT);
         } else {
@@ -97,23 +96,23 @@ public class ZExtractor {
     public static List<String> supportedExtensions() {
         if (SUPPORTED == null) {
             SUPPORTED = new ArrayList<String>();
-            for (final TypeProvider p : ZipExtractor.getProviders()) {
+            for (final TypeProvider p : TypeProvider.getProviders()) {
                 SUPPORTED.addAll(p.supportedExtractionTypes());
             }
         }
         return SUPPORTED;
     }
 
-    public static boolean wasWarned(CommandSender sender, File src, File dest) {
-        if (WARNED.containsKey(sender.getName())) {
-            final WarnData data = WARNED.get(sender.getName());
+    public static boolean wasWarned(String name, File src, File dest) {
+        if (WARNED.containsKey(name)) {
+            final WarnData data = WARNED.get(name);
             return data.getSrc().equals(src) && data.getDest().equals(dest);
         }
         return false;
     }
 
-    public static Optional<WarnData> getWarnData(CommandSender sender) {
-        WarnData data = WARNED.get(sender.getName());
+    public static Optional<WarnData> getWarnData(String name) {
+        WarnData data = WARNED.get(name);
         return data != null ? Optional.of(data) : Optional.empty();
     }
 

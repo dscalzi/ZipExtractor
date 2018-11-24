@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.dscalzi.zipextractor.bukkit.providers;
+package com.dscalzi.zipextractor.core.provider;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -30,12 +30,11 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
-import org.bukkit.command.CommandSender;
 
-import com.dscalzi.zipextractor.bukkit.managers.ConfigManager;
-import com.dscalzi.zipextractor.bukkit.managers.MessageManager;
-import com.dscalzi.zipextractor.bukkit.util.TaskInterruptedException;
-import com.dscalzi.zipextractor.bukkit.util.ZTask;
+import com.dscalzi.zipextractor.core.TaskInterruptedException;
+import com.dscalzi.zipextractor.core.ZTask;
+import com.dscalzi.zipextractor.core.manager.MessageManager;
+import com.dscalzi.zipextractor.core.util.BaseCommandSender;
 
 public class JarProvider implements TypeProvider {
 
@@ -44,10 +43,10 @@ public class JarProvider implements TypeProvider {
     public static final List<String> SUPPORTED = new ArrayList<String>(Arrays.asList("jar"));
 
     @Override
-    public List<String> scanForExtractionConflicts(CommandSender sender, File src, File dest) {
+    public List<String> scanForExtractionConflicts(BaseCommandSender sender, File src, File dest) {
         
         List<String> existing = new ArrayList<String>();
-        final MessageManager mm = MessageManager.getInstance();
+        final MessageManager mm = MessageManager.inst();
         mm.scanningForConflics(sender);
         try (FileInputStream fis = new FileInputStream(src); JarInputStream jis = new JarInputStream(fis);) {
             JarEntry je = jis.getNextJarEntry();
@@ -74,11 +73,9 @@ public class JarProvider implements TypeProvider {
     }
 
     @Override
-    public void extract(CommandSender sender, File src, File dest) {
-        final ConfigManager cm = ConfigManager.getInstance();
-        final MessageManager mm = MessageManager.getInstance();
+    public void extract(BaseCommandSender sender, File src, File dest, boolean log) {
+        final MessageManager mm = MessageManager.inst();
         final Logger logger = mm.getLogger();
-        final boolean log = cm.getLoggingProperty();
         byte[] buffer = new byte[1024];
         mm.startingProcess(sender, ZTask.EXTRACT, src.getName());
         try (FileInputStream fis = new FileInputStream(src); JarInputStream jis = new JarInputStream(fis);) {

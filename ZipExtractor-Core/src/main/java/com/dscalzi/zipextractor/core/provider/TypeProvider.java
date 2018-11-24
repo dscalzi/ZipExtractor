@@ -16,12 +16,12 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.dscalzi.zipextractor.bukkit.providers;
+package com.dscalzi.zipextractor.core.provider;
 
 import java.io.File;
 import java.util.List;
 
-import org.bukkit.command.CommandSender;
+import com.dscalzi.zipextractor.core.util.BaseCommandSender;
 
 /**
  * The TypeProvider Interface.
@@ -39,6 +39,23 @@ import org.bukkit.command.CommandSender;
  */
 public interface TypeProvider {
 
+    public static final TypeProvider[] PROVIDERS = {
+            new ZipProvider(),
+            new RarProvider(),
+            new JarProvider(),
+            new PackProvider(),
+            new XZProvider()
+    };
+    
+    /**
+     * Get all implemented providers.
+     * 
+     * @return An array of all supported providers.
+     */
+    public static TypeProvider[] getProviders() {
+        return PROVIDERS;
+    }
+    
     /**
      * Scans the source file and calculates if any files in the destination
      * directory would be overridden by an extraction. Returns a List containing the
@@ -52,7 +69,7 @@ public interface TypeProvider {
      *            The destination file to be scanned.
      * @return A List containing the paths of the files which would be overridden.
      */
-    public default List<String> scanForExtractionConflicts(CommandSender sender, File src, File dest) {
+    public default List<String> scanForExtractionConflicts(BaseCommandSender sender, File src, File dest) {
         throw new UnsupportedOperationException();
     }
 
@@ -65,8 +82,10 @@ public interface TypeProvider {
      *            The source file to be extracted.
      * @param dest
      *            The destination root for extracted files.
+     * @param log
+     *            Whether or not to log the progress.
      */
-    public default void extract(CommandSender sender, File src, File dest) {
+    public default void extract(BaseCommandSender sender, File src, File dest, boolean log) {
         throw new UnsupportedOperationException();
     }
 
@@ -79,8 +98,10 @@ public interface TypeProvider {
      *            The source file/directory to be compressed.
      * @param dest
      *            The file to be compressed to.
+     * @param log
+     *            Whether or not to log the progress.
      */
-    public default void compress(CommandSender sender, File src, File dest) {
+    public default void compress(BaseCommandSender sender, File src, File dest, boolean log) {
         throw new UnsupportedOperationException();
     }
 
