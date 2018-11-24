@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import com.dscalzi.zipextractor.core.manager.MessageManager;
+import com.dscalzi.zipextractor.core.managers.MessageManager;
 import com.dscalzi.zipextractor.core.provider.TypeProvider;
 import com.dscalzi.zipextractor.core.util.BaseCommandSender;
 import com.dscalzi.zipextractor.core.util.PageList;

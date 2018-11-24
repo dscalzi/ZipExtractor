@@ -19,13 +19,18 @@
 package com.dscalzi.zipextractor.core.util;
 
 import java.util.List;
-import java.util.logging.Logger;
 
 public interface BasePlugin {
 
     public String getVersion();
     
-    public Logger getLogger();
+    public void info(String msg);
+    
+    public void warn(String msg);
+    
+    public void severe(String msg);
+    
+    public void severe(String msg, Throwable t);
     
     public String getName();
     

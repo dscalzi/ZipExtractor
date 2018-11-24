@@ -31,12 +31,11 @@ import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
 import com.dscalzi.zipextractor.core.TaskInterruptedException;
 import com.dscalzi.zipextractor.core.ZTask;
-import com.dscalzi.zipextractor.core.manager.MessageManager;
+import com.dscalzi.zipextractor.core.managers.MessageManager;
 import com.dscalzi.zipextractor.core.util.BaseCommandSender;
 import com.github.junrar.Archive;
 import com.github.junrar.exception.RarException;
@@ -82,7 +81,6 @@ public class RarProvider implements TypeProvider {
     @Override
     public void extract(BaseCommandSender sender, File src, File dest, boolean log) {
         final MessageManager mm = MessageManager.inst();
-        final Logger logger = mm.getLogger();
         try (Archive a = new Archive(new FileVolumeManager(src))) {
             if (a != null) {
                 FileHeader fh = a.nextFileHeader();
@@ -98,7 +96,7 @@ public class RarProvider implements TypeProvider {
                         }
                         try {
                             if (log)
-                                logger.info("Extracting : " + p.toString());
+                                mm.info("Extracting : " + p.toString());
                             Files.copy(is, p, StandardCopyOption.REPLACE_EXISTING);
                         } catch (DirectoryNotEmptyException e) {
                             fh = a.nextFileHeader();

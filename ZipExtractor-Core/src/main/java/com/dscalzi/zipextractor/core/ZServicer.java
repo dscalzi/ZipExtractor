@@ -26,9 +26,8 @@ import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
 
-import com.dscalzi.zipextractor.core.manager.MessageManager;
+import com.dscalzi.zipextractor.core.managers.MessageManager;
 
 public class ZServicer {
 
@@ -115,7 +114,7 @@ public class ZServicer {
         MessageManager mm = MessageManager.inst();
         try {
             if (force) {
-                mm.getLogger().info(
+                mm.info(
                         "Forcing executor service to shutdown. This could be messy if there are outstanding tasks.");
                 executor.shutdownNow();
             } else {
@@ -125,7 +124,7 @@ public class ZServicer {
                             + ((executor.getActiveCount() > 0) ? " | Active : " + executor.getActiveCount() : "")
                             + ((executor.getQueue().size() > 0) ? " | Queued : " + executor.getQueue().size() : "")
                             + ".";
-                    mm.getLogger().info(info);
+                    mm.info(info);
                     mm.sendGlobal(info, "zipextractor.harmless.notify");
                     for (Future<?> future : futures) {
                         if (future.isDone())
@@ -134,11 +133,11 @@ public class ZServicer {
                     }
                     mm.sendGlobal("All tasks have been completed.",
                             "zipextractor.harmless.notify");
-                    mm.getLogger().info("All tasks have been completed.");
+                    mm.info("All tasks have been completed.");
                 }
             }
         } catch (InterruptedException | ExecutionException e) {
-            mm.getLogger().log(Level.SEVERE, "Executor servive termination has been interrupted.", e);
+            mm.severe("Executor servive termination has been interrupted.", e);
         }
     }
 }

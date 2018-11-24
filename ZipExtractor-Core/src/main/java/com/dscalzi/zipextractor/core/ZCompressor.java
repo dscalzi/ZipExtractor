@@ -22,7 +22,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.dscalzi.zipextractor.core.manager.MessageManager;
+import com.dscalzi.zipextractor.core.managers.MessageManager;
 import com.dscalzi.zipextractor.core.provider.TypeProvider;
 import com.dscalzi.zipextractor.core.util.BaseCommandSender;
 

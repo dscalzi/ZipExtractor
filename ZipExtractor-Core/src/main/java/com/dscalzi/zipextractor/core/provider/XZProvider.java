@@ -26,7 +26,6 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
 import org.tukaani.xz.LZMA2Options;
@@ -35,7 +34,7 @@ import org.tukaani.xz.XZOutputStream;
 
 import com.dscalzi.zipextractor.core.TaskInterruptedException;
 import com.dscalzi.zipextractor.core.ZTask;
-import com.dscalzi.zipextractor.core.manager.MessageManager;
+import com.dscalzi.zipextractor.core.managers.MessageManager;
 import com.dscalzi.zipextractor.core.util.BaseCommandSender;
 
 public class XZProvider implements TypeProvider {
@@ -60,14 +59,13 @@ public class XZProvider implements TypeProvider {
     @Override
     public void extract(BaseCommandSender sender, File src, File dest, boolean log) {
         final MessageManager mm = MessageManager.inst();
-        final Logger logger = mm.getLogger();
         mm.startingProcess(sender, ZTask.EXTRACT, src.getName());
         File realDest = new File(dest.getAbsolutePath(), PATH_END.matcher(src.getName()).replaceAll(""));
         try (FileInputStream fis = new FileInputStream(src);
                 XZInputStream xzis = new XZInputStream(fis);
                 FileOutputStream fos = new FileOutputStream(realDest)) {
             if (log)
-                logger.info("Extracting : " + src.getAbsoluteFile());
+                mm.info("Extracting : " + src.getAbsoluteFile());
             byte[] buf = new byte[65536];
             int read = xzis.read(buf);
             while (read >= 1) {
@@ -87,12 +85,11 @@ public class XZProvider implements TypeProvider {
     @Override
     public void compress(BaseCommandSender sender, File src, File dest, boolean log) {
         final MessageManager mm = MessageManager.inst();
-        final Logger logger = mm.getLogger();
         mm.startingProcess(sender, ZTask.COMPRESS, src.getName());
         try (FileOutputStream fos = new FileOutputStream(dest);
                 XZOutputStream xzos = new XZOutputStream(fos, new LZMA2Options());) {
             if (log)
-                logger.info("Compressing : " + src.getAbsolutePath());
+                mm.info("Compressing : " + src.getAbsolutePath());
             xzos.write(Files.readAllBytes(src.toPath()));
             mm.compressionComplete(sender, dest.getAbsolutePath());
         } catch (IOException e) {

@@ -29,7 +29,6 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -37,7 +36,7 @@ import java.util.zip.ZipOutputStream;
 
 import com.dscalzi.zipextractor.core.TaskInterruptedException;
 import com.dscalzi.zipextractor.core.ZTask;
-import com.dscalzi.zipextractor.core.manager.MessageManager;
+import com.dscalzi.zipextractor.core.managers.MessageManager;
 import com.dscalzi.zipextractor.core.util.BaseCommandSender;
 
 public class ZipProvider implements TypeProvider {
@@ -78,7 +77,6 @@ public class ZipProvider implements TypeProvider {
     @Override
     public void extract(BaseCommandSender sender, File src, File dest, boolean log) {
         final MessageManager mm = MessageManager.inst();
-        final Logger logger = mm.getLogger();
         byte[] buffer = new byte[1024];
         mm.startingProcess(sender, ZTask.EXTRACT, src.getName());
         try (FileInputStream fis = new FileInputStream(src); ZipInputStream zis = new ZipInputStream(fis);) {
@@ -90,7 +88,7 @@ public class ZipProvider implements TypeProvider {
 
                 File newFile = new File(dest + File.separator + ze.getName());
                 if (log)
-                    logger.info("Extracting : " + newFile.getAbsoluteFile());
+                    mm.info("Extracting : " + newFile.getAbsoluteFile());
                 File parent = newFile.getParentFile();
                 if (!parent.exists() && !parent.mkdirs()) {
                     throw new IllegalStateException("Couldn't create dir: " + parent);
@@ -122,7 +120,6 @@ public class ZipProvider implements TypeProvider {
     @Override
     public void compress(BaseCommandSender sender, File src, File dest, boolean log) {
         final MessageManager mm = MessageManager.inst();
-        final Logger logger = mm.getLogger();
         mm.startingProcess(sender, ZTask.COMPRESS, src.getName());
         try (OutputStream os = Files.newOutputStream(dest.toPath()); ZipOutputStream zs = new ZipOutputStream(os);) {
             Path pp = src.toPath();
@@ -138,7 +135,7 @@ public class ZipProvider implements TypeProvider {
                 ZipEntry zipEntry = new ZipEntry(pp.getFileName() + ((sp.length() > 0) ? (File.separator + sp) : ""));
                 try {
                     if (log)
-                        logger.info("Compressing : " + zipEntry.toString());
+                        mm.info("Compressing : " + zipEntry.toString());
                     zs.putNextEntry(zipEntry);
                     zs.write(Files.readAllBytes(path));
                     zs.closeEntry();

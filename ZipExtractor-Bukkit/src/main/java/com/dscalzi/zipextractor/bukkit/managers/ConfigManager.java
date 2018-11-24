@@ -121,7 +121,7 @@ public class ConfigManager {
     }
 
     public boolean getLoggingProperty() {
-        return this.config.getBoolean("general_settings.log_files", false);
+        return this.config.getBoolean("general_settings.log_files", true);
     }
 
     public boolean warnOnConflitcts() {

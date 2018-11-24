@@ -28,12 +28,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
-import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
 import com.dscalzi.zipextractor.core.TaskInterruptedException;
 import com.dscalzi.zipextractor.core.ZTask;
-import com.dscalzi.zipextractor.core.manager.MessageManager;
+import com.dscalzi.zipextractor.core.managers.MessageManager;
 import com.dscalzi.zipextractor.core.util.BaseCommandSender;
 
 public class JarProvider implements TypeProvider {
@@ -75,7 +74,6 @@ public class JarProvider implements TypeProvider {
     @Override
     public void extract(BaseCommandSender sender, File src, File dest, boolean log) {
         final MessageManager mm = MessageManager.inst();
-        final Logger logger = mm.getLogger();
         byte[] buffer = new byte[1024];
         mm.startingProcess(sender, ZTask.EXTRACT, src.getName());
         try (FileInputStream fis = new FileInputStream(src); JarInputStream jis = new JarInputStream(fis);) {
@@ -87,7 +85,7 @@ public class JarProvider implements TypeProvider {
 
                 File newFile = new File(dest + File.separator + je.getName());
                 if (log)
-                    logger.info("Extracting : " + newFile.getAbsoluteFile());
+                    mm.info("Extracting : " + newFile.getAbsoluteFile());
                 File parent = newFile.getParentFile();
                 if (!parent.exists() && !parent.mkdirs()) {
                     throw new IllegalStateException("Couldn't create dir: " + parent);

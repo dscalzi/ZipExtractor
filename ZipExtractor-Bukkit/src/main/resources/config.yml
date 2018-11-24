@@ -1,8 +1,9 @@
 #-----------------------------------------------
 #            Zip Extractor Config
 #-----------------------------------------------
-#DO NOT CHANGE THIS VALUE.
-#CHANGING IT COULD RESULT IN DATA LOSS.
+
+# DO NOT CHANGE THIS VALUE.
+# CHANGING IT COULD RESULT IN DATA LOSS.
 ConfigVersion: 1.0
 
 #---------------[File Settings]-----------------

@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.dscalzi.zipextractor.bukkit;
+package com.dscalzi.zipextractor.sponge;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -24,14 +24,15 @@ import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
-import org.bukkit.command.BlockCommandSender;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
-import org.bukkit.command.TabCompleter;
+import org.spongepowered.api.command.CommandCallable;
+import org.spongepowered.api.command.CommandResult;
+import org.spongepowered.api.command.CommandSource;
+import org.spongepowered.api.command.source.CommandBlockSource;
+import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.serializer.TextSerializers;
+import org.spongepowered.api.world.Location;
+import org.spongepowered.api.world.World;
 
-import com.dscalzi.zipextractor.bukkit.managers.ConfigManager;
-import com.dscalzi.zipextractor.bukkit.util.BukkitCommandSender;
 import com.dscalzi.zipextractor.core.WarnData;
 import com.dscalzi.zipextractor.core.ZCompressor;
 import com.dscalzi.zipextractor.core.ZExtractor;
@@ -39,113 +40,117 @@ import com.dscalzi.zipextractor.core.ZServicer;
 import com.dscalzi.zipextractor.core.managers.MessageManager;
 import com.dscalzi.zipextractor.core.util.BaseCommandSender;
 import com.dscalzi.zipextractor.core.util.PathUtils;
+import com.dscalzi.zipextractor.sponge.managers.ConfigManager;
+import com.dscalzi.zipextractor.sponge.util.SpongeCommandSender;
 
-public class MainExecutor implements CommandExecutor, TabCompleter {
+public class MainExecutor implements CommandCallable {
 
     public static final Pattern COMMANDS = Pattern.compile(
             "^(?iu)(help|extract|compress|src|dest|setsrc|setdest|status|plugindir|terminate|forceterminate|reload|version)");
     public static final Pattern INTEGERS = Pattern.compile("(\\\\d+|-\\\\d+)");
 
-    private final MessageManager mm;
-    private final ConfigManager cm;
+    private MessageManager mm;
+    private ConfigManager cm;
 
-    private ZipExtractor plugin;
+    private ZipExtractorPlugin plugin;
 
-    public MainExecutor(ZipExtractor plugin) {
-        this.mm = MessageManager.inst();
-        this.cm = ConfigManager.getInstance();
+    public MainExecutor(ZipExtractorPlugin plugin) {
         this.plugin = plugin;
     }
 
     @Override
-    public boolean onCommand(CommandSender sndr, Command command, String label, String[] args) {
-
-        BaseCommandSender sender = new BukkitCommandSender(sndr);
+    public CommandResult process(CommandSource source, String arguments) {
         
-        if (sndr instanceof BlockCommandSender) {
+        final String[] args = arguments.isEmpty() ? new String[0] : arguments.replaceAll("\\s{2,}", " ").split(" ");
+        this.mm = MessageManager.inst();
+        this.cm = ConfigManager.getInstance();
+
+        BaseCommandSender sender = new SpongeCommandSender(source);
+        
+        if (source instanceof CommandBlockSource) {
             mm.denyCommandBlock(sender);
-            return true;
+            return CommandResult.success();
         }
 
         if (args.length > 0 && args[0].equalsIgnoreCase("version")) {
             this.cmdVersion(sender);
-            return true;
+            return CommandResult.success();
         }
 
         if (!sender.hasPermission("zipextractor.admin.use")) {
             mm.noPermissionFull(sender);
-            return true;
+            return CommandResult.success();
         }
 
         if (args.length > 0) {
             if (args[0].matches("(\\d+|-\\d+)")) {
                 this.cmdList(sender, Integer.parseInt(args[0]));
-                return true;
+                return CommandResult.success();
             }
             if (args[0].equalsIgnoreCase("help")) {
                 if (args.length > 1 && COMMANDS.matcher(args[1]).matches()) {
                     this.cmdMoreInfo(sender, args[1]);
-                    return true;
+                    return CommandResult.success();
                 }
                 if (args.length > 1 && INTEGERS.matcher(args[1]).matches()) {
                     this.cmdList(sender, Integer.parseInt(args[1]));
-                    return true;
+                    return CommandResult.success();
                 }
                 this.cmdList(sender, 1);
-                return true;
+                return CommandResult.success();
             }
             if (args[0].equalsIgnoreCase("extract")) {
                 this.cmdExtract(sender, args);
-                return true;
+                return CommandResult.success();
             }
             if (args[0].equalsIgnoreCase("compress")) {
                 this.cmdCompress(sender, args);
-                return true;
+                return CommandResult.success();
             }
             if (args[0].equalsIgnoreCase("src")) {
                 this.cmdSrc(sender, args);
-                return true;
+                return CommandResult.success();
             }
             if (args[0].equalsIgnoreCase("dest")) {
                 this.cmdDest(sender, args);
-                return true;
+                return CommandResult.success();
             }
             if (args[0].equalsIgnoreCase("setsrc")) {
                 this.cmdSetSrc(sender, args);
-                return true;
+                return CommandResult.success();
             }
             if (args[0].equalsIgnoreCase("setdest")) {
                 this.cmdSetDest(sender, args);
-                return true;
+                return CommandResult.success();
             }
             if (args[0].equalsIgnoreCase("status")) {
                 this.cmdStatus(sender);
-                return true;
+                return CommandResult.success();
             }
             if (args[0].equalsIgnoreCase("plugindir")) {
                 this.cmdPluginDir(sender);
-                return true;
+                return CommandResult.success();
             }
             if (args[0].equalsIgnoreCase("terminate")) {
                 this.cmdTerminate(sender, false);
-                return true;
+                return CommandResult.success();
             }
             if (args[0].equalsIgnoreCase("forceterminate")) {
                 this.cmdTerminate(sender, true);
-                return true;
+                return CommandResult.success();
             }
             if (args[0].equalsIgnoreCase("reload")) {
                 this.cmdReload(sender);
-                return true;
+                return CommandResult.success();
             }
             if (args[0].equalsIgnoreCase("version")) {
                 this.cmdVersion(sender);
-                return true;
+                return CommandResult.success();
             }
         }
 
         this.cmdList(sender, 1);
-        return true;
+        return CommandResult.success();
     }
 
     private void cmdList(BaseCommandSender sender, int page) {
@@ -324,7 +329,7 @@ public class MainExecutor implements CommandExecutor, TabCompleter {
             mm.noPermission(sender);
             return;
         }
-        mm.sendMessage(sender, "Plugin Directory - " + plugin.getDataFolder().getAbsolutePath());
+        mm.sendMessage(sender, "Plugin Directory - " + plugin.getConfigDir().getAbsolutePath());
     }
 
     private void cmdReload(BaseCommandSender sender) {
@@ -375,7 +380,7 @@ public class MainExecutor implements CommandExecutor, TabCompleter {
     }
 
     private void cmdVersion(BaseCommandSender sender) {
-        mm.cmdVersion(sender, true);
+        mm.cmdVersion(sender, false);
     }
 
     private String formatInput(String[] args) {
@@ -398,34 +403,42 @@ public class MainExecutor implements CommandExecutor, TabCompleter {
     }
 
     @Override
-    public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+    public List<String> getSuggestions(CommandSource source, String arguments, Location<World> targetPosition) {
+        
+        String[] argsDirty = arguments.replaceAll("\\s{2,}", " ").split(" ");
+        String[] args = arguments.endsWith(" ") ? new String[argsDirty.length + 1] : argsDirty;
+        if(args != argsDirty) {
+            System.arraycopy(argsDirty, 0, args, 0, argsDirty.length);
+            args[args.length-1] = new String();
+        }
+        
         List<String> ret = new ArrayList<String>();
 
         if (args.length == 1) {
-            ret.addAll(subCommands(sender, args));
+            ret.addAll(subCommands(source, args));
         }
 
         if (args.length == 2) {
-            boolean a = sender.hasPermission("zipextractor.admin.src") && "src".startsWith(args[0].toLowerCase());
-            boolean b = sender.hasPermission("zipextractor.admin.dest") && "dest".startsWith(args[0].toLowerCase());
-            boolean c = sender.hasPermission("zipextractor.admin.extract")
+            boolean a = source.hasPermission("zipextractor.admin.src") && "src".startsWith(args[0].toLowerCase());
+            boolean b = source.hasPermission("zipextractor.admin.dest") && "dest".startsWith(args[0].toLowerCase());
+            boolean c = source.hasPermission("zipextractor.admin.extract")
                     && "extract".startsWith(args[0].toLowerCase());
-            boolean d = sender.hasPermission("zipextractor.admin.compress")
+            boolean d = source.hasPermission("zipextractor.admin.compress")
                     && "compress".startsWith(args[0].toLowerCase());
             if (a | b)
                 if ("-absolute".startsWith(args[1].toLowerCase()))
                     ret.add("-absolute");
-            if (sender.hasPermission("zipextractor.admin.use") && "help".startsWith(args[0].toLowerCase())) {
+            if (source.hasPermission("zipextractor.admin.use") && "help".startsWith(args[0].toLowerCase())) {
                 String[] newArgs = new String[args.length - 1];
                 System.arraycopy(args, 1, newArgs, 0, args.length - 1);
-                ret.addAll(subCommands(sender, newArgs));
+                ret.addAll(subCommands(source, newArgs));
             }
 
-            if (c && ZExtractor.getWarnData(sender.getName()).isPresent() && "view".startsWith(args[1].toLowerCase())) {
+            if (c && ZExtractor.getWarnData(source.getName()).isPresent() && "view".startsWith(args[1].toLowerCase())) {
                 ret.add("view");
             }
-            if (((c && sender.hasPermission("zipextractor.admin.override.extract"))
-                    || (d && sender.hasPermission("zipextractor.admin.override.compress")))
+            if (((c && source.hasPermission("zipextractor.admin.override.extract"))
+                    || (d && source.hasPermission("zipextractor.admin.override.compress")))
                     && "-override".startsWith(args[1].toLowerCase())) {
                 ret.add("-override");
             }
@@ -434,40 +447,60 @@ public class MainExecutor implements CommandExecutor, TabCompleter {
         return ret;
     }
 
-    private List<String> subCommands(CommandSender sender, String[] args) {
+    private List<String> subCommands(CommandSource source, String[] args) {
         List<String> ret = new ArrayList<String>();
 
         if (args.length == 1) {
-            if (sender.hasPermission("zipextractor.admin.use") && "help".startsWith(args[0].toLowerCase()))
+            if (source.hasPermission("zipextractor.admin.use") && "help".startsWith(args[0].toLowerCase()))
                 ret.add("help");
-            if (sender.hasPermission("zipextractor.admin.extract") && "extract".startsWith(args[0].toLowerCase()))
+            if (source.hasPermission("zipextractor.admin.extract") && "extract".startsWith(args[0].toLowerCase()))
                 ret.add("extract");
-            if (sender.hasPermission("zipextractor.admin.compress") && "compress".startsWith(args[0].toLowerCase()))
+            if (source.hasPermission("zipextractor.admin.compress") && "compress".startsWith(args[0].toLowerCase()))
                 ret.add("compress");
-            if (sender.hasPermission("zipextractor.admin.src") && "src".startsWith(args[0].toLowerCase()))
+            if (source.hasPermission("zipextractor.admin.src") && "src".startsWith(args[0].toLowerCase()))
                 ret.add("src");
-            if (sender.hasPermission("zipextractor.admin.dest") && "dest".startsWith(args[0].toLowerCase()))
+            if (source.hasPermission("zipextractor.admin.dest") && "dest".startsWith(args[0].toLowerCase()))
                 ret.add("dest");
-            if (sender.hasPermission("zipextractor.admin.setsrc") && "setsrc".startsWith(args[0].toLowerCase()))
+            if (source.hasPermission("zipextractor.admin.setsrc") && "setsrc".startsWith(args[0].toLowerCase()))
                 ret.add("setsrc");
-            if (sender.hasPermission("zipextractor.admin.setdest") && "setdest".startsWith(args[0].toLowerCase()))
+            if (source.hasPermission("zipextractor.admin.setdest") && "setdest".startsWith(args[0].toLowerCase()))
                 ret.add("setdest");
-            if (sender.hasPermission("zipextractor.harmless.status") && "status".startsWith(args[0].toLowerCase()))
+            if (source.hasPermission("zipextractor.harmless.status") && "status".startsWith(args[0].toLowerCase()))
                 ret.add("status");
-            if (sender.hasPermission("zipextractor.admin.plugindir") && "plugindir".startsWith(args[0].toLowerCase()))
+            if (source.hasPermission("zipextractor.admin.plugindir") && "plugindir".startsWith(args[0].toLowerCase()))
                 ret.add("plugindir");
-            if (sender.hasPermission("zipextractor.admin.terminate") && "terminate".startsWith(args[0].toLowerCase()))
+            if (source.hasPermission("zipextractor.admin.terminate") && "terminate".startsWith(args[0].toLowerCase()))
                 ret.add("terminate");
-            if (sender.hasPermission("zipextractor.admin.forceterminate")
+            if (source.hasPermission("zipextractor.admin.forceterminate")
                     && "forceterminate".startsWith(args[0].toLowerCase()))
                 ret.add("forceterminate");
-            if (sender.hasPermission("zipextractor.admin.reload") && "reload".startsWith(args[0].toLowerCase()))
+            if (source.hasPermission("zipextractor.admin.reload") && "reload".startsWith(args[0].toLowerCase()))
                 ret.add("reload");
             if ("version".startsWith(args[0].toLowerCase()))
                 ret.add("version");
         }
 
         return ret;
+    }
+
+    @Override
+    public boolean testPermission(CommandSource source) {
+        return true;
+    }
+
+    @Override
+    public Optional<Text> getShortDescription(CommandSource source) {
+        return Optional.of(Text.of("ZipExtractor main command."));
+    }
+
+    @Override
+    public Optional<Text> getHelp(CommandSource source) {
+        return Optional.of(TextSerializers.FORMATTING_CODE.deserialize(mm.getExtendedHelp()));
+    }
+
+    @Override
+    public Text getUsage(CommandSource source) {
+        return Text.of("/ZipExtractor <args>");
     }
 
 }

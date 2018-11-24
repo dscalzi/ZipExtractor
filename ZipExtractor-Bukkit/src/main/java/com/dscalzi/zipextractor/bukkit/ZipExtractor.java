@@ -20,6 +20,7 @@ package com.dscalzi.zipextractor.bukkit;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
 
 import org.bstats.bukkit.Metrics;
 import org.bukkit.entity.Player;
@@ -28,7 +29,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import com.dscalzi.zipextractor.bukkit.managers.ConfigManager;
 import com.dscalzi.zipextractor.bukkit.util.BukkitCommandSender;
 import com.dscalzi.zipextractor.core.ZServicer;
-import com.dscalzi.zipextractor.core.manager.MessageManager;
+import com.dscalzi.zipextractor.core.managers.MessageManager;
 import com.dscalzi.zipextractor.core.util.BaseCommandSender;
 import com.dscalzi.zipextractor.core.util.BasePlugin;
 
@@ -65,6 +66,26 @@ public class ZipExtractor extends JavaPlugin implements BasePlugin {
             l.add(new BukkitCommandSender(p));
         }
         return l;
+    }
+
+    @Override
+    public void info(String msg) {
+        this.getLogger().info(msg);
+    }
+
+    @Override
+    public void warn(String msg) {
+        this.getLogger().warning(msg);
+    }
+
+    @Override
+    public void severe(String msg) {
+        this.getLogger().severe(msg);
+    }
+
+    @Override
+    public void severe(String msg, Throwable t) {
+        this.getLogger().log(Level.SEVERE, msg, t);
     }
 
 }

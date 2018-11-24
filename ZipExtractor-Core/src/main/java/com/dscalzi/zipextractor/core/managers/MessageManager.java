@@ -16,12 +16,10 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.dscalzi.zipextractor.core.manager;
+package com.dscalzi.zipextractor.core.managers;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import com.dscalzi.zipextractor.core.ZCompressor;
 import com.dscalzi.zipextractor.core.ZExtractor;
@@ -39,7 +37,6 @@ public class MessageManager {
     private static MessageManager instance;
 
     private BasePlugin plugin;
-    private final Logger logger;
     private final String prefix;
     private final String cPrimary;
     private final String cTrim;
@@ -48,14 +45,13 @@ public class MessageManager {
 
     private MessageManager(BasePlugin plugin) {
         this.plugin = plugin;
-        this.logger = plugin.getLogger();
-        this.cPrimary = "&8";
+        this.cPrimary = "&7";
         this.cTrim = "&3";
         this.cSuccess = "&a";
         this.cError = "&c";
         this.prefix = cPrimary + "| " + cTrim + "ZipExtractor" + cPrimary + " |" + "&r";
 
-        this.plugin.getLogger().info(plugin.getName() + " is loading.");
+        this.plugin.info(plugin.getName() + " is loading.");
     }
 
     public static void initialize(BasePlugin plugin) {
@@ -90,15 +86,29 @@ public class MessageManager {
             }
         }
     }
+    
+    /* Logging */
+    
+    public void info(String msg) {
+        plugin.info(msg);
+    }
+    
+    public void warn(String msg) {
+        plugin.warn(msg);
+    }
+    
+    public void severe(String msg) {
+        plugin.severe(msg);
+    }
+    
+    public void severe(String msg, Throwable t) {
+        plugin.severe(msg, t);
+    }
 
     /* Accessors */
 
     public String getPrefix() {
         return this.prefix;
-    }
-
-    public Logger getLogger() {
-        return this.logger;
     }
 
     /* Messages */
@@ -153,7 +163,7 @@ public class MessageManager {
             sendError(sender, "An error occurred during extraction. Could not locate the source file: "
                     + "&o" + path);
         }
-        getLogger().severe("An error occurred during extraction. Could not locate the source file: " + path);
+        plugin.severe("An error occurred during extraction. Could not locate the source file: " + path);
     }
 
     public void destNotDirectory(BaseCommandSender sender, String filePath) {
@@ -175,7 +185,7 @@ public class MessageManager {
         if (!sender.isConsole()) {
             sendError(sender, "Error during " + t.getProcessName() + ". Access is denied to " + path);
         }
-        getLogger().severe("Error during " + t.getProcessName() + ". Access is denied to " + path);
+        plugin.severe("Error during " + t.getProcessName() + ". Access is denied to " + path);
     }
 
     public void invalidExtractionExtension(BaseCommandSender sender) {
@@ -269,7 +279,7 @@ public class MessageManager {
         if (!sender.isConsole())
             sendError(sender, "Channel closed during " + task.getProcessName()
                     + ", unable to continue. This is most likely due to a forced termination of the execution servicer.");
-        logger.log(Level.WARNING, "Channel closed during " + task.getProcessName()
+        plugin.warn("Channel closed during " + task.getProcessName()
                 + ", unable to continue. This is most likely due to a forced termination of the execution servicer.");
     }
 
@@ -278,27 +288,27 @@ public class MessageManager {
             sendSuccess(sender,
                     "Starting " + task.getProcessName() + " of '" + fileName + "'.. See the console for more details.");
         }
-        getLogger().info("Starting asynchronous " + task.getProcessName() + " of the file '" + fileName + "'..");
+        plugin.info("Starting asynchronous " + task.getProcessName() + " of the file '" + fileName + "'..");
     }
 
     public void extractionComplete(BaseCommandSender sender, String destPath) {
         if (!sender.isConsole()) {
             sendSuccess(sender, "Extraction complete.");
         }
-        getLogger().info("---------------------------------------------------");
-        getLogger().info("Extraction complete.");
-        getLogger().info("The archive's contents have been extracted to\n" + destPath);
-        getLogger().info("---------------------------------------------------");
+        plugin.info("---------------------------------------------------");
+        plugin.info("Extraction complete.");
+        plugin.info("The archive's contents have been extracted to\n" + destPath);
+        plugin.info("---------------------------------------------------");
     }
 
     public void compressionComplete(BaseCommandSender sender, String destPath) {
         if (!sender.isConsole()) {
             sendSuccess(sender, "Compression complete.");
         }
-        getLogger().info("---------------------------------------------------");
-        getLogger().info("Compression complete.");
-        getLogger().info("The folder's contents have been compressed to\n" + destPath);
-        getLogger().info("---------------------------------------------------");
+        plugin.info("---------------------------------------------------");
+        plugin.info("Compression complete.");
+        plugin.info("The folder's contents have been compressed to\n" + destPath);
+        plugin.info("---------------------------------------------------");
     }
 
     public void denyCommandBlock(BaseCommandSender sender) {
@@ -331,6 +341,32 @@ public class MessageManager {
         sender.sendMessage(footer);
     }
 
+    public String getExtendedHelp() {
+        StringBuilder h = new StringBuilder();
+        
+        final String listPrefix = cPrimary + " " + BULLET + " ";
+
+        h.append(prefix + cPrimary + " Command List - <Required> [Optional]\n");
+        h.append(listPrefix + "/ZipExtractor help [cmd] " + cTrim + "- View command list or info.\n");
+        h.append(listPrefix + "/ZipExtractor extract " + cTrim + "- Extract the specified file.\n");
+        h.append(listPrefix + "/ZipExtractor compress " + cTrim + "- Compress the specified file.\n");
+        h.append(listPrefix + "/ZipExtractor src [-absolute] " + cTrim + "- View the source filepath.\n");
+        h.append(listPrefix + "/ZipExtractor dest [-absolute] " + cTrim + "- View the destination filepath.\n");
+        h.append(listPrefix + "/ZipExtractor setsrc <path> " + cTrim + "- Set the source's filepath.\n");
+        h.append(listPrefix + "/ZipExtractor setdest <path> " + cTrim + "- Set the destination's filepath.\n");
+        h.append(listPrefix + "/ZipExtractor status " + cTrim + "- View the executor's status.\n");
+        h.append(listPrefix + "/ZipExtractor plugindir " + cTrim + "- Get the plugin's full filepath.\n");
+        h.append(listPrefix + "/ZipExtractor terminate " + cTrim
+                + "- Shutdown the plugin's executor and allow all outstanding tasks to complete.\n");
+        h.append(listPrefix + "/ZipExtractor forceterminate " + cTrim
+                + "- Immediately shutdown the plugin's executor and terminate all outstanding tasks.\n");
+        h.append(listPrefix + "/ZipExtractor reload " + cTrim + "- Reload the config.yml.\n");
+        h.append(listPrefix + "/ZipExtractor version " + cTrim + "- View plugin version info.\n");
+        
+        return h.toString();
+
+    }
+    
     public void commandList(BaseCommandSender sender, int page) {
         final String listPrefix = cPrimary + " " + BULLET + " ";
 
@@ -510,12 +546,12 @@ public class MessageManager {
         }
     }
 
-    public void cmdVersion(BaseCommandSender sender) {
+    public void cmdVersion(BaseCommandSender sender, boolean bukkit) {
         sendMessage(sender,
                 "Zip Extractor version " + plugin.getVersion() + "\n" + cPrimary + "| " + cTrim
                         + "Source" + cPrimary + " | " + "&r" + "https://github.com/dscalzi/ZipExtractor"
                         + "\n" + cPrimary + "| " + cTrim + "Metrics" + cPrimary + " | " + "&r"
-                        + "https://bstats.org/plugin/bukkit/ZipExtractor");
+                        + "https://bstats.org/plugin/" + (bukkit ? "bukkit" : "sponge") + "/ZipExtractor");
     }
 
     public String ordinal(int i) {

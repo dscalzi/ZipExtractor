@@ -29,11 +29,10 @@ import java.util.List;
 import java.util.jar.JarFile;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Pack200;
-import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
 import com.dscalzi.zipextractor.core.ZTask;
-import com.dscalzi.zipextractor.core.manager.MessageManager;
+import com.dscalzi.zipextractor.core.managers.MessageManager;
 import com.dscalzi.zipextractor.core.util.BaseCommandSender;
 
 public class PackProvider implements TypeProvider {
@@ -58,12 +57,11 @@ public class PackProvider implements TypeProvider {
     @Override
     public void extract(BaseCommandSender sender, File src, File dest, boolean log) {
         final MessageManager mm = MessageManager.inst();
-        final Logger logger = mm.getLogger();
         mm.startingProcess(sender, ZTask.EXTRACT, src.getName());
         File realDest = new File(dest.getAbsolutePath(), PATH_END_EXTRACT.matcher(src.getName()).replaceAll(""));
         try (JarOutputStream jarStream = new JarOutputStream(new FileOutputStream(realDest))) {
             if (log)
-                logger.info("Extracting : " + src.getAbsoluteFile());
+                mm.info("Extracting : " + src.getAbsoluteFile());
             Pack200.newUnpacker().unpack(src, jarStream);
             mm.extractionComplete(sender, realDest.getAbsolutePath());
         } catch (IOException e) {
@@ -74,11 +72,10 @@ public class PackProvider implements TypeProvider {
     @Override
     public void compress(BaseCommandSender sender, File src, File dest, boolean log) {
         final MessageManager mm = MessageManager.inst();
-        final Logger logger = mm.getLogger();
         mm.startingProcess(sender, ZTask.COMPRESS, src.getName());
         try (JarFile in = new JarFile(src); OutputStream out = Files.newOutputStream(dest.toPath())) {
             if (log)
-                logger.info("Compressing : " + src.getAbsolutePath());
+                mm.info("Compressing : " + src.getAbsolutePath());
             Pack200.newPacker().pack(in, out);
             mm.compressionComplete(sender, dest.getAbsolutePath());
         } catch (IOException e) {
