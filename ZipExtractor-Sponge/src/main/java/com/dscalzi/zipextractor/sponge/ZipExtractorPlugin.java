@@ -96,7 +96,7 @@ public class ZipExtractorPlugin implements BasePlugin {
         MessageManager.initialize(this);
         ZServicer.initalize(ConfigManager.getInstance().getMaxQueueSize(), ConfigManager.getInstance().getMaxPoolSize());
         
-        Sponge.getCommandManager().register(this, new MainExecutor(this), Arrays.asList("zipexteactor", "ze"));
+        Sponge.getCommandManager().register(this, new MainExecutor(this), Arrays.asList("zipextractor", "ze"));
     }
 
     
@@ -106,6 +106,7 @@ public class ZipExtractorPlugin implements BasePlugin {
         if (ops.isPresent()) {
             Builder opdb = ops.get().newDescriptionBuilder(this);
             if (opdb != null) {
+                opdb.assign(PermissionDescription.ROLE_ADMIN, true).description(Text.of("Full access to ZipExtractor.")).id(plugin.getId()).register();
                 opdb.assign(PermissionDescription.ROLE_ADMIN, true).description(Text.of("Access to administrator commands.")).id(plugin.getId() + ".admin").register();
                 opdb.assign(PermissionDescription.ROLE_ADMIN, true).description(Text.of("Allow usage of /ZipExtractor.")).id(plugin.getId() + ".admin.use").register();
                 opdb.assign(PermissionDescription.ROLE_ADMIN, true).description(Text.of("Allow usage of /ZipExtractor extract.")).id(plugin.getId() + ".admin.extract").register();
@@ -120,6 +121,7 @@ public class ZipExtractorPlugin implements BasePlugin {
                 opdb.assign(PermissionDescription.ROLE_ADMIN, true).description(Text.of("Allow usage of /ZipExtractor terminate.")).id(plugin.getId() + ".admin.terminate").register();
                 opdb.assign(PermissionDescription.ROLE_ADMIN, true).description(Text.of("Allow usage of /ZipExtractor forceterminate.")).id(plugin.getId() + ".admin.forceterminate").register();
                 opdb.assign(PermissionDescription.ROLE_ADMIN, true).description(Text.of("Allow usage of /ZipExtractor reload.")).id(plugin.getId() + ".admin.reload").register();
+                opdb.assign(PermissionDescription.ROLE_ADMIN, true).description(Text.of("Access to harmless commands.")).id(plugin.getId() + ".harmless").register();
                 opdb.assign(PermissionDescription.ROLE_ADMIN, true).description(Text.of("User will be notified if the plugin broadcasts a message.")).id(plugin.getId() + ".harmless.notify").register();
                 opdb.assign(PermissionDescription.ROLE_ADMIN, true).description(Text.of("Allow usage of /ZipExtractor status.")).id(plugin.getId() + ".harmless.status").register();
             }

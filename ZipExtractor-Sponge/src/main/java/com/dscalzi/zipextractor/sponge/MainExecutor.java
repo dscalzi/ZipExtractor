@@ -29,7 +29,6 @@ import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.source.CommandBlockSource;
 import org.spongepowered.api.text.Text;
-import org.spongepowered.api.text.serializer.TextSerializers;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
@@ -495,7 +494,7 @@ public class MainExecutor implements CommandCallable {
 
     @Override
     public Optional<Text> getHelp(CommandSource source) {
-        return Optional.of(TextSerializers.FORMATTING_CODE.deserialize(mm.getExtendedHelp()));
+        return Optional.of(Text.of("Run /ZipExtractor to view usage."));
     }
 
     @Override

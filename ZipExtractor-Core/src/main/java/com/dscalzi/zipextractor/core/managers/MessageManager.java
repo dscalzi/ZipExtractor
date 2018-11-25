@@ -340,32 +340,6 @@ public class MessageManager {
             sender.sendMessage(s);
         sender.sendMessage(footer);
     }
-
-    public String getExtendedHelp() {
-        StringBuilder h = new StringBuilder();
-        
-        final String listPrefix = cPrimary + " " + BULLET + " ";
-
-        h.append(prefix + cPrimary + " Command List - <Required> [Optional]\n");
-        h.append(listPrefix + "/ZipExtractor help [cmd] " + cTrim + "- View command list or info.\n");
-        h.append(listPrefix + "/ZipExtractor extract " + cTrim + "- Extract the specified file.\n");
-        h.append(listPrefix + "/ZipExtractor compress " + cTrim + "- Compress the specified file.\n");
-        h.append(listPrefix + "/ZipExtractor src [-absolute] " + cTrim + "- View the source filepath.\n");
-        h.append(listPrefix + "/ZipExtractor dest [-absolute] " + cTrim + "- View the destination filepath.\n");
-        h.append(listPrefix + "/ZipExtractor setsrc <path> " + cTrim + "- Set the source's filepath.\n");
-        h.append(listPrefix + "/ZipExtractor setdest <path> " + cTrim + "- Set the destination's filepath.\n");
-        h.append(listPrefix + "/ZipExtractor status " + cTrim + "- View the executor's status.\n");
-        h.append(listPrefix + "/ZipExtractor plugindir " + cTrim + "- Get the plugin's full filepath.\n");
-        h.append(listPrefix + "/ZipExtractor terminate " + cTrim
-                + "- Shutdown the plugin's executor and allow all outstanding tasks to complete.\n");
-        h.append(listPrefix + "/ZipExtractor forceterminate " + cTrim
-                + "- Immediately shutdown the plugin's executor and terminate all outstanding tasks.\n");
-        h.append(listPrefix + "/ZipExtractor reload " + cTrim + "- Reload the config.yml.\n");
-        h.append(listPrefix + "/ZipExtractor version " + cTrim + "- View plugin version info.\n");
-        
-        return h.toString();
-
-    }
     
     public void commandList(BaseCommandSender sender, int page) {
         final String listPrefix = cPrimary + " " + BULLET + " ";
