@@ -4,10 +4,15 @@ plugins {
 }
 
 allprojects {
+    description = 'Utility plugin to extract archives and compress files.'
     group = 'com.dscalzi'
-}
 
-description = """Utility plugin to extract archives and compress files."""
+    ext {
+        name = 'ZipExtractor'
+        author = 'Daniel Scalzi (TheKraken7)'
+        url = 'https://github.com/dscalzi/ZipExtractor'
+    }
+}
 
 apply plugin: 'eclipse'
 
@@ -22,7 +27,7 @@ subprojects {
     targetCompatibility = 1.8
 
     def major = '2'
-    def minor = '0'
+    def minor = '1'
     def spongeRevision = '0'
     def bukkitRevision = '0'
 
@@ -34,6 +39,10 @@ subprojects {
     
     configurations {
         testImplementation.extendsFrom compileOnly
+    }
+
+    processResources {
+        from "../LICENSE.txt"
     }
 
     license {

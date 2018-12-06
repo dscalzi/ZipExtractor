@@ -1,3 +1,7 @@
+plugins {
+	id 'net.minecrell.plugin-yml.bukkit' version '0.3.0'
+}
+
 repositories {
     mavenCentral()
     maven { url 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
@@ -10,6 +14,121 @@ dependencies {
 
     implementation project(':ZipExtractor-Core')
     implementation 'org.bstats:bstats-bukkit:1.4'
+}
+
+bukkit {
+
+    name = ext.name
+    version = version
+    description = description
+    website = ext.url
+    author = ext.author
+    
+    main = 'com.dscalzi.zipextractor.bukkit.ZipExtractor'
+    
+    apiVersion = '1.13'
+    
+    commands {
+        zipextractor {
+            description = 'Main plugin command'
+            aliases = ['ze']
+        }
+    }
+    
+    permissions {
+        'zipextractor.*' {
+            description = 'Full access to ZipExtractor.'
+            children = [
+                'zipextractor.admin.*',
+                'zipextractor.harmless.*'
+            ]
+        }
+        'zipextractor.admin.*' {
+            description = 'Access to administrator commands.'
+            children = [
+                'zipextractor.admin.use',
+                'zipextractor.admin.extract',
+                'zipextractor.admin.compress',
+                'zipextractor.admin.override.extract',
+                'zipextractor.admin.override.compress',
+                'zipextractor.admin.src',
+                'zipextractor.admin.dest',
+                'zipextractor.admin.setsrc',
+                'zipextractor.admin.setdest',
+                'zipextractor.admin.plugindir',
+                'zipextractor.admin.terminate',
+                'zipextractor.admin.forceterminate',
+                'zipextractor.admin.reload'
+            ]
+        }
+        'zipextractor.admin.use' {
+            description = 'Allow usage of /ZipExtractor'
+            setDefault('OP')
+        }
+        'zipextractor.admin.extract' {
+            description = 'Allow usage of /ZipExtractor extract'
+            setDefault('OP')
+        }
+        'zipextractor.admin.compress' {
+            description = 'Allow usage of /ZipExtractor compress'
+            setDefault('OP')
+        }
+        'zipextractor.admin.override.extract' {
+            description = 'Allow usage of /ZipExtractor extract -override'
+            setDefault('OP')
+        }
+        'zipextractor.admin.override.compress' {
+            description = 'Allow usage of /ZipExtractor compress -override'
+            setDefault('OP')
+        }
+        'zipextractor.admin.src' {
+            description = 'Allow usage of /ZipExtractor src'
+            setDefault('OP')
+        }
+        'zipextractor.admin.dest' {
+            description = 'Allow usage of /ZipExtractor dest'
+            setDefault('OP')
+        }
+        'zipextractor.admin.setsrc' {
+            description = 'Allow usage of /ZipExtractor setsrc'
+            setDefault('OP')
+        }
+        'zipextractor.admin.setdest' {
+            description = 'Allow usage of /ZipExtractor setdest'
+            setDefault('OP')
+        }
+        'zipextractor.admin.plugindir' {
+            description = 'Allow usage of /ZipExtractor plugindir'
+            setDefault('OP')
+        }
+        'zipextractor.admin.terminate' {
+            description = 'Allow usage of /ZipExtractor terminate'
+            setDefault('OP')
+        }
+        'zipextractor.admin.forceterminate' {
+            description = 'Allow usage of /ZipExtractor forceterminate'
+            setDefault('OP')
+        }
+        'zipextractor.admin.reload' {
+            description = 'Allow usage of /ZipExtractor reload'
+            setDefault('OP')
+        }
+        'zipextractor.harmless.*' {
+            description = 'Access to harmless commands.'
+            children = [
+                'zipextractor.harmless.notify',
+                'zipextractor.harmless.status'
+            ]
+        }
+        'zipextractor.harmless.notify' {
+            description = 'User will be notified if the plugin broadcasts a message.'
+            setDefault('OP')
+        }
+        'zipextractor.harmless.status' {
+            description = 'Allow usage of /ZipExtractor status'
+            setDefault('OP')
+        }
+    }
 }
 
 shadowJar {

@@ -6,11 +6,11 @@ sponge {
     plugin {
         meta {
             id = 'zipextractor'
-            name = 'ZipExtractor'
+            name = project.ext.name
             version = version
-            description = 'Utility plugin to extract archives and compress files.'
-            url = 'https://github.com/dscalzi/zipextractor'
-            authors = ['Daniel Scalzi (TheKraken7)']
+            description = description
+            url = project.ext.url
+            authors = [project.ext.author]
         }
     }
 }
