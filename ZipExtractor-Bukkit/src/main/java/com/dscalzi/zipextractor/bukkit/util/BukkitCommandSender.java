@@ -19,12 +19,13 @@
 package com.dscalzi.zipextractor.bukkit.util;
 
 import org.bukkit.ChatColor;
+import org.bukkit.command.BlockCommandSender;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 
-import com.dscalzi.zipextractor.core.util.BaseCommandSender;
+import com.dscalzi.zipextractor.core.util.ICommandSender;
 
-public class BukkitCommandSender implements BaseCommandSender {
+public class BukkitCommandSender implements ICommandSender {
 
     private CommandSender cs;
     
@@ -40,6 +41,11 @@ public class BukkitCommandSender implements BaseCommandSender {
     @Override
     public boolean isConsole() {
         return cs instanceof ConsoleCommandSender;
+    }
+    
+    @Override
+    public boolean isCommandBlock() {
+        return cs instanceof BlockCommandSender;
     }
 
     @Override

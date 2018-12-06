@@ -36,7 +36,7 @@ import java.util.regex.Pattern;
 import com.dscalzi.zipextractor.core.TaskInterruptedException;
 import com.dscalzi.zipextractor.core.ZTask;
 import com.dscalzi.zipextractor.core.managers.MessageManager;
-import com.dscalzi.zipextractor.core.util.BaseCommandSender;
+import com.dscalzi.zipextractor.core.util.ICommandSender;
 import com.github.junrar.Archive;
 import com.github.junrar.exception.RarException;
 import com.github.junrar.impl.FileVolumeManager;
@@ -49,7 +49,7 @@ public class RarProvider implements TypeProvider {
     public static final List<String> SUPPORTED = new ArrayList<String>(Arrays.asList("rar"));
 
     @Override
-    public List<String> scanForExtractionConflicts(BaseCommandSender sender, File src, File dest) {
+    public List<String> scanForExtractionConflicts(ICommandSender sender, File src, File dest) {
         List<String> existing = new ArrayList<String>();
         final MessageManager mm = MessageManager.inst();
 
@@ -79,7 +79,7 @@ public class RarProvider implements TypeProvider {
     }
 
     @Override
-    public void extract(BaseCommandSender sender, File src, File dest, boolean log) {
+    public void extract(ICommandSender sender, File src, File dest, boolean log) {
         final MessageManager mm = MessageManager.inst();
         try (Archive a = new Archive(new FileVolumeManager(src))) {
             if (a != null) {

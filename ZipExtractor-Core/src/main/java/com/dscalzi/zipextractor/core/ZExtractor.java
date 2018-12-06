@@ -27,7 +27,7 @@ import java.util.Optional;
 
 import com.dscalzi.zipextractor.core.managers.MessageManager;
 import com.dscalzi.zipextractor.core.provider.TypeProvider;
-import com.dscalzi.zipextractor.core.util.BaseCommandSender;
+import com.dscalzi.zipextractor.core.util.ICommandSender;
 import com.dscalzi.zipextractor.core.util.PageList;
 
 public class ZExtractor {
@@ -35,7 +35,7 @@ public class ZExtractor {
     private static final Map<String, WarnData> WARNED = new HashMap<String, WarnData>();
     private static List<String> SUPPORTED;
 
-    public static void asyncExtract(BaseCommandSender sender, File src, File dest, boolean log, final boolean override) {
+    public static void asyncExtract(ICommandSender sender, File src, File dest, boolean log, final boolean override) {
         final MessageManager mm = MessageManager.inst();
 
         // If the user was warned, clear it.

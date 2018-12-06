@@ -18,14 +18,26 @@
 
 package com.dscalzi.zipextractor.core.util;
 
-public interface BaseCommandSender {
+import java.util.List;
 
-    public void sendMessage(String msg);
+public interface IPlugin {
+
+    public String getVersion();
     
-    public boolean isConsole();
+    public void info(String msg);
     
-    public boolean hasPermission(String perm);
+    public void warn(String msg);
+    
+    public void severe(String msg);
+    
+    public void severe(String msg, Throwable t);
     
     public String getName();
+    
+    public String getPluginDirectory();
+    
+    public boolean reload();
+    
+    public List<? extends ICommandSender> getOnlinePlayers();
     
 }

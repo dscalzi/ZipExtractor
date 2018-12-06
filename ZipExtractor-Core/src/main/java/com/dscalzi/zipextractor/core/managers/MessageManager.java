@@ -25,8 +25,8 @@ import com.dscalzi.zipextractor.core.ZCompressor;
 import com.dscalzi.zipextractor.core.ZExtractor;
 import com.dscalzi.zipextractor.core.ZServicer;
 import com.dscalzi.zipextractor.core.ZTask;
-import com.dscalzi.zipextractor.core.util.BaseCommandSender;
-import com.dscalzi.zipextractor.core.util.BasePlugin;
+import com.dscalzi.zipextractor.core.util.ICommandSender;
+import com.dscalzi.zipextractor.core.util.IPlugin;
 import com.dscalzi.zipextractor.core.util.PageList;
 
 public class MessageManager {
@@ -36,14 +36,14 @@ public class MessageManager {
     private static boolean initialized;
     private static MessageManager instance;
 
-    private BasePlugin plugin;
+    private IPlugin plugin;
     private final String prefix;
     private final String cPrimary;
     private final String cTrim;
     private final String cSuccess;
     private final String cError;
 
-    private MessageManager(BasePlugin plugin) {
+    private MessageManager(IPlugin plugin) {
         this.plugin = plugin;
         this.cPrimary = "&7";
         this.cTrim = "&3";
@@ -54,7 +54,7 @@ public class MessageManager {
         this.plugin.info(plugin.getName() + " is loading.");
     }
 
-    public static void initialize(BasePlugin plugin) {
+    public static void initialize(IPlugin plugin) {
         if (!initialized) {
             instance = new MessageManager(plugin);
             initialized = true;
@@ -67,20 +67,20 @@ public class MessageManager {
 
     /* Message Distribution */
 
-    public void sendMessage(BaseCommandSender sender, String message) {
+    public void sendMessage(ICommandSender sender, String message) {
         sender.sendMessage(prefix + " " + message);
     }
 
-    public void sendSuccess(BaseCommandSender sender, String message) {
+    public void sendSuccess(ICommandSender sender, String message) {
         sender.sendMessage(prefix + cSuccess + " " + message);
     }
 
-    public void sendError(BaseCommandSender sender, String message) {
+    public void sendError(ICommandSender sender, String message) {
         sender.sendMessage(prefix + cError + " " + message);
     }
 
     public void sendGlobal(String message, String permission) {
-        for (BaseCommandSender p : plugin.getOnlinePlayers()) {
+        for (ICommandSender p : plugin.getOnlinePlayers()) {
             if (p.hasPermission(permission)) {
                 sendMessage(p, message);
             }
@@ -113,35 +113,35 @@ public class MessageManager {
 
     /* Messages */
 
-    public void noPermission(BaseCommandSender sender) {
+    public void noPermission(ICommandSender sender) {
         sendError(sender, "You do not have permission to execute this command.");
     }
 
-    public void noPermissionFull(BaseCommandSender sender) {
+    public void noPermissionFull(ICommandSender sender) {
         sendError(sender, "You do not have permission to use this plugin.");
     }
 
-    public void noInfoPermission(BaseCommandSender sender) {
+    public void noInfoPermission(ICommandSender sender) {
         sendError(sender, "You do not have permission to view details about this command.");
     }
 
-    public void reloadSuccess(BaseCommandSender sender) {
+    public void reloadSuccess(ICommandSender sender) {
         sendSuccess(sender, "Configuration successfully reloaded.");
     }
 
-    public void reloadFailed(BaseCommandSender sender) {
+    public void reloadFailed(ICommandSender sender) {
         sendError(sender, "Failed to reload the configuration file, see the console for details.");
     }
 
-    public void setPathSuccess(BaseCommandSender sender, String action) {
+    public void setPathSuccess(ICommandSender sender, String action) {
         sendSuccess(sender, "Successfully updated the " + action + " file path.");
     }
 
-    public void setPathFailed(BaseCommandSender sender, String action) {
+    public void setPathFailed(ICommandSender sender, String action) {
         sendError(sender, "Failed to update the " + action + " file path, see the console for details.");
     }
 
-    public void warnOfConflicts(BaseCommandSender sender, int amt) {
+    public void warnOfConflicts(ICommandSender sender, int amt) {
         sendError(sender,
                 "Warning, this extraction will override " + "&o" + Integer.toString(amt) + cError + " file"
                         + (amt == 1 ? "" : "s") + ". To view " + (amt == 1 ? "this" : "these") + " file"
@@ -149,16 +149,16 @@ public class MessageManager {
         sendError(sender, "To proceed with the extraction: " + "&o" + "/ze extract -override");
     }
 
-    public void destExists(BaseCommandSender sender) {
+    public void destExists(ICommandSender sender) {
         sendError(sender, "Warning, the destination of this compression already exists.");
         sendError(sender, "To proceed with the compression: " + "&o" + "/ze compress -override");
     }
 
-    public void noWarnData(BaseCommandSender sender) {
+    public void noWarnData(ICommandSender sender) {
         sendError(sender, "You have no data to view!");
     }
 
-    public void fileNotFound(BaseCommandSender sender, String path) {
+    public void fileNotFound(ICommandSender sender, String path) {
         if (!sender.isConsole()) {
             sendError(sender, "An error occurred during extraction. Could not locate the source file: "
                     + "&o" + path);
@@ -166,44 +166,44 @@ public class MessageManager {
         plugin.severe("An error occurred during extraction. Could not locate the source file: " + path);
     }
 
-    public void destNotDirectory(BaseCommandSender sender, String filePath) {
+    public void destNotDirectory(ICommandSender sender, String filePath) {
         sendError(sender, "The destination path must be a directory:");
         sendError(sender, "&o" + filePath);
     }
 
-    public void sourceNotFound(BaseCommandSender sender, String filePath) {
+    public void sourceNotFound(ICommandSender sender, String filePath) {
         sendError(sender, "Source file not found:");
         sendError(sender, "&o" + filePath);
     }
 
-    public void sourceNoExt(BaseCommandSender sender, String filePath) {
+    public void sourceNoExt(ICommandSender sender, String filePath) {
         sendError(sender, "The source file must have an extension:");
         sendError(sender, "&o" + filePath);
     }
 
-    public void fileAccessDenied(BaseCommandSender sender, ZTask t, String path) {
+    public void fileAccessDenied(ICommandSender sender, ZTask t, String path) {
         if (!sender.isConsole()) {
             sendError(sender, "Error during " + t.getProcessName() + ". Access is denied to " + path);
         }
         plugin.severe("Error during " + t.getProcessName() + ". Access is denied to " + path);
     }
 
-    public void invalidExtractionExtension(BaseCommandSender sender) {
+    public void invalidExtractionExtension(ICommandSender sender) {
         sendError(sender, "Currently extractions are only supported for "
                 + listToString(ZExtractor.supportedExtensions()) + " files.");
     }
 
-    public void invalidCompressionExtension(BaseCommandSender sender) {
+    public void invalidCompressionExtension(ICommandSender sender) {
         sendError(sender, "Currently you may only compress to the " + listToString(ZCompressor.supportedExtensions())
                 + " format" + (ZCompressor.supportedExtensions().size() > 1 ? "s" : "") + ".");
     }
 
-    public void invalidSourceForDest(BaseCommandSender sender, List<String> sources, List<String> dests) {
+    public void invalidSourceForDest(ICommandSender sender, List<String> sources, List<String> dests) {
         sendError(sender,
                 "Only " + listToString(sources) + " files can be compressed to " + listToString(dests) + " files.");
     }
 
-    public void invalidPath(BaseCommandSender sender, String path, String type) {
+    public void invalidPath(ICommandSender sender, String path, String type) {
         if (path == null || path.isEmpty()) {
             sendError(sender, "A " + type + " path must be specified.");
         } else {
@@ -212,7 +212,7 @@ public class MessageManager {
         }
     }
 
-    public void invalidPath(BaseCommandSender sender, String path) {
+    public void invalidPath(ICommandSender sender, String path) {
         if (path == null || path.isEmpty()) {
             sendError(sender, "A path must be specified.");
         } else {
@@ -221,7 +221,7 @@ public class MessageManager {
         }
     }
 
-    public void invalidPathIsSet(BaseCommandSender sender, String path) {
+    public void invalidPathIsSet(ICommandSender sender, String path) {
         if (path == null || path.isEmpty()) {
             sendError(sender, "No path is set.");
         } else {
@@ -230,15 +230,15 @@ public class MessageManager {
         }
     }
 
-    public void scanningForConflics(BaseCommandSender sender) {
+    public void scanningForConflics(ICommandSender sender) {
         sendSuccess(sender, "Scanning for file conflicts..");
     }
 
-    public void specifyAPath(BaseCommandSender sender) {
+    public void specifyAPath(ICommandSender sender) {
         sendError(sender, "Please specify a path.");
     }
 
-    public void addToQueue(BaseCommandSender sender, int position) {
+    public void addToQueue(ICommandSender sender, int position) {
         String ordinal;
         if (position == 1 || position == 0)
             ordinal = "next";
@@ -247,35 +247,35 @@ public class MessageManager {
         sendSuccess(sender, "Your task has been added to the queue. It is currently " + ordinal + ".");
     }
 
-    public void queueFull(BaseCommandSender sender, int maxQueueSize) {
+    public void queueFull(ICommandSender sender, int maxQueueSize) {
         sendError(sender, "Unable to add your task to the queue, the limit of "
                 + maxQueueSize + " has been reached.");
     }
 
-    public void executorTerminated(BaseCommandSender sender, ZTask task) {
+    public void executorTerminated(ICommandSender sender, ZTask task) {
         sendError(sender, "The execution servicer has been shutdown and has therefore rejected your "
                 + task.getProcessName() + " request.");
     }
 
-    public void alreadyTerminated(BaseCommandSender sender) {
+    public void alreadyTerminated(ICommandSender sender) {
         sendError(sender, "The execution servicer has already been shutdown. This cannot be repeated or undone.");
     }
 
-    public void alreadyTerminating(BaseCommandSender sender) {
+    public void alreadyTerminating(ICommandSender sender) {
         sendError(sender, "The execution servicer is currently shutting down, no further requests can be made.");
     }
 
-    public void terminating(BaseCommandSender sender) {
+    public void terminating(ICommandSender sender) {
         sendSuccess(sender,
                 "Execution servicer is being shutdown. All queued tasks will be completed, although no further tasks will be accepted.");
     }
 
-    public void terminatingForcibly(BaseCommandSender sender) {
+    public void terminatingForcibly(ICommandSender sender) {
         sendSuccess(sender,
                 "Forcibly shutting down the execution servicer. All running and queued tasks will be interrupted and terminated.");
     }
 
-    public void taskInterruption(BaseCommandSender sender, ZTask task) {
+    public void taskInterruption(ICommandSender sender, ZTask task) {
         if (!sender.isConsole())
             sendError(sender, "Channel closed during " + task.getProcessName()
                     + ", unable to continue. This is most likely due to a forced termination of the execution servicer.");
@@ -283,7 +283,7 @@ public class MessageManager {
                 + ", unable to continue. This is most likely due to a forced termination of the execution servicer.");
     }
 
-    public void startingProcess(BaseCommandSender sender, ZTask task, String fileName) {
+    public void startingProcess(ICommandSender sender, ZTask task, String fileName) {
         if (!sender.isConsole()) {
             sendSuccess(sender,
                     "Starting " + task.getProcessName() + " of '" + fileName + "'.. See the console for more details.");
@@ -291,7 +291,7 @@ public class MessageManager {
         plugin.info("Starting asynchronous " + task.getProcessName() + " of the file '" + fileName + "'..");
     }
 
-    public void extractionComplete(BaseCommandSender sender, String destPath) {
+    public void extractionComplete(ICommandSender sender, String destPath) {
         if (!sender.isConsole()) {
             sendSuccess(sender, "Extraction complete.");
         }
@@ -301,7 +301,7 @@ public class MessageManager {
         plugin.info("---------------------------------------------------");
     }
 
-    public void compressionComplete(BaseCommandSender sender, String destPath) {
+    public void compressionComplete(ICommandSender sender, String destPath) {
         if (!sender.isConsole()) {
             sendSuccess(sender, "Compression complete.");
         }
@@ -311,21 +311,21 @@ public class MessageManager {
         plugin.info("---------------------------------------------------");
     }
 
-    public void denyCommandBlock(BaseCommandSender sender) {
+    public void denyCommandBlock(ICommandSender sender) {
         sendError(sender, "Command blocks are blocked from accessing this command for security purposes.");
     }
 
-    public void commandFormat(BaseCommandSender sender, String cmd) {
+    public void commandFormat(ICommandSender sender, String cmd) {
         if (cmd.equalsIgnoreCase("setsrc") || cmd.equalsIgnoreCase("setdest")) {
             sendError(sender, "Proper usage is /" + cmd.toLowerCase() + " <File Path>");
         }
     }
 
-    public void invalidPage(BaseCommandSender sender) {
+    public void invalidPage(ICommandSender sender) {
         sendError(sender, "Page does not exist.");
     }
 
-    public void formatWarnList(BaseCommandSender sender, int page, PageList<String> files) {
+    public void formatWarnList(ICommandSender sender, int page, PageList<String> files) {
         final String listPrefix = cError + " " + BULLET + " ";
         final String header = prefix + cError + " The following files would be overriden:";
 
@@ -341,7 +341,7 @@ public class MessageManager {
         sender.sendMessage(footer);
     }
     
-    public void commandList(BaseCommandSender sender, int page) {
+    public void commandList(ICommandSender sender, int page) {
         final String listPrefix = cPrimary + " " + BULLET + " ";
 
         PageList<String> cmds = new PageList<String>(7);
@@ -389,7 +389,7 @@ public class MessageManager {
         sender.sendMessage(footer);
     }
 
-    public void commandInfo(BaseCommandSender sender, String cmd) {
+    public void commandInfo(ICommandSender sender, String cmd) {
         if (cmd.equalsIgnoreCase("help")) {
             if (!sender.hasPermission("zipextractor.admin.use")) {
                 noInfoPermission(sender);
@@ -505,7 +505,7 @@ public class MessageManager {
 
     }
 
-    public void cmdStatus(BaseCommandSender sender) {
+    public void cmdStatus(ICommandSender sender) {
         ZServicer zs = ZServicer.getInstance();
         if (zs == null) {
             sendMessage(sender, "Executor Status | " + "&c" + "UNINITIALIZED");
@@ -520,7 +520,7 @@ public class MessageManager {
         }
     }
 
-    public void cmdVersion(BaseCommandSender sender, boolean bukkit) {
+    public void cmdVersion(ICommandSender sender, boolean bukkit) {
         sendMessage(sender,
                 "Zip Extractor version " + plugin.getVersion() + "\n" + cPrimary + "| " + cTrim
                         + "Source" + cPrimary + " | " + "&r" + "https://github.com/dscalzi/ZipExtractor"

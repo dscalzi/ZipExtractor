@@ -30,10 +30,10 @@ import com.dscalzi.zipextractor.bukkit.managers.ConfigManager;
 import com.dscalzi.zipextractor.bukkit.util.BukkitCommandSender;
 import com.dscalzi.zipextractor.core.ZServicer;
 import com.dscalzi.zipextractor.core.managers.MessageManager;
-import com.dscalzi.zipextractor.core.util.BaseCommandSender;
-import com.dscalzi.zipextractor.core.util.BasePlugin;
+import com.dscalzi.zipextractor.core.util.ICommandSender;
+import com.dscalzi.zipextractor.core.util.IPlugin;
 
-public class ZipExtractor extends JavaPlugin implements BasePlugin {
+public class ZipExtractor extends JavaPlugin implements IPlugin {
 
     @SuppressWarnings("unused")
     private Metrics metrics;
@@ -60,7 +60,7 @@ public class ZipExtractor extends JavaPlugin implements BasePlugin {
     }
 
     @Override
-    public List<? extends BaseCommandSender> getOnlinePlayers() {
+    public List<? extends ICommandSender> getOnlinePlayers() {
         List<BukkitCommandSender> l = new ArrayList<BukkitCommandSender>();
         for(Player p : this.getServer().getOnlinePlayers()) {
             l.add(new BukkitCommandSender(p));
@@ -86,6 +86,20 @@ public class ZipExtractor extends JavaPlugin implements BasePlugin {
     @Override
     public void severe(String msg, Throwable t) {
         this.getLogger().log(Level.SEVERE, msg, t);
+    }
+
+    @Override
+    public String getPluginDirectory() {
+        return this.getDataFolder().getAbsolutePath();
+    }
+
+    @Override
+    public boolean reload() {
+        if (ConfigManager.reloadStatic()) {
+            ZServicer.getInstance().setMaximumPoolSize(ConfigManager.getInstance().getMaxPoolSize());
+            return true;
+        }
+        return false;
     }
 
 }

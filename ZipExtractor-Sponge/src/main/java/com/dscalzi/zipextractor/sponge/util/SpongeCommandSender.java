@@ -19,12 +19,13 @@
 package com.dscalzi.zipextractor.sponge.util;
 
 import org.spongepowered.api.command.CommandSource;
+import org.spongepowered.api.command.source.CommandBlockSource;
 import org.spongepowered.api.command.source.ConsoleSource;
 import org.spongepowered.api.text.serializer.TextSerializers;
 
-import com.dscalzi.zipextractor.core.util.BaseCommandSender;
+import com.dscalzi.zipextractor.core.util.ICommandSender;
 
-public class SpongeCommandSender implements BaseCommandSender {
+public class SpongeCommandSender implements ICommandSender {
 
     private CommandSource cs;
     
@@ -40,6 +41,11 @@ public class SpongeCommandSender implements BaseCommandSender {
     @Override
     public boolean isConsole() {
         return cs instanceof ConsoleSource;
+    }
+    
+    @Override
+    public boolean isCommandBlock() {
+        return cs instanceof CommandBlockSource;
     }
 
     @Override

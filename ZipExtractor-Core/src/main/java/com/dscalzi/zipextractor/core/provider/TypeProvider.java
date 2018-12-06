@@ -21,7 +21,7 @@ package com.dscalzi.zipextractor.core.provider;
 import java.io.File;
 import java.util.List;
 
-import com.dscalzi.zipextractor.core.util.BaseCommandSender;
+import com.dscalzi.zipextractor.core.util.ICommandSender;
 
 /**
  * The TypeProvider Interface.
@@ -69,7 +69,7 @@ public interface TypeProvider {
      *            The destination file to be scanned.
      * @return A List containing the paths of the files which would be overridden.
      */
-    public default List<String> scanForExtractionConflicts(BaseCommandSender sender, File src, File dest) {
+    public default List<String> scanForExtractionConflicts(ICommandSender sender, File src, File dest) {
         throw new UnsupportedOperationException();
     }
 
@@ -85,7 +85,7 @@ public interface TypeProvider {
      * @param log
      *            Whether or not to log the progress.
      */
-    public default void extract(BaseCommandSender sender, File src, File dest, boolean log) {
+    public default void extract(ICommandSender sender, File src, File dest, boolean log) {
         throw new UnsupportedOperationException();
     }
 
@@ -101,7 +101,7 @@ public interface TypeProvider {
      * @param log
      *            Whether or not to log the progress.
      */
-    public default void compress(BaseCommandSender sender, File src, File dest, boolean log) {
+    public default void compress(ICommandSender sender, File src, File dest, boolean log) {
         throw new UnsupportedOperationException();
     }
 

@@ -24,13 +24,13 @@ import java.util.List;
 
 import com.dscalzi.zipextractor.core.managers.MessageManager;
 import com.dscalzi.zipextractor.core.provider.TypeProvider;
-import com.dscalzi.zipextractor.core.util.BaseCommandSender;
+import com.dscalzi.zipextractor.core.util.ICommandSender;
 
 public class ZCompressor {
 
     private static List<String> SUPPORTED;
 
-    public static void asyncCompress(BaseCommandSender sender, File src, File dest, boolean log, final boolean override) {
+    public static void asyncCompress(ICommandSender sender, File src, File dest, boolean log, final boolean override) {
         final MessageManager mm = MessageManager.inst();
         // If the source does not exist, abort.
         if (!src.exists()) {

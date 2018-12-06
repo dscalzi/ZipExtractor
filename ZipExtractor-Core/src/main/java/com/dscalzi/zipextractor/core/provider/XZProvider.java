@@ -35,7 +35,7 @@ import org.tukaani.xz.XZOutputStream;
 import com.dscalzi.zipextractor.core.TaskInterruptedException;
 import com.dscalzi.zipextractor.core.ZTask;
 import com.dscalzi.zipextractor.core.managers.MessageManager;
-import com.dscalzi.zipextractor.core.util.BaseCommandSender;
+import com.dscalzi.zipextractor.core.util.ICommandSender;
 
 public class XZProvider implements TypeProvider {
 
@@ -45,7 +45,7 @@ public class XZProvider implements TypeProvider {
     public static final List<String> SUPPORTED_COMPRESS = new ArrayList<String>(Arrays.asList("non-directory"));
 
     @Override
-    public List<String> scanForExtractionConflicts(BaseCommandSender sender, File src, File dest) {
+    public List<String> scanForExtractionConflicts(ICommandSender sender, File src, File dest) {
         final MessageManager mm = MessageManager.inst();
         mm.scanningForConflics(sender);
         File realDest = new File(dest.getAbsolutePath(), PATH_END.matcher(src.getName()).replaceAll(""));
@@ -57,7 +57,7 @@ public class XZProvider implements TypeProvider {
     }
 
     @Override
-    public void extract(BaseCommandSender sender, File src, File dest, boolean log) {
+    public void extract(ICommandSender sender, File src, File dest, boolean log) {
         final MessageManager mm = MessageManager.inst();
         mm.startingProcess(sender, ZTask.EXTRACT, src.getName());
         File realDest = new File(dest.getAbsolutePath(), PATH_END.matcher(src.getName()).replaceAll(""));
@@ -83,7 +83,7 @@ public class XZProvider implements TypeProvider {
     }
 
     @Override
-    public void compress(BaseCommandSender sender, File src, File dest, boolean log) {
+    public void compress(ICommandSender sender, File src, File dest, boolean log) {
         final MessageManager mm = MessageManager.inst();
         mm.startingProcess(sender, ZTask.COMPRESS, src.getName());
         try (FileOutputStream fos = new FileOutputStream(dest);

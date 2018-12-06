@@ -30,9 +30,10 @@ import java.util.Optional;
 import org.bukkit.configuration.file.FileConfiguration;
 
 import com.dscalzi.zipextractor.bukkit.ZipExtractor;
+import com.dscalzi.zipextractor.core.managers.IConfigManager;
 import com.dscalzi.zipextractor.core.util.PathUtils;
 
-public class ConfigManager {
+public class ConfigManager implements IConfigManager {
 
     private static boolean initialized;
     private static ConfigManager instance;
@@ -67,11 +68,15 @@ public class ConfigManager {
         }
     }
 
-    public static boolean reload() {
+    public static boolean reloadStatic() {
         if (!initialized)
             return false;
+        return getInstance().reload();
+    }
+    
+    public boolean reload() {
         try {
-            getInstance().loadConfig();
+            loadConfig();
             return true;
         } catch (Exception e) {
             e.printStackTrace();
@@ -127,6 +132,11 @@ public class ConfigManager {
     public boolean warnOnConflitcts() {
         return this.config.getBoolean("general_settings.warn_on_conflicts", true);
     }
+    
+    @Override
+    public boolean tabCompleteFiles() {
+        return this.config.getBoolean("general_settings.tab_complete_files", true);
+    }
 
     public boolean waitForTasksOnShutdown() {
         return this.config.getBoolean("general_settings.wait_on_shutdown", true);
@@ -144,8 +154,12 @@ public class ConfigManager {
         return limit > 0 ? limit : 1;
     }
 
-    public double getVersion() {
+    public double getSystemConfigVersion() {
         return this.configVersion;
+    }
+
+    public double getConfigVersion() {
+        return config.getDouble("ConfigVersion", getSystemConfigVersion());
     }
 
     public boolean updateValue(String path, String value) {
@@ -196,4 +210,5 @@ public class ConfigManager {
             return false;
         }
     }
+
 }

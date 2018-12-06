@@ -20,12 +20,14 @@ repositories {
 }
 
 dependencies {
-    compile project(':ZipExtractor-Core')
-    compile 'org.bstats:bstats-sponge:1.4'
     compileOnly 'org.spongepowered:spongeapi:7.1.0'
+
+    implementation project(':ZipExtractor-Core')
+    implementation 'org.bstats:bstats-sponge:1.4'
 }
 
 shadowJar {
     classifier 'dist'
+    
     minimize()
 }

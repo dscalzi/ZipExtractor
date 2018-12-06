@@ -24,12 +24,13 @@ import java.util.Optional;
 
 import org.spongepowered.api.asset.Asset;
 
+import com.dscalzi.zipextractor.core.managers.IConfigManager;
 import com.dscalzi.zipextractor.core.util.PathUtils;
 import com.dscalzi.zipextractor.sponge.ZipExtractorPlugin;
 
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 
-public class ConfigManager {
+public class ConfigManager implements IConfigManager {
 
     private static boolean initialized;
     private static ConfigManager instance;
@@ -87,12 +88,16 @@ public class ConfigManager {
             initialized = true;
         }
     }
-
-    public static boolean reload() {
+    
+    public static boolean reloadStatic() {
         if (!initialized)
             return false;
+        return getInstance().reload();
+    }
+    
+    public boolean reload() {
         try {
-            getInstance().loadConfig();
+            loadConfig();
             return true;
         } catch (Exception e) {
             e.printStackTrace();
@@ -178,6 +183,14 @@ public class ConfigManager {
             return true;
         } else {
             return config.getNode("general_settings", "warn_on_conflicts").getBoolean(true);
+        }
+    }
+    
+    public boolean tabCompleteFiles() {
+        if(config == null) {
+            return true;
+        } else {
+            return config.getNode("general_settings", "tab_complete_files").getBoolean(true);
         }
     }
 

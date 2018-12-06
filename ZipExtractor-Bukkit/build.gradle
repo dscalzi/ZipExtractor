@@ -6,15 +6,16 @@ repositories {
 }
 
 dependencies {
-    compile group: 'org.bstats', name: 'bstats-bukkit', version:'1.4'
-    compileOnly group: 'org.spigotmc', name: 'spigot-api', version:'1.13.2-R0.1-SNAPSHOT'
-    compile project(':ZipExtractor-Core')
+    compileOnly 'org.spigotmc:spigot-api:1.13.2-R0.1-SNAPSHOT'
+
+    implementation project(':ZipExtractor-Core')
+    implementation 'org.bstats:bstats-bukkit:1.4'
 }
 
 shadowJar {
     classifier 'dist'
 
     relocate 'org.bstats', 'com.dscalzi.zipextractor.bukkit.bstats'
-
+    
     minimize()
 }

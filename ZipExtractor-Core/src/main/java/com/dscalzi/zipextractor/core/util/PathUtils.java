@@ -24,6 +24,8 @@ import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -96,6 +98,79 @@ public class PathUtils {
             return false;
         }
         return true;
+    }
+    
+    public static String join(String[] arr, char delimeter, int start, int end) {
+        StringBuilder b = new StringBuilder();
+        for(int i=start; i<end; i++) {
+            b.append(arr[i]);
+            if(i != end-1) b.append(delimeter);
+        }
+        return b.toString();
+    }
+    
+    private static String argumentizeString(String str) {
+        if(str.contains(" ")) {
+            String[] tmp = str.split(" ");
+            return tmp[tmp.length-1];
+        }
+        return str;
+    }
+    
+    public static List<String> tabCompletePath(String[] args) {
+        
+        List<String> ret = new ArrayList<String>();
+        
+        String pathArg = join(args, ' ', 1, args.length);
+        Path path;
+        try {
+            path = !pathArg.isEmpty() ? Paths.get(pathArg) : Paths.get(".");
+        } catch (Throwable t) {
+            return ret;
+        }
+        File pathFile = path.toFile();
+        if(pathFile.exists() && pathFile.isDirectory()) {
+            // Ex. / -> [/Users/, /ProgramData/, etc]
+            if(!pathArg.isEmpty() && !pathArg.endsWith("/")) pathArg += '/';
+            pathArg = argumentizeString(pathArg);
+            for(String s : pathFile.list()) {
+                ret.add(pathArg + s);
+            }
+        } else {
+            // Ex. /Us + TAB -> /Users/
+            Path parent = path.toAbsolutePath().getParent();
+            if(parent != null) {
+                File parentFile = parent.toFile();
+                if(parentFile.exists() && parentFile.isDirectory()) {
+                    final String[] tmp = pathArg.split("/");
+                    String initialArg = join(tmp, '/', 0, tmp.length-1);
+                    if(!initialArg.isEmpty() || (tmp.length == 2 && tmp[0].isEmpty())) initialArg += '/';
+                    final String target = tmp[tmp.length-1];
+                    initialArg = argumentizeString(initialArg);
+                    boolean x = !target.contains(" ");
+                    boolean y = target.endsWith(" ");
+                    for(File f : parentFile.listFiles()) {
+                        final String s = f.getName();
+                        if(s.startsWith(target)) {
+                            if(x) {
+                                ret.add(initialArg + s + (f.isDirectory() ? '/' : ""));
+                            } else {
+                                if(y) {
+                                    ret.add(s.replace(target, "") + (f.isDirectory() ? '/' : ""));
+                                } else {
+                                    String[] t = target.split(" ");
+                                    String replacement = join(t, ' ', 0, t.length-1) + ' ';
+                                    ret.add(s.replace(replacement, "") + (f.isDirectory() ? '/' : ""));
+                                }
+                            }
+                            
+                        }
+                    }
+                }
+            }
+        }
+        
+        return ret;
     }
 
 }

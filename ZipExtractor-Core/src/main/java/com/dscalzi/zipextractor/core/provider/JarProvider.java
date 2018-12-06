@@ -33,7 +33,7 @@ import java.util.regex.Pattern;
 import com.dscalzi.zipextractor.core.TaskInterruptedException;
 import com.dscalzi.zipextractor.core.ZTask;
 import com.dscalzi.zipextractor.core.managers.MessageManager;
-import com.dscalzi.zipextractor.core.util.BaseCommandSender;
+import com.dscalzi.zipextractor.core.util.ICommandSender;
 
 public class JarProvider implements TypeProvider {
 
@@ -42,7 +42,7 @@ public class JarProvider implements TypeProvider {
     public static final List<String> SUPPORTED = new ArrayList<String>(Arrays.asList("jar"));
 
     @Override
-    public List<String> scanForExtractionConflicts(BaseCommandSender sender, File src, File dest) {
+    public List<String> scanForExtractionConflicts(ICommandSender sender, File src, File dest) {
         
         List<String> existing = new ArrayList<String>();
         final MessageManager mm = MessageManager.inst();
@@ -72,7 +72,7 @@ public class JarProvider implements TypeProvider {
     }
 
     @Override
-    public void extract(BaseCommandSender sender, File src, File dest, boolean log) {
+    public void extract(ICommandSender sender, File src, File dest, boolean log) {
         final MessageManager mm = MessageManager.inst();
         byte[] buffer = new byte[1024];
         mm.startingProcess(sender, ZTask.EXTRACT, src.getName());

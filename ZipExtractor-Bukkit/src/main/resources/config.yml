@@ -45,6 +45,11 @@ general_settings:
   # warning and proceed anyway.
   warn_on_conflicts: true
   
+  # Specify whether or not users can use tab
+  # completion to specify paths to the setsrc
+  # and setdest commands.
+  tab_complete_files: true
+  
   # Specify whether or not the plugin should wait
   # for outstanding tasks to be completed before 
   # the server shuts down. If false, any outstanding

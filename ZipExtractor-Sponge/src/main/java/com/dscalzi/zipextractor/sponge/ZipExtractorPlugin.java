@@ -45,8 +45,8 @@ import org.spongepowered.api.text.Text;
 
 import com.dscalzi.zipextractor.core.ZServicer;
 import com.dscalzi.zipextractor.core.managers.MessageManager;
-import com.dscalzi.zipextractor.core.util.BaseCommandSender;
-import com.dscalzi.zipextractor.core.util.BasePlugin;
+import com.dscalzi.zipextractor.core.util.ICommandSender;
+import com.dscalzi.zipextractor.core.util.IPlugin;
 import com.dscalzi.zipextractor.sponge.managers.ConfigManager;
 import com.dscalzi.zipextractor.sponge.util.SpongeCommandSender;
 import com.google.inject.Inject;
@@ -55,7 +55,7 @@ import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import ninja.leaping.configurate.loader.ConfigurationLoader;
 
 @Plugin(id = "zipextractor")
-public class ZipExtractorPlugin implements BasePlugin {
+public class ZipExtractorPlugin implements IPlugin {
 
     @Inject private PluginContainer plugin;
     @Inject private Logger logger;
@@ -131,9 +131,7 @@ public class ZipExtractorPlugin implements BasePlugin {
     
     @Listener
     public void onReload(GameReloadEvent e){
-        if(ConfigManager.reload()) {
-            ZServicer.getInstance().setMaximumPoolSize(ConfigManager.getInstance().getMaxPoolSize());
-        }
+        reload();
     }
 
     @Override
@@ -147,7 +145,7 @@ public class ZipExtractorPlugin implements BasePlugin {
     }
 
     @Override
-    public List<? extends BaseCommandSender> getOnlinePlayers() {
+    public List<? extends ICommandSender> getOnlinePlayers() {
         List<SpongeCommandSender> l = new ArrayList<SpongeCommandSender>();
         for(Player p : game.getServer().getOnlinePlayers()) {
             l.add(new SpongeCommandSender(p));
@@ -175,5 +173,18 @@ public class ZipExtractorPlugin implements BasePlugin {
         logger.trace(msg, t);
     }
 
+    @Override
+    public String getPluginDirectory() {
+        return configDir.getAbsolutePath();
+    }
+
+    @Override
+    public boolean reload() {
+        if (ConfigManager.reloadStatic()) {
+            ZServicer.getInstance().setMaximumPoolSize(ConfigManager.getInstance().getMaxPoolSize());
+            return true;
+        }
+        return false;
+    }
     
 }
