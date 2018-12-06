@@ -4,11 +4,13 @@ repositories {
 
 dependencies {
     implementation 'org.tukaani:xz:1.8'
-    implementation ('com.github.junrar:junrar:3.0.0') {
+    implementation ('com.github.junrar:junrar:3.1.0') {
         exclude(module: 'commons-vfs2')
     }
 }
 
 shadowJar {
-	minimize()
+    minimize() {
+        exclude(dependency('commons-logging:commons-logging:.*'))
+    }
 }

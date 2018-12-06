@@ -29,5 +29,7 @@ dependencies {
 shadowJar {
     classifier 'dist'
     
-    minimize()
+    minimize() {
+        exclude(dependency('commons-logging:commons-logging:.*'))
+    }
 }

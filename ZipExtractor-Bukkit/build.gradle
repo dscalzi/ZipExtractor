@@ -136,5 +136,7 @@ shadowJar {
 
     relocate 'org.bstats', 'com.dscalzi.zipextractor.bukkit.bstats'
     
-    minimize()
+    minimize() {
+        exclude(dependency('commons-logging:commons-logging:.*'))
+    }
 }
