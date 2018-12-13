@@ -118,7 +118,7 @@ public class ZipProvider implements TypeProvider {
     }
 
     @Override
-    public void compress(ICommandSender sender, File src, File dest, boolean log) {
+    public void compress(ICommandSender sender, File src, File dest, boolean log, boolean pipe) {
         final MessageManager mm = MessageManager.inst();
         mm.startingProcess(sender, ZTask.COMPRESS, src.getName());
         try (OutputStream os = Files.newOutputStream(dest.toPath()); ZipOutputStream zs = new ZipOutputStream(os);) {
@@ -143,7 +143,8 @@ public class ZipProvider implements TypeProvider {
                     e.printStackTrace();
                 }
             });
-            mm.compressionComplete(sender, dest.getAbsolutePath());
+            if(!pipe)
+                mm.compressionComplete(sender, dest.getAbsolutePath());
         } catch (AccessDeniedException e) {
             mm.fileAccessDenied(sender, ZTask.COMPRESS, e.getMessage());
         } catch (TaskInterruptedException e) {

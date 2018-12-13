@@ -100,8 +100,10 @@ public interface TypeProvider {
      *            The file to be compressed to.
      * @param log
      *            Whether or not to log the progress.
+     * @param pipe
+     *            Whether this output will be piped.
      */
-    public default void compress(ICommandSender sender, File src, File dest, boolean log) {
+    public default void compress(ICommandSender sender, File src, File dest, boolean log, boolean pipe) {
         throw new UnsupportedOperationException();
     }
 

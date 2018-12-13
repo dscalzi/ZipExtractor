@@ -83,7 +83,7 @@ public class XZProvider implements TypeProvider {
     }
 
     @Override
-    public void compress(ICommandSender sender, File src, File dest, boolean log) {
+    public void compress(ICommandSender sender, File src, File dest, boolean log, boolean pipe) {
         final MessageManager mm = MessageManager.inst();
         mm.startingProcess(sender, ZTask.COMPRESS, src.getName());
         try (FileOutputStream fos = new FileOutputStream(dest);
@@ -91,7 +91,8 @@ public class XZProvider implements TypeProvider {
             if (log)
                 mm.info("Compressing : " + src.getAbsolutePath());
             xzos.write(Files.readAllBytes(src.toPath()));
-            mm.compressionComplete(sender, dest.getAbsolutePath());
+            if(!pipe)
+                mm.compressionComplete(sender, dest.getAbsolutePath());
         } catch (IOException e) {
             e.printStackTrace();
         }
