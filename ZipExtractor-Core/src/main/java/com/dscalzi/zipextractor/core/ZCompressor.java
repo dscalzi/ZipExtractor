@@ -19,14 +19,16 @@
 package com.dscalzi.zipextractor.core;
 
 import java.io.File;
+import java.nio.file.Path;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
+import java.util.Deque;
 import java.util.List;
-import java.util.Map;
 
 import com.dscalzi.zipextractor.core.managers.MessageManager;
 import com.dscalzi.zipextractor.core.provider.TypeProvider;
 import com.dscalzi.zipextractor.core.util.ICommandSender;
+import com.dscalzi.zipextractor.core.util.OpTuple;
 
 public class ZCompressor {
 
@@ -40,8 +42,10 @@ public class ZCompressor {
             return;
         }
         
-        String[] srcSplit = src.toPath().toAbsolutePath().normalize().toString().split("\\.", 2);
-        String[] destSplit = dest.toPath().toAbsolutePath().normalize().toString().split("\\.", 2);
+        Path destNorm = dest.toPath().toAbsolutePath().normalize();
+        
+        // Split at first dot.
+        String[] destSplit = destNorm.getFileName().toString().split("\\.", 2);
         
         // We need an extension.
         if(destSplit.length < 2) {
@@ -49,22 +53,26 @@ public class ZCompressor {
             return;
         }
         
-        String[] srcExts = srcSplit.length > 1 ? srcSplit[1].split("\\.") : new String[0];
         String[] destExts = destSplit[1].split("\\.");
         
-        Map<File, File> pMap = new LinkedHashMap<File, File>();
+        Deque<OpTuple> pDeque = new ArrayDeque<OpTuple>();
         if(destExts.length < 2) {
-            pMap.put(src, dest);
+            pDeque.push(new OpTuple(src, dest));
         } else {
             File dTemp = dest;
-            File sTemp = src;
-            String extAcc = "";
-            for (int i=0; i<destExts.length; i++) {
-                extAcc += '.' + destExts[i];
-                if (i<srcExts.length && !srcExts[i].equals(destExts[i]) || !(i<srcExts.length)) {
-                    dTemp = new File(destSplit[0] + extAcc);
-                    pMap.put(sTemp, dTemp);
-                    sTemp = dTemp;
+            File sTemp = null;
+            
+            String pth = destNorm.toString();
+            
+            for(int i=destExts.length-1; i>=0; i--) {
+                if(supportedExtensions().contains(destExts[i].toLowerCase())) {
+                    pth = pth.substring(0, pth.length()-destExts[i].length()-1);
+                    sTemp = new File(pth);
+                    pDeque.push(new OpTuple(i == 0 ? src : sTemp, dTemp));
+                    dTemp = sTemp;
+                } else {
+                    pDeque.peek().setSrc(src);
+                    break;
                 }
             }
         }
@@ -72,24 +80,27 @@ public class ZCompressor {
         Runnable task = null;
         int c = 0;
         boolean piped = false;
-        final Runnable[] pipes = new Runnable[pMap.size()];
-        for (final Map.Entry<File, File> e : pMap.entrySet()) {
+        final Runnable[] pipes = new Runnable[pDeque.size()];
+        for (final OpTuple e : pDeque) {
             for (final TypeProvider p : TypeProvider.getProviders()) {
-                if (p.destValidForCompression(e.getValue())) {
-                    if (p.srcValidForCompression(e.getKey())) {
-                        if (e.getValue().exists() && !override) {
-                            mm.destExists(sender);
+                if (p.destValidForCompression(e.getDest())) {
+                    if (p.srcValidForCompression(e.getSrc())) {
+                        final boolean interOp = c != pDeque.size()-1;
+                        
+                        if (e.getDest().exists() && !override) {
+                            if(!interOp) mm.destExists(sender);
+                            else mm.destExistsPiped(sender, e.getDest());
                             return;
                         }
-                        final boolean printFinish = c != pMap.size()-1;
+                        
                         if(piped) {
                             pipes[c] = () -> {
-                                p.compress(sender, e.getKey(), e.getValue(), log, printFinish);
-                                e.getKey().delete();
+                                p.compress(sender, e.getSrc(), e.getDest(), log, interOp);
+                                e.getSrc().delete();
                             };
                         } else {
                             pipes[c] = () -> {
-                                p.compress(sender, e.getKey(), e.getValue(), log, printFinish);
+                                p.compress(sender, e.getSrc(), e.getDest(), log, interOp);
                             };
                         }
                         piped = true;

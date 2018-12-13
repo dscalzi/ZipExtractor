@@ -26,23 +26,21 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
-
-import org.tukaani.xz.LZMA2Options;
-import org.tukaani.xz.XZInputStream;
-import org.tukaani.xz.XZOutputStream;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 
 import com.dscalzi.zipextractor.core.TaskInterruptedException;
 import com.dscalzi.zipextractor.core.ZTask;
 import com.dscalzi.zipextractor.core.managers.MessageManager;
 import com.dscalzi.zipextractor.core.util.ICommandSender;
 
-public class XZProvider implements TypeProvider {
+public class GZProvider implements TypeProvider {
 
-    // Shared pattern by XZProviders
-    public static final Pattern PATH_END = Pattern.compile("\\.xz$");
-    public static final List<String> SUPPORTED_EXTRACT = new ArrayList<String>(Arrays.asList("xz"));
+    // Shared pattern by GZProviders
+    public static final Pattern PATH_END = Pattern.compile("\\.gz$");
+    public static final List<String> SUPPORTED_EXTRACT = new ArrayList<String>(Arrays.asList("gz"));
     public static final List<String> SUPPORTED_COMPRESS = new ArrayList<String>(Arrays.asList("non-directory"));
-
+    
     @Override
     public List<String> scanForExtractionConflicts(ICommandSender sender, File src, File dest) {
         final MessageManager mm = MessageManager.inst();
@@ -54,13 +52,13 @@ public class XZProvider implements TypeProvider {
         }
         return ret;
     }
-
+    
     @Override
     public void extract(ICommandSender sender, File src, File dest, boolean log) {
         final MessageManager mm = MessageManager.inst();
         mm.startingProcess(sender, ZTask.EXTRACT, src.getName());
         File realDest = new File(dest.getAbsolutePath(), PATH_END.matcher(src.getName()).replaceAll(""));
-        try (XZInputStream xzis = new XZInputStream(new FileInputStream(src));
+        try (GZIPInputStream xzis = new GZIPInputStream(new FileInputStream(src));
                 FileOutputStream fos = new FileOutputStream(realDest)) {
             if (log)
                 mm.info("Extracting : " + src.getAbsoluteFile());
@@ -78,16 +76,16 @@ public class XZProvider implements TypeProvider {
             e.printStackTrace();
         }
     }
-
+    
     @Override
     public void compress(ICommandSender sender, File src, File dest, boolean log, boolean pipe) {
         final MessageManager mm = MessageManager.inst();
         mm.startingProcess(sender, ZTask.COMPRESS, src.getName());
-        try (XZOutputStream xzos = new XZOutputStream(new FileOutputStream(dest), new LZMA2Options());
+        try (GZIPOutputStream xzos = new GZIPOutputStream(new FileOutputStream(dest));
                 FileInputStream fis = new FileInputStream(src)) {
             if (log)
                 mm.info("Compressing : " + src.getAbsolutePath());
-            byte[] buf = new byte[8*1024];
+            byte[] buf = new byte[65536];
             int len = 0;
             while ((len = fis.read(buf)) > 0) {
                 if (Thread.interrupted())
@@ -102,7 +100,7 @@ public class XZProvider implements TypeProvider {
             e.printStackTrace();
         }
     }
-
+    
     @Override
     public boolean validForExtraction(File src) {
         return PATH_END.matcher(src.getAbsolutePath()).find();

@@ -118,7 +118,7 @@ public class RarProvider implements TypeProvider {
         } catch (RarException | IOException e) {
             e.printStackTrace();
         }
-        mm.extractionComplete(sender, dest.getAbsolutePath());
+        mm.extractionComplete(sender, dest);
     }
 
     @Override

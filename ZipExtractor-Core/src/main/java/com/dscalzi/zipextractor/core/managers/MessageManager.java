@@ -18,6 +18,7 @@
 
 package com.dscalzi.zipextractor.core.managers;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -151,6 +152,12 @@ public class MessageManager {
 
     public void destExists(ICommandSender sender) {
         sendError(sender, "Warning, the destination of this compression already exists.");
+        sendError(sender, "To proceed with the compression: " + "&o" + "/ze compress -override");
+    }
+    
+    public void destExistsPiped(ICommandSender sender, File path) {
+        sendError(sender, "Warning, an intermediate destination of this piped compression already exists.");
+        sendError(sender, "&o" + path.toPath().toAbsolutePath().normalize().toString());
         sendError(sender, "To proceed with the compression: " + "&o" + "/ze compress -override");
     }
 
@@ -291,23 +298,23 @@ public class MessageManager {
         plugin.info("Starting asynchronous " + task.getProcessName() + " of the file '" + fileName + "'..");
     }
 
-    public void extractionComplete(ICommandSender sender, String destPath) {
+    public void extractionComplete(ICommandSender sender, File dest) {
         if (!sender.isConsole()) {
             sendSuccess(sender, "Extraction complete.");
         }
         plugin.info("---------------------------------------------------");
         plugin.info("Extraction complete.");
-        plugin.info("The archive's contents have been extracted to\n" + destPath);
+        plugin.info("The archive's contents have been extracted to\n" + dest.toPath().toAbsolutePath().normalize().toString());
         plugin.info("---------------------------------------------------");
     }
 
-    public void compressionComplete(ICommandSender sender, String destPath) {
+    public void compressionComplete(ICommandSender sender, File dest) {
         if (!sender.isConsole()) {
             sendSuccess(sender, "Compression complete.");
         }
         plugin.info("---------------------------------------------------");
         plugin.info("Compression complete.");
-        plugin.info("The folder's contents have been compressed to\n" + destPath);
+        plugin.info("The folder's contents have been compressed to\n" + dest.toPath().toAbsolutePath().normalize().toString());
         plugin.info("---------------------------------------------------");
     }
 

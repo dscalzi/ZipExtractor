@@ -104,7 +104,7 @@ public class JarProvider implements TypeProvider {
                 je = jis.getNextJarEntry();
             }
             jis.closeEntry();
-            mm.extractionComplete(sender, dest.getAbsolutePath());
+            mm.extractionComplete(sender, dest);
         } catch (AccessDeniedException e) {
             mm.fileAccessDenied(sender, ZTask.EXTRACT, e.getMessage());
         } catch (TaskInterruptedException e) {

@@ -107,7 +107,7 @@ public class ZipProvider implements TypeProvider {
                 ze = zis.getNextEntry();
             }
             zis.closeEntry();
-            mm.extractionComplete(sender, dest.getAbsolutePath());
+            mm.extractionComplete(sender, dest);
         } catch (AccessDeniedException e) {
             mm.fileAccessDenied(sender, ZTask.EXTRACT, e.getMessage());
         } catch (TaskInterruptedException e) {
@@ -144,7 +144,7 @@ public class ZipProvider implements TypeProvider {
                 }
             });
             if(!pipe)
-                mm.compressionComplete(sender, dest.getAbsolutePath());
+                mm.compressionComplete(sender, dest);
         } catch (AccessDeniedException e) {
             mm.fileAccessDenied(sender, ZTask.COMPRESS, e.getMessage());
         } catch (TaskInterruptedException e) {

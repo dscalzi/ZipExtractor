@@ -63,7 +63,7 @@ public class PackProvider implements TypeProvider {
             if (log)
                 mm.info("Extracting : " + src.getAbsoluteFile());
             Pack200.newUnpacker().unpack(src, jarStream);
-            mm.extractionComplete(sender, realDest.getAbsolutePath());
+            mm.extractionComplete(sender, realDest);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -78,7 +78,7 @@ public class PackProvider implements TypeProvider {
                 mm.info("Compressing : " + src.getAbsolutePath());
             Pack200.newPacker().pack(in, out);
             if(!pipe)
-                mm.compressionComplete(sender, dest.getAbsolutePath());
+                mm.compressionComplete(sender, dest);
         } catch (IOException e) {
             e.printStackTrace();
         }

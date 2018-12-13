@@ -44,7 +44,8 @@ public interface TypeProvider {
             new RarProvider(),
             new JarProvider(),
             new PackProvider(),
-            new XZProvider()
+            new XZProvider(),
+            new GZProvider()
     };
     
     /**
