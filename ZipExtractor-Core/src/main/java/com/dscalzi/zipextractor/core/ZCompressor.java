@@ -42,9 +42,11 @@ public class ZCompressor {
             return;
         }
         
+        Path srcNorm = src.toPath().toAbsolutePath().normalize();
         Path destNorm = dest.toPath().toAbsolutePath().normalize();
         
         // Split at first dot.
+        String[] srcSplit = srcNorm.getFileName().toString().split("\\.", 2);
         String[] destSplit = destNorm.getFileName().toString().split("\\.", 2);
         
         // We need an extension.
@@ -53,6 +55,7 @@ public class ZCompressor {
             return;
         }
         
+        String[] srcExts = srcSplit.length > 1 ? srcSplit[1].split("\\.") : new String[0];
         String[] destExts = destSplit[1].split("\\.");
         
         Deque<OpTuple> pDeque = new ArrayDeque<OpTuple>();
@@ -65,7 +68,8 @@ public class ZCompressor {
             String pth = destNorm.toString();
             
             for(int i=destExts.length-1; i>=0; i--) {
-                if(supportedExtensions().contains(destExts[i].toLowerCase())) {
+                if(supportedExtensions().contains(destExts[i].toLowerCase()) && 
+                        (srcExts.length > 0 ? !destExts[i].equalsIgnoreCase(srcExts[srcExts.length-1]) : true)) {
                     pth = pth.substring(0, pth.length()-destExts[i].length()-1);
                     sTemp = new File(pth);
                     pDeque.push(new OpTuple(i == 0 ? src : sTemp, dTemp));
