@@ -74,11 +74,11 @@ bukkit {
             setDefault('OP')
         }
         'zipextractor.admin.override.extract' {
-            description = 'Allow usage of /ZipExtractor extract -override'
+            description = 'Allow usage of /ZipExtractor extract --override'
             setDefault('OP')
         }
         'zipextractor.admin.override.compress' {
-            description = 'Allow usage of /ZipExtractor compress -override'
+            description = 'Allow usage of /ZipExtractor compress --override'
             setDefault('OP')
         }
         'zipextractor.admin.src' {

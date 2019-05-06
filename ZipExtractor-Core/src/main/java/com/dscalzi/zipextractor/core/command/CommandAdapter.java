@@ -180,7 +180,7 @@ public class CommandAdapter {
         } else {
 
             boolean override = !cm.warnOnConflitcts();
-            if (args.length >= 2 && args[1].equalsIgnoreCase("-override")) {
+            if (args.length >= 2 && args[1].equalsIgnoreCase("--override")) {
                 if (!sender.hasPermission("zipextractor.admin.override.extract")) {
                     mm.noPermission(sender);
                     return;
@@ -210,7 +210,7 @@ public class CommandAdapter {
         }
 
         boolean override = !cm.warnOnConflitcts();
-        if (args.length >= 2 && args[1].equalsIgnoreCase("-override")) {
+        if (args.length >= 2 && args[1].equalsIgnoreCase("--override")) {
             if (!sender.hasPermission("zipextractor.admin.override.compress")) {
                 mm.noPermission(sender);
                 return;
@@ -238,7 +238,7 @@ public class CommandAdapter {
             mm.noPermission(sender);
             return;
         }
-        if (args.length > 1 && args[1].equalsIgnoreCase("-absolute")) {
+        if (args.length > 1 && args[1].equalsIgnoreCase("--absolute")) {
             Optional<File> srcOpt = cm.getSourceFile();
             if (!srcOpt.isPresent()) {
                 mm.invalidPath(sender, cm.getSourceRaw(), "source");
@@ -255,7 +255,7 @@ public class CommandAdapter {
             mm.noPermission(sender);
             return;
         }
-        if (args.length > 1 && args[1].equalsIgnoreCase("-absolute")) {
+        if (args.length > 1 && args[1].equalsIgnoreCase("--absolute")) {
             Optional<File> destOpt = cm.getDestFile();
             if (!destOpt.isPresent()) {
                 mm.invalidPath(sender, cm.getDestRaw(), "destination");
@@ -394,8 +394,8 @@ public class CommandAdapter {
                     boolean d = sender.hasPermission("zipextractor.admin.compress")
                             && "compress".startsWith(arg0Normal);
                     if (a | b)
-                        if ("-absolute".startsWith(args[1].toLowerCase()))
-                            ret.add("-absolute");
+                        if ("--absolute".startsWith(args[1].toLowerCase()))
+                            ret.add("--absolute");
                     if (sender.hasPermission("zipextractor.admin.use") && "help".startsWith(arg0Normal)) {
                         String[] newArgs = new String[args.length - 1];
                         System.arraycopy(args, 1, newArgs, 0, args.length - 1);
@@ -407,8 +407,8 @@ public class CommandAdapter {
                     }
                     if (((c && sender.hasPermission("zipextractor.admin.override.extract"))
                             || (d && sender.hasPermission("zipextractor.admin.override.compress")))
-                            && "-override".startsWith(args[1].toLowerCase())) {
-                        ret.add("-override");
+                            && "--override".startsWith(args[1].toLowerCase())) {
+                        ret.add("--override");
                     }
                 }
             }

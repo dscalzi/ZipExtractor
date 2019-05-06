@@ -111,8 +111,8 @@ public class ZipExtractorPlugin implements IPlugin {
                 opdb.assign(PermissionDescription.ROLE_ADMIN, true).description(Text.of("Allow usage of /ZipExtractor.")).id(plugin.getId() + ".admin.use").register();
                 opdb.assign(PermissionDescription.ROLE_ADMIN, true).description(Text.of("Allow usage of /ZipExtractor extract.")).id(plugin.getId() + ".admin.extract").register();
                 opdb.assign(PermissionDescription.ROLE_ADMIN, true).description(Text.of("Allow usage of /ZipExtractor compress.")).id(plugin.getId() + ".admin.compress").register();
-                opdb.assign(PermissionDescription.ROLE_ADMIN, true).description(Text.of("Allow usage of /ZipExtractor extract -override.")).id(plugin.getId() + ".admin.override.extract").register();
-                opdb.assign(PermissionDescription.ROLE_ADMIN, true).description(Text.of("Allow usage of /ZipExtractor compress -override.")).id(plugin.getId() + ".admin.override.compress").register();
+                opdb.assign(PermissionDescription.ROLE_ADMIN, true).description(Text.of("Allow usage of /ZipExtractor extract --override.")).id(plugin.getId() + ".admin.override.extract").register();
+                opdb.assign(PermissionDescription.ROLE_ADMIN, true).description(Text.of("Allow usage of /ZipExtractor compress --override.")).id(plugin.getId() + ".admin.override.compress").register();
                 opdb.assign(PermissionDescription.ROLE_ADMIN, true).description(Text.of("Allow usage of /ZipExtractor src.")).id(plugin.getId() + ".admin.src").register();
                 opdb.assign(PermissionDescription.ROLE_ADMIN, true).description(Text.of("Allow usage of /ZipExtractor dest.")).id(plugin.getId() + ".admin.dest").register();
                 opdb.assign(PermissionDescription.ROLE_ADMIN, true).description(Text.of("Allow usage of /ZipExtractor setsrc.")).id(plugin.getId() + ".admin.setsrc").register();

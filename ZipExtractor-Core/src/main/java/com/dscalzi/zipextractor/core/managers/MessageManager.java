@@ -147,18 +147,18 @@ public class MessageManager {
                 "Warning, this extraction will override " + "&o" + Integer.toString(amt) + cError + " file"
                         + (amt == 1 ? "" : "s") + ". To view " + (amt == 1 ? "this" : "these") + " file"
                         + (amt == 1 ? "" : "s") + " run the command " + "&o" + "/ze extract view [page]");
-        sendError(sender, "To proceed with the extraction: " + "&o" + "/ze extract -override");
+        sendError(sender, "To proceed with the extraction: " + "&o" + "/ze extract --override");
     }
 
     public void destExists(ICommandSender sender) {
         sendError(sender, "Warning, the destination of this compression already exists.");
-        sendError(sender, "To proceed with the compression: " + "&o" + "/ze compress -override");
+        sendError(sender, "To proceed with the compression: " + "&o" + "/ze compress --override");
     }
     
     public void destExistsPiped(ICommandSender sender, File path) {
         sendError(sender, "Warning, an intermediate destination of this piped compression already exists.");
         sendError(sender, "&o" + path.toPath().toAbsolutePath().normalize().toString());
-        sendError(sender, "To proceed with the compression: " + "&o" + "/ze compress -override");
+        sendError(sender, "To proceed with the compression: " + "&o" + "/ze compress --override");
     }
 
     public void noWarnData(ICommandSender sender) {
@@ -361,9 +361,9 @@ public class MessageManager {
         if (sender.hasPermission("zipextractor.admin.compress"))
             cmds.add(listPrefix + "/ZipExtractor compress " + cTrim + "- Compress the specified file.");
         if (sender.hasPermission("zipextractor.admin.src"))
-            cmds.add(listPrefix + "/ZipExtractor src [-absolute] " + cTrim + "- View the source filepath.");
+            cmds.add(listPrefix + "/ZipExtractor src [--absolute] " + cTrim + "- View the source filepath.");
         if (sender.hasPermission("zipextractor.admin.dest"))
-            cmds.add(listPrefix + "/ZipExtractor dest [-absolute] " + cTrim + "- View the destination filepath.");
+            cmds.add(listPrefix + "/ZipExtractor dest [--absolute] " + cTrim + "- View the destination filepath.");
         if (sender.hasPermission("zipextractor.admin.setsrc"))
             cmds.add(listPrefix + "/ZipExtractor setsrc <path> " + cTrim + "- Set the source's filepath.");
         if (sender.hasPermission("zipextractor.admin.setdest"))
@@ -429,7 +429,7 @@ public class MessageManager {
                 return;
             }
             sendMessage(sender, cPrimary
-                    + "View the currently set source file path. To view the absolute path, run the command as /ZipExtractor src -absolute");
+                    + "View the currently set source file path. To view the absolute path, run the command as /ZipExtractor src --absolute");
             return;
         }
         if (cmd.equalsIgnoreCase("dest")) {
@@ -438,7 +438,7 @@ public class MessageManager {
                 return;
             }
             sendMessage(sender, cPrimary
-                    + "View the currently set destitation file path. To view the absolute path, run the command as /ZipExtractor dest -absolute");
+                    + "View the currently set destitation file path. To view the absolute path, run the command as /ZipExtractor dest --absolute");
             return;
         }
         if (cmd.equalsIgnoreCase("setsrc")) {
