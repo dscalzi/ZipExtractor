@@ -294,6 +294,10 @@ public class MessageManager {
         plugin.warn("Channel closed during " + task.getProcessName()
                 + ", unable to continue. This is most likely due to a forced termination of the execution servicer.");
     }
+    
+    public void nothingToDo(ICommandSender sender) {
+        sendError(sender, "No operation can be performed for your request.");
+    }
 
     public void startingProcess(ICommandSender sender, ZTask task, String fileName) {
         if (!sender.isConsole()) {
@@ -322,7 +326,17 @@ public class MessageManager {
         plugin.info("The folder's contents have been compressed to\n" + dest.toPath().toAbsolutePath().normalize().toString());
         plugin.info("---------------------------------------------------");
     }
+    
+    public void genericOperationError(ICommandSender sender, File src, ZTask task) {
+        sendError(sender, "Error during " + task.getProcessName() + " of " + src.toPath().toAbsolutePath().normalize().toString());
+        sendError(sender, "Is the file corrupt?");
+    }
 
+    public void extractionFormatError(ICommandSender sender, File src, String format) {
+        sendError(sender, "Error while extracting, source file must be in " + format + " format.");
+        sendError(sender, src.toPath().toAbsolutePath().normalize().toString());
+    }
+    
     public void denyCommandBlock(ICommandSender sender) {
         sendError(sender, "Command blocks are blocked from accessing this command for security purposes.");
     }

@@ -24,6 +24,7 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
+import java.util.function.BooleanSupplier;
 
 import com.dscalzi.zipextractor.core.managers.MessageManager;
 import com.dscalzi.zipextractor.core.provider.TypeProvider;
@@ -72,8 +73,7 @@ public class ZCompressor {
             String pth = destNorm.toString();
             
             for(int i=destExts.length-1; i>=0; i--) {
-                if(supportedExtensions().contains(destExts[i].toLowerCase()) && 
-                        (srcExts.length > 0 ? !destExts[i].equalsIgnoreCase(srcExts[srcExts.length-1]) : true)) {
+                if(srcExts.length > 0 ? !destExts[i].equalsIgnoreCase(srcExts[srcExts.length-1]) : true) {
                     pth = pth.substring(0, pth.length()-destExts[i].length()-1);
                     sTemp = new File(pth);
                     
@@ -99,7 +99,7 @@ public class ZCompressor {
         Runnable task = null;
         int c = 0;
         boolean piped = false;
-        final Runnable[] pipes = new Runnable[pDeque.size()];
+        final BooleanSupplier[] pipes = new BooleanSupplier[pDeque.size()];
         for (final OpTuple e : pDeque) {
             final boolean interOp = c != pDeque.size()-1;
             
@@ -111,12 +111,13 @@ public class ZCompressor {
             
             if(piped) {
                 pipes[c] = () -> {
-                    e.getProvider().compress(sender, e.getSrc(), e.getDest(), log, interOp);
+                    boolean res = e.getProvider().compress(sender, e.getSrc(), e.getDest(), log, interOp);
                     e.getSrc().delete();
+                    return res;
                 };
             } else {
                 pipes[c] = () -> {
-                    e.getProvider().compress(sender, e.getSrc(), e.getDest(), log, interOp);
+                    return e.getProvider().compress(sender, e.getSrc(), e.getDest(), log, interOp);
                 };
             }
             piped = true;
@@ -124,8 +125,10 @@ public class ZCompressor {
         }
         
         task = () -> {
-            for(Runnable r : pipes) {
-                r.run();
+            for(BooleanSupplier r : pipes) {
+                if(!r.getAsBoolean()) {
+                    break;
+                }
             }
         };
 

@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 import java.util.regex.Pattern;
+import java.util.zip.ZipException;
 
 import com.dscalzi.zipextractor.core.TaskInterruptedException;
 import com.dscalzi.zipextractor.core.ZTask;
@@ -78,7 +79,7 @@ public class JarProvider implements TypeProvider {
     }
 
     @Override
-    public void extract(ICommandSender sender, File src, File dest, boolean log, boolean pipe) {
+    public boolean extract(ICommandSender sender, File src, File dest, boolean log, boolean pipe) {
         final MessageManager mm = MessageManager.inst();
         byte[] buffer = new byte[1024];
         mm.startingProcess(sender, ZTask.EXTRACT, src.getName());
@@ -112,12 +113,20 @@ public class JarProvider implements TypeProvider {
             jis.closeEntry();
             if(!pipe)
                 mm.extractionComplete(sender, dest);
+            return true;
         } catch (AccessDeniedException e) {
             mm.fileAccessDenied(sender, ZTask.EXTRACT, e.getMessage());
+            return false;
+        } catch (ZipException e) {
+            mm.extractionFormatError(sender, src, "Jar");
+            return false;
         } catch (TaskInterruptedException e) {
             mm.taskInterruption(sender, ZTask.EXTRACT);
+            return false;
         } catch (IOException e) {
             e.printStackTrace();
+            mm.genericOperationError(sender, src, ZTask.EXTRACT);
+            return false;
         }
     }
 

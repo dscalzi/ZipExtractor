@@ -89,13 +89,21 @@ public class ZExtractor {
                 String queue = srcNorm.toString();
                 
                 for(int i=srcExts.length-1; i>=0; i--) {
-                    if((until != null && srcExts[i].equalsIgnoreCase(until)) || !supportedExtensions().contains(srcExts[i].toLowerCase())) {
+                    if((until != null && srcExts[i].equalsIgnoreCase(until))) {
+                        if(i == srcExts.length-1) {
+                            mm.nothingToDo(sender);
+                            return;
+                        }
                         break;
                     }
                     TypeProvider p = getApplicableProvider(tSrc);
                     if(p == null) {
-                        mm.invalidExtractionExtension(sender);
-                        return;
+                        if(i == srcExts.length-1) {
+                            mm.invalidExtractionExtension(sender);
+                            return;
+                        } else {
+                            break;
+                        }
                     }
                     pDeque.add(new OpTuple(tSrc, dest, p));
                     queue = queue.substring(0, queue.lastIndexOf('.'));
@@ -163,9 +171,9 @@ public class ZExtractor {
                         atRisk = op.getProvider().scanForExtractionConflicts(sender, op.getSrc(), op.getDest(), false);
                     }
                     if (atRisk.size() == 0 || override) {
-                        op.getProvider().extract(sender, op.getSrc(), op.getDest(), log, interOp);
+                        boolean res = op.getProvider().extract(sender, op.getSrc(), op.getDest(), log, interOp);
                         op.getSrc().delete();
-                        return true;
+                        return res;
                     } else {
                         WARNED.put(sender.getName(), new WarnData(op.getSrc(), op.getDest(), new PageList<String>(4, atRisk)));
                         mm.warnOfConflicts(sender, atRisk.size());
@@ -179,8 +187,7 @@ public class ZExtractor {
                         atRisk = op.getProvider().scanForExtractionConflicts(sender, op.getSrc(), op.getDest(), false);
                     }
                     if (atRisk.size() == 0 || override) {
-                        op.getProvider().extract(sender, op.getSrc(), op.getDest(), log, interOp);
-                        return true;
+                        return op.getProvider().extract(sender, op.getSrc(), op.getDest(), log, interOp);
                     } else {
                         WARNED.put(sender.getName(), new WarnData(op.getSrc(), op.getDest(), new PageList<String>(4, atRisk)));
                         mm.warnOfConflicts(sender, atRisk.size());
@@ -196,7 +203,7 @@ public class ZExtractor {
         task = () -> {
             for(BooleanSupplier r : pipes) {
                 if(!r.getAsBoolean()) {
-                    // Conflicts
+                    // Conflicts or errors
                     break;
                 }
             }

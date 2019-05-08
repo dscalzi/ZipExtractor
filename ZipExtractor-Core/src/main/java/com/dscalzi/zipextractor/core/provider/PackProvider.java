@@ -61,7 +61,7 @@ public class PackProvider implements TypeProvider {
     }
     
     @Override
-    public void extract(ICommandSender sender, File src, File dest, boolean log, boolean pipe) {
+    public boolean extract(ICommandSender sender, File src, File dest, boolean log, boolean pipe) {
         final MessageManager mm = MessageManager.inst();
         mm.startingProcess(sender, ZTask.EXTRACT, src.getName());
         File realDest = new File(dest.getAbsolutePath(), PATH_END_EXTRACT.matcher(src.getName()).replaceAll(""));
@@ -71,13 +71,16 @@ public class PackProvider implements TypeProvider {
             Pack200.newUnpacker().unpack(src, jarStream);
             if(!pipe)
                 mm.extractionComplete(sender, realDest);
+            return true;
         } catch (IOException e) {
             e.printStackTrace();
+            mm.genericOperationError(sender, src, ZTask.EXTRACT);
+            return false;
         }
     }
 
     @Override
-    public void compress(ICommandSender sender, File src, File dest, boolean log, boolean pipe) {
+    public boolean compress(ICommandSender sender, File src, File dest, boolean log, boolean pipe) {
         final MessageManager mm = MessageManager.inst();
         mm.startingProcess(sender, ZTask.COMPRESS, src.getName());
         try (JarFile in = new JarFile(src); OutputStream out = Files.newOutputStream(dest.toPath())) {
@@ -86,8 +89,11 @@ public class PackProvider implements TypeProvider {
             Pack200.newPacker().pack(in, out);
             if(!pipe)
                 mm.compressionComplete(sender, dest);
+            return true;
         } catch (IOException e) {
             e.printStackTrace();
+            mm.genericOperationError(sender, src, ZTask.COMPRESS);
+            return false;
         }
     }
 

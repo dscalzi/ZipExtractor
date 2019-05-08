@@ -31,6 +31,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipException;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
@@ -81,7 +82,7 @@ public class ZipProvider implements TypeProvider {
     }
 
     @Override
-    public void extract(ICommandSender sender, File src, File dest, boolean log, boolean pipe) {
+    public boolean extract(ICommandSender sender, File src, File dest, boolean log, boolean pipe) {
         final MessageManager mm = MessageManager.inst();
         byte[] buffer = new byte[1024];
         mm.startingProcess(sender, ZTask.EXTRACT, src.getName());
@@ -115,17 +116,25 @@ public class ZipProvider implements TypeProvider {
             zis.closeEntry();
             if(!pipe)
                 mm.extractionComplete(sender, dest);
+            return true;
         } catch (AccessDeniedException e) {
             mm.fileAccessDenied(sender, ZTask.EXTRACT, e.getMessage());
+            return false;
+        } catch(ZipException e) {
+            mm.extractionFormatError(sender, src, "Zip");
+            return false;
         } catch (TaskInterruptedException e) {
             mm.taskInterruption(sender, ZTask.EXTRACT);
+            return false;
         } catch (IOException ex) {
             ex.printStackTrace();
+            mm.genericOperationError(sender, src, ZTask.EXTRACT);
+            return false;
         }
     }
 
     @Override
-    public void compress(ICommandSender sender, File src, File dest, boolean log, boolean pipe) {
+    public boolean compress(ICommandSender sender, File src, File dest, boolean log, boolean pipe) {
         final MessageManager mm = MessageManager.inst();
         mm.startingProcess(sender, ZTask.COMPRESS, src.getName());
         try (OutputStream os = Files.newOutputStream(dest.toPath()); ZipOutputStream zs = new ZipOutputStream(os);) {
@@ -152,12 +161,17 @@ public class ZipProvider implements TypeProvider {
             });
             if(!pipe)
                 mm.compressionComplete(sender, dest);
+            return true;
         } catch (AccessDeniedException e) {
             mm.fileAccessDenied(sender, ZTask.COMPRESS, e.getMessage());
+            return false;
         } catch (TaskInterruptedException e) {
             mm.taskInterruption(sender, ZTask.COMPRESS);
+            return false;
         } catch (Throwable e) {
             e.printStackTrace();
+            mm.genericOperationError(sender, src, ZTask.COMPRESS);
+            return false;
         }
     }
 

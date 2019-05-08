@@ -89,8 +89,9 @@ public interface TypeProvider {
      *            Whether or not to log the progress.
      * @param pipe
      *            Whether this output will be piped.
+     * @return True if successful, false otherwise.
      */
-    public default void extract(ICommandSender sender, File src, File dest, boolean log, boolean pipe) {
+    public default boolean extract(ICommandSender sender, File src, File dest, boolean log, boolean pipe) {
         throw new UnsupportedOperationException();
     }
 
@@ -107,8 +108,9 @@ public interface TypeProvider {
      *            Whether or not to log the progress.
      * @param pipe
      *            Whether this output will be piped.
+     * @return True if successful, false otherwise.
      */
-    public default void compress(ICommandSender sender, File src, File dest, boolean log, boolean pipe) {
+    public default boolean compress(ICommandSender sender, File src, File dest, boolean log, boolean pipe) {
         throw new UnsupportedOperationException();
     }
 

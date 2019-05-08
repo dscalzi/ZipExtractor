@@ -39,6 +39,7 @@ import com.dscalzi.zipextractor.core.managers.MessageManager;
 import com.dscalzi.zipextractor.core.util.ICommandSender;
 import com.github.junrar.Archive;
 import com.github.junrar.exception.RarException;
+import com.github.junrar.exception.RarException.RarExceptionType;
 import com.github.junrar.impl.FileVolumeManager;
 import com.github.junrar.rarfile.FileHeader;
 
@@ -85,7 +86,7 @@ public class RarProvider implements TypeProvider {
     }
 
     @Override
-    public void extract(ICommandSender sender, File src, File dest, boolean log, boolean pipe) {
+    public boolean extract(ICommandSender sender, File src, File dest, boolean log, boolean pipe) {
         final MessageManager mm = MessageManager.inst();
         try (Archive a = new Archive(new FileVolumeManager(src))) {
             if (a != null) {
@@ -118,14 +119,28 @@ public class RarProvider implements TypeProvider {
                     fh = a.nextFileHeader();
                 }
             }
+            if(!pipe)
+                mm.extractionComplete(sender, dest);
+            return true;
         } catch (TaskInterruptedException e) {
             mm.taskInterruption(sender, ZTask.EXTRACT);
-            return;
-        } catch (RarException | IOException e) {
+            return false;
+        } catch(RarException e) {
+            if(e.getType() == RarExceptionType.notRarArchive) {
+                mm.extractionFormatError(sender, src, "Rar");
+            } else {
+                mm.warn("RarException of type " + e.getType().toString() + " thrown.");
+            }
+            return false;
+        } catch (IOException e) {
             e.printStackTrace();
+            mm.genericOperationError(sender, src, ZTask.EXTRACT);
+            return false;
+        } catch (Exception e) {
+            e.printStackTrace();
+            mm.genericOperationError(sender, src, ZTask.EXTRACT);
+            return false;
         }
-        if(!pipe)
-            mm.extractionComplete(sender, dest);
     }
 
     @Override

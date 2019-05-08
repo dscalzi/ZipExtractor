@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
+import java.util.zip.ZipException;
 
 import com.dscalzi.zipextractor.core.TaskInterruptedException;
 import com.dscalzi.zipextractor.core.ZTask;
@@ -60,7 +61,7 @@ public class GZProvider implements TypeProvider {
     }
     
     @Override
-    public void extract(ICommandSender sender, File src, File dest, boolean log, boolean pipe) {
+    public boolean extract(ICommandSender sender, File src, File dest, boolean log, boolean pipe) {
         final MessageManager mm = MessageManager.inst();
         mm.startingProcess(sender, ZTask.EXTRACT, src.getName());
         File realDest = new File(dest.getAbsolutePath(), PATH_END.matcher(src.getName()).replaceAll(""));
@@ -77,15 +78,22 @@ public class GZProvider implements TypeProvider {
             }
             if(!pipe)
                 mm.extractionComplete(sender, realDest);
+            return true;
         } catch (TaskInterruptedException e) {
             mm.taskInterruption(sender, ZTask.EXTRACT);
+            return false;
+        } catch (ZipException e) {
+            mm.extractionFormatError(sender, src, "GZip");
+            return false;
         } catch (IOException e) {
             e.printStackTrace();
+            mm.genericOperationError(sender, src, ZTask.EXTRACT);
+            return false;
         }
     }
     
     @Override
-    public void compress(ICommandSender sender, File src, File dest, boolean log, boolean pipe) {
+    public boolean compress(ICommandSender sender, File src, File dest, boolean log, boolean pipe) {
         final MessageManager mm = MessageManager.inst();
         mm.startingProcess(sender, ZTask.COMPRESS, src.getName());
         try (GZIPOutputStream xzos = new GZIPOutputStream(new FileOutputStream(dest));
@@ -101,10 +109,14 @@ public class GZProvider implements TypeProvider {
             }
             if(!pipe)
                 mm.compressionComplete(sender, dest);
+            return true;
         } catch (TaskInterruptedException e) {
             mm.taskInterruption(sender, ZTask.COMPRESS);
+            return false;
         } catch (IOException e) {
             e.printStackTrace();
+            mm.genericOperationError(sender, src, ZTask.COMPRESS);
+            return false;
         }
     }
     
