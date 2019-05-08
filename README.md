@@ -10,14 +10,16 @@ The source and destination file paths are saved inside of the config.yml. This m
 
 # Feature List
 
-* Extraction of **ZIP**, **RAR**, **JAR**, **PACK**, and **XZ** archives.
+* Extraction of **ZIP**, **RAR**, **JAR**, **PACK**, **GZ**, and **XZ** archives.
 * Compression of any file or directory into the **ZIP** format.
-* Compression of any **JAR** file to the **PACK** format, and any non-directory file to the **XZ** format.
+* Compression of any **JAR** file to the **PACK** format, and any non-directory file to the **GZ** or **XZ** formats.
 * Queueable operations if you have many extractions/compressions to perform.
 * Configurable [Thread Pool Executor][thread_pools] allowing you to set a maximum queue size and maximum number of threads to run at once. Incase of an emergency the Thread Pool can be shutdown at anytime.
 * Option to be warned if an extraction/compression would result in files being overriden.
     * If enabled, users will require an additional permission in order to proceed with the process.
     * For extractions, you can view every file which would be overriden prior to proceeding with the process.
+* Tab completion for file paths, similar to the command line (configurable).
+* Pipe multiple extractions/compressions with a single command. (Ex. Extract Test.jar.pack.xz to Test.jar).
 * Metrics by [bStats][bStats]
 
 You can find more extensive details on the [wiki][wiki].
