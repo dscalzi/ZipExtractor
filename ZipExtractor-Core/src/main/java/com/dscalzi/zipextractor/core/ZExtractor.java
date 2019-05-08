@@ -137,7 +137,7 @@ public class ZExtractor {
             List<String> atRisk = new ArrayList<String>();
             for(final OpTuple op : pDeque) {
                 if(op.getProvider().canDetectPipedConflicts())
-                atRisk.addAll(op.getProvider().scanForExtractionConflicts(sender, op.getSrc(), op.getDest(), true));
+                    atRisk.addAll(op.getProvider().scanForExtractionConflicts(sender, op.getSrc(), op.getDest(), true));
             }
             if(atRisk.size() > 0) {
                 WARNED.put(sender.getName(), new WarnData(src, dest, new PageList<String>(4, atRisk)));
