@@ -77,9 +77,14 @@ public class RarProvider implements TypeProvider {
 
         return existing;
     }
+    
+    @Override
+    public boolean canDetectPipedConflicts() {
+        return false;
+    }
 
     @Override
-    public void extract(ICommandSender sender, File src, File dest, boolean log) {
+    public void extract(ICommandSender sender, File src, File dest, boolean log, boolean pipe) {
         final MessageManager mm = MessageManager.inst();
         try (Archive a = new Archive(new FileVolumeManager(src))) {
             if (a != null) {
@@ -118,7 +123,8 @@ public class RarProvider implements TypeProvider {
         } catch (RarException | IOException e) {
             e.printStackTrace();
         }
-        mm.extractionComplete(sender, dest);
+        if(!pipe)
+            mm.extractionComplete(sender, dest);
     }
 
     @Override

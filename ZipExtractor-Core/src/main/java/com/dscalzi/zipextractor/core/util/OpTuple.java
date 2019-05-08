@@ -20,14 +20,18 @@ package com.dscalzi.zipextractor.core.util;
 
 import java.io.File;
 
+import com.dscalzi.zipextractor.core.provider.TypeProvider;
+
 public class OpTuple {
 
     private File src;
     private File dest;
+    private TypeProvider provider;
     
-    public OpTuple(File src, File dest) {
+    public OpTuple(File src, File dest, TypeProvider provider) {
         this.src = src;
         this.dest = dest;
+        this.provider = provider;
     }
 
     public File getSrc() {
@@ -37,6 +41,10 @@ public class OpTuple {
     public File getDest() {
         return dest;
     }
+    
+    public TypeProvider getProvider() {
+        return provider;
+    }
 
     public void setSrc(File src) {
         this.src = src;
@@ -44,6 +52,10 @@ public class OpTuple {
 
     public void setDest(File dest) {
         this.dest = dest;
+    }
+    
+    public void setProvider(TypeProvider provider) {
+        this.provider = provider;
     }
 
     @Override

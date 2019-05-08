@@ -178,15 +178,38 @@ public class CommandAdapter {
                 mm.noWarnData(sender);
             }
         } else {
-
+            
             boolean override = !cm.warnOnConflitcts();
-            if (args.length >= 2 && args[1].equalsIgnoreCase("--override")) {
-                if (!sender.hasPermission("zipextractor.admin.override.extract")) {
-                    mm.noPermission(sender);
-                    return;
+            boolean pipe = false;
+            String until = null;
+
+            if(args.length >= 2) {
+                for(int i=1; i<args.length; i++) {
+                    
+                    if (args[i].equalsIgnoreCase("--override")) {
+                        if (!sender.hasPermission("zipextractor.admin.override.extract")) {
+                            mm.noPermission(sender);
+                            return;
+                        }
+                        override = true;
+                    } else if(args[i].equalsIgnoreCase("--all")) {
+                        pipe = true;
+                    } else if(args[i].equalsIgnoreCase("--until")) {
+                        // Expect a parameter follow-up.
+                        if(++i < args.length) {
+                            until = args[i].toLowerCase();
+                            pipe = true;
+                        } else {
+                            mm.untilMissingType(sender);
+                            return;
+                        }
+                    }
+                    
                 }
-                override = true;
             }
+            
+            
+            
 
             Optional<File> srcOpt = cm.getSourceFile();
             Optional<File> destOpt = cm.getDestFile();
@@ -199,7 +222,7 @@ public class CommandAdapter {
                 return;
             }
 
-            ZExtractor.asyncExtract(sender, srcOpt.get(), destOpt.get(), cm.getLoggingProperty(), override);
+            ZExtractor.asyncExtract(sender, srcOpt.get(), destOpt.get(), cm.getLoggingProperty(), override, pipe, until);
         }
     }
 
@@ -386,13 +409,18 @@ public class CommandAdapter {
                 }
                 
             } else {
+                
+                boolean c = sender.hasPermission("zipextractor.admin.extract")
+                        && "extract".startsWith(arg0Normal);
+                
+                
                 if(args.length == 2) {
                     boolean a = sender.hasPermission("zipextractor.admin.src") && "src".startsWith(arg0Normal);
                     boolean b = sender.hasPermission("zipextractor.admin.dest") && "dest".startsWith(arg0Normal);
-                    boolean c = sender.hasPermission("zipextractor.admin.extract")
-                            && "extract".startsWith(arg0Normal);
+                    
                     boolean d = sender.hasPermission("zipextractor.admin.compress")
                             && "compress".startsWith(arg0Normal);
+                    
                     if (a | b)
                         if ("--absolute".startsWith(args[1].toLowerCase()))
                             ret.add("--absolute");
@@ -405,11 +433,27 @@ public class CommandAdapter {
                     if (c && ZExtractor.getWarnData(sender.getName()).isPresent() && "view".startsWith(args[1].toLowerCase())) {
                         ret.add("view");
                     }
-                    if (((c && sender.hasPermission("zipextractor.admin.override.extract"))
-                            || (d && sender.hasPermission("zipextractor.admin.override.compress")))
-                            && "--override".startsWith(args[1].toLowerCase())) {
+                    if (d && sender.hasPermission("zipextractor.admin.override.compress") && "--override".startsWith(args[1].toLowerCase())) {
                         ret.add("--override");
                     }
+                }
+                
+                if(args.length >= 2) {
+                    if(c) {
+                        if(args[args.length-2].equalsIgnoreCase("--until")) {
+                            ret.addAll(ZExtractor.supportedExtensions());
+                        } else {
+                            if("--all".startsWith(args[args.length-1]))
+                                ret.add("--all");
+                            if("--until".startsWith(args[args.length-1]))
+                                ret.add("--until");
+                            if(c && sender.hasPermission("zipextractor.admin.override.extract") && "--override".startsWith(args[args.length-1].toLowerCase())){
+                                ret.add("--override");
+                            }
+                        }
+                    }
+                    
+                    
                 }
             }
         }

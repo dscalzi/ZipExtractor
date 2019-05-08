@@ -85,8 +85,10 @@ public interface TypeProvider {
      *            The destination root for extracted files.
      * @param log
      *            Whether or not to log the progress.
+     * @param pipe
+     *            Whether this output will be piped.
      */
-    public default void extract(ICommandSender sender, File src, File dest, boolean log) {
+    public default void extract(ICommandSender sender, File src, File dest, boolean log, boolean pipe) {
         throw new UnsupportedOperationException();
     }
 
@@ -161,5 +163,16 @@ public interface TypeProvider {
     public default List<String> canCompressFrom() {
         return null;
     }
+    
+    /**
+     * Providers which require a source file be in its intended format cannot scan
+     * for extraction conflicts ahead-of-time. An example of this is the ZIP provider,
+     * which scans each ZIP entry. The ZIP entries cannot be scanned until the source
+     * file has been extracted to ZIP format.
+     * 
+     * @return Whether or not this provider can scan for extraction conflicts in
+     *         a piped operation.
+     */
+    public abstract boolean canDetectPipedConflicts();
 
 }

@@ -60,7 +60,11 @@ public class ZCompressor {
         
         Deque<OpTuple> pDeque = new ArrayDeque<OpTuple>();
         if(destExts.length < 2) {
-            pDeque.push(new OpTuple(src, dest));
+            TypeProvider provider = getApplicableProvider(src, dest, mm, sender);
+            if(provider == null) {
+                return;
+            }
+            pDeque.push(new OpTuple(src, dest, provider));
         } else {
             File dTemp = dest;
             File sTemp = null;
@@ -72,7 +76,13 @@ public class ZCompressor {
                         (srcExts.length > 0 ? !destExts[i].equalsIgnoreCase(srcExts[srcExts.length-1]) : true)) {
                     pth = pth.substring(0, pth.length()-destExts[i].length()-1);
                     sTemp = new File(pth);
-                    pDeque.push(new OpTuple(i == 0 ? src : sTemp, dTemp));
+                    
+                    TypeProvider provider = getApplicableProvider(sTemp, dTemp, mm, sender);
+                    if(provider == null) {
+                        return;
+                    }
+                    
+                    pDeque.push(new OpTuple(i == 0 ? src : sTemp, dTemp, provider));
                     dTemp = sTemp;
                 } else {
                     pDeque.peek().setSrc(src);
@@ -86,39 +96,25 @@ public class ZCompressor {
         boolean piped = false;
         final Runnable[] pipes = new Runnable[pDeque.size()];
         for (final OpTuple e : pDeque) {
-            for (final TypeProvider p : TypeProvider.getProviders()) {
-                if (p.destValidForCompression(e.getDest())) {
-                    if (p.srcValidForCompression(e.getSrc())) {
-                        final boolean interOp = c != pDeque.size()-1;
-                        
-                        if (e.getDest().exists() && !override) {
-                            if(!interOp) mm.destExists(sender);
-                            else mm.destExistsPiped(sender, e.getDest());
-                            return;
-                        }
-                        
-                        if(piped) {
-                            pipes[c] = () -> {
-                                p.compress(sender, e.getSrc(), e.getDest(), log, interOp);
-                                e.getSrc().delete();
-                            };
-                        } else {
-                            pipes[c] = () -> {
-                                p.compress(sender, e.getSrc(), e.getDest(), log, interOp);
-                            };
-                        }
-                        piped = true;
-                    } else {
-                        mm.invalidSourceForDest(sender, p.canCompressFrom(), p.canCompressTo());
-                        return;
-                    }
-                }
-            }
-            // If we can't process this phase, cancel the operation.
-            if(pipes[c] == null) {
-                mm.invalidCompressionExtension(sender);
+            final boolean interOp = c != pDeque.size()-1;
+            
+            if (e.getDest().exists() && !override) {
+                if(!interOp) mm.destExists(sender);
+                else mm.destExistsPiped(sender, e.getDest());
                 return;
             }
+            
+            if(piped) {
+                pipes[c] = () -> {
+                    e.getProvider().compress(sender, e.getSrc(), e.getDest(), log, interOp);
+                    e.getSrc().delete();
+                };
+            } else {
+                pipes[c] = () -> {
+                    e.getProvider().compress(sender, e.getSrc(), e.getDest(), log, interOp);
+                };
+            }
+            piped = true;
             c++;
         }
         
@@ -137,6 +133,24 @@ public class ZCompressor {
             mm.executorTerminated(sender, ZTask.COMPRESS);
     }
 
+    private static TypeProvider getApplicableProvider(File src, File dest, MessageManager mm, ICommandSender sender) {
+        TypeProvider provider = null;
+        for(TypeProvider p : TypeProvider.getProviders()) {
+            if(p.destValidForCompression(dest)) {
+                if (p.srcValidForCompression(src)) {
+                    provider = p;
+                    break;
+                } else {
+                    mm.invalidSourceForDest(sender, p.canCompressFrom(), p.canCompressTo());
+                }
+            }
+        }
+        if(provider == null) {
+            mm.invalidCompressionExtension(sender);
+        }
+        return provider;
+    }
+    
     public static List<String> supportedExtensions() {
         if (SUPPORTED == null) {
             SUPPORTED = new ArrayList<String>();

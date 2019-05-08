@@ -160,6 +160,11 @@ public class MessageManager {
         sendError(sender, "&o" + path.toPath().toAbsolutePath().normalize().toString());
         sendError(sender, "To proceed with the compression: " + "&o" + "/ze compress --override");
     }
+    
+    public void pipedConflictRisk(ICommandSender sender) {
+        sendError(sender, "Piped extraction cannot proceed. The destination directory is not empty and one or more of the intermediate file types cannot be scanned for conflicts.");
+        sendError(sender, "This operation MUST be done with an empty destination directory.");
+    }
 
     public void noWarnData(ICommandSender sender) {
         sendError(sender, "You have no data to view!");
@@ -326,6 +331,10 @@ public class MessageManager {
         if (cmd.equalsIgnoreCase("setsrc") || cmd.equalsIgnoreCase("setdest")) {
             sendError(sender, "Proper usage is /" + cmd.toLowerCase() + " <File Path>");
         }
+    }
+    
+    public void untilMissingType(ICommandSender sender) {
+        sendError(sender, "You must provide a type (--until <type>).");
     }
 
     public void invalidPage(ICommandSender sender) {

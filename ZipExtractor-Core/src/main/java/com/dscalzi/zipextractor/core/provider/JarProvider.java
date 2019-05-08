@@ -70,9 +70,14 @@ public class JarProvider implements TypeProvider {
 
         return existing;
     }
+    
+    @Override
+    public boolean canDetectPipedConflicts() {
+        return false;
+    }
 
     @Override
-    public void extract(ICommandSender sender, File src, File dest, boolean log) {
+    public void extract(ICommandSender sender, File src, File dest, boolean log, boolean pipe) {
         final MessageManager mm = MessageManager.inst();
         byte[] buffer = new byte[1024];
         mm.startingProcess(sender, ZTask.EXTRACT, src.getName());
@@ -104,7 +109,8 @@ public class JarProvider implements TypeProvider {
                 je = jis.getNextJarEntry();
             }
             jis.closeEntry();
-            mm.extractionComplete(sender, dest);
+            if(!pipe)
+                mm.extractionComplete(sender, dest);
         } catch (AccessDeniedException e) {
             mm.fileAccessDenied(sender, ZTask.EXTRACT, e.getMessage());
         } catch (TaskInterruptedException e) {

@@ -19,23 +19,29 @@
 package com.dscalzi.zipextractor.core;
 
 import java.io.File;
+import java.nio.file.Path;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.BooleanSupplier;
 
 import com.dscalzi.zipextractor.core.managers.MessageManager;
 import com.dscalzi.zipextractor.core.provider.TypeProvider;
 import com.dscalzi.zipextractor.core.util.ICommandSender;
+import com.dscalzi.zipextractor.core.util.OpTuple;
 import com.dscalzi.zipextractor.core.util.PageList;
 
 public class ZExtractor {
 
     private static final Map<String, WarnData> WARNED = new HashMap<String, WarnData>();
     private static List<String> SUPPORTED;
+    private static List<String> PIPED_RISKS;
 
-    public static void asyncExtract(ICommandSender sender, File src, File dest, boolean log, final boolean override) {
+    public static void asyncExtract(ICommandSender sender, File src, File dest, boolean log, final boolean override, final boolean pipe, String until) {
         final MessageManager mm = MessageManager.inst();
 
         // If the user was warned, clear it.
@@ -61,38 +67,159 @@ public class ZExtractor {
                 return;
             }
         }
+        
+        Deque<OpTuple> pDeque = new ArrayDeque<OpTuple>();
+        
+        if(pipe) {
+            
+            Path srcNorm = src.toPath().toAbsolutePath().normalize();
+            String[] srcSplit = srcNorm.getFileName().toString().split("\\.", 2);
+            String[] srcExts = srcSplit.length > 1 ? srcSplit[1].split("\\.") : new String[0];
+            
+            if(srcExts.length < 2) {
+                TypeProvider p = getApplicableProvider(src);
+                if(p == null) {
+                    mm.invalidExtractionExtension(sender);
+                    return;
+                }
+                pDeque.add(new OpTuple(src, dest, p));
+            } else {
+                
+                File tSrc = src;
+                String queue = srcNorm.toString();
+                
+                for(int i=srcExts.length-1; i>=0; i--) {
+                    if((until != null && srcExts[i].equalsIgnoreCase(until)) || !supportedExtensions().contains(srcExts[i].toLowerCase())) {
+                        break;
+                    }
+                    TypeProvider p = getApplicableProvider(tSrc);
+                    if(p == null) {
+                        mm.invalidExtractionExtension(sender);
+                        return;
+                    }
+                    pDeque.add(new OpTuple(tSrc, dest, p));
+                    queue = queue.substring(0, queue.lastIndexOf('.'));
+                    tSrc = new File(dest + File.separator + new File(queue).getName());
+                    
+                }
 
-        Runnable task = null;
-        for (final TypeProvider p : TypeProvider.getProviders()) {
-            if (p.validForExtraction(src)) {
-                task = () -> {
-                    List<String> atRisk = new ArrayList<String>();
-                    if (!override) {
-                        atRisk = p.scanForExtractionConflicts(sender, src, dest);
-                    }
-                    if (atRisk.size() == 0 || override) {
-                        p.extract(sender, src, dest, log);
-                    } else {
-                        WARNED.put(sender.getName(), new WarnData(src, dest, new PageList<String>(4, atRisk)));
-                        mm.warnOfConflicts(sender, atRisk.size());
-                    }
-                };
-                break;
+            }
+            
+        } else {
+            TypeProvider p = getApplicableProvider(src);
+            if(p == null) {
+                mm.invalidExtractionExtension(sender);
+                return;
+            }
+            pDeque.add(new OpTuple(src, dest, p));
+        }
+        
+        // Ensure a proper scan can be performed with this piped extraction.
+        // This is only needed when the destination directory is not empty.
+        // There can never be a conflict with an empty destination.
+        if(pipe && dest.list().length > 0) {
+            // The first source can be fully scanned for conflicts since it is already
+            // in its final state on the disk.
+            boolean first = true;
+            for(final OpTuple op : pDeque) {
+                if(!first && !op.getProvider().canDetectPipedConflicts()) {
+                    mm.pipedConflictRisk(sender);
+                    return;
+                }
+                first = false;
             }
         }
-        if (task != null) {
-            int result = ZServicer.getInstance().submit(task);
-            if (result == 0)
-                mm.addToQueue(sender, ZServicer.getInstance().getSize());
-            else if (result == 1)
-                mm.queueFull(sender, ZServicer.getInstance().getMaxQueueSize());
-            else if (result == 2)
-                mm.executorTerminated(sender, ZTask.EXTRACT);
-        } else {
-            mm.invalidExtractionExtension(sender);
+
+        // Fully scan the piped chain for extraction conflicts.
+        // This is so that we can detect ALL conflicts in every
+        // stage of the operation, and report the full list to the user.
+        if(!override && pipe) {
+            List<String> atRisk = new ArrayList<String>();
+            for(final OpTuple op : pDeque) {
+                atRisk.addAll(op.getProvider().scanForExtractionConflicts(sender, op.getSrc(), op.getDest()));
+            }
+            if(atRisk.size() > 0) {
+                WARNED.put(sender.getName(), new WarnData(src, dest, new PageList<String>(4, atRisk)));
+                mm.warnOfConflicts(sender, atRisk.size());
+                return;
+            }
         }
+        
+        // Prepare the tasks.
+        // We will still check for conflicts in this stage for added security.
+        // If any exist, the operation will be terminated.
+        Runnable task = null;
+        int c = 0;
+        boolean piped = false;
+        final BooleanSupplier[] pipes = new BooleanSupplier[pDeque.size()];
+        for(final OpTuple op : pDeque) {
+            final boolean interOp = c != pDeque.size()-1;
+
+            if(piped) {
+                pipes[c] = () -> {
+                    List<String> atRisk = new ArrayList<String>();
+                    if (!override) {
+                        atRisk = op.getProvider().scanForExtractionConflicts(sender, op.getSrc(), op.getDest());
+                    }
+                    if (atRisk.size() == 0 || override) {
+                        op.getProvider().extract(sender, op.getSrc(), op.getDest(), log, interOp);
+                        op.getSrc().delete();
+                        return true;
+                    } else {
+                        WARNED.put(sender.getName(), new WarnData(op.getSrc(), op.getDest(), new PageList<String>(4, atRisk)));
+                        mm.warnOfConflicts(sender, atRisk.size());
+                        return false;
+                    }
+                };
+            } else {
+                pipes[c] = () -> {
+                    List<String> atRisk = new ArrayList<String>();
+                    if (!override) {
+                        atRisk = op.getProvider().scanForExtractionConflicts(sender, op.getSrc(), op.getDest());
+                    }
+                    if (atRisk.size() == 0 || override) {
+                        op.getProvider().extract(sender, op.getSrc(), op.getDest(), log, interOp);
+                        return true;
+                    } else {
+                        WARNED.put(sender.getName(), new WarnData(op.getSrc(), op.getDest(), new PageList<String>(4, atRisk)));
+                        mm.warnOfConflicts(sender, atRisk.size());
+                        return false;
+                    }
+                };
+            }
+            
+            piped = true;
+            c++;
+        }
+            
+        task = () -> {
+            for(BooleanSupplier r : pipes) {
+                if(!r.getAsBoolean()) {
+                    // Conflicts
+                    break;
+                }
+            }
+        };
+        
+        int result = ZServicer.getInstance().submit(task);
+        if (result == 0)
+            mm.addToQueue(sender, ZServicer.getInstance().getSize());
+        else if (result == 1)
+            mm.queueFull(sender, ZServicer.getInstance().getMaxQueueSize());
+        else if (result == 2)
+            mm.executorTerminated(sender, ZTask.EXTRACT);
     }
 
+    private static TypeProvider getApplicableProvider(File src) {
+        TypeProvider provider = null;
+        for (final TypeProvider p : TypeProvider.getProviders()) {
+            if (p.validForExtraction(src)) {
+                provider = p;
+            }
+        }
+        return provider;
+    }
+    
     public static List<String> supportedExtensions() {
         if (SUPPORTED == null) {
             SUPPORTED = new ArrayList<String>();
@@ -101,6 +228,18 @@ public class ZExtractor {
             }
         }
         return SUPPORTED;
+    }
+    
+    public static List<String> pipedConflictRiskExtensions(){
+        if(PIPED_RISKS == null) {
+            PIPED_RISKS = new ArrayList<String>();
+            for(final TypeProvider p : TypeProvider.getProviders()) {
+                if(!p.canDetectPipedConflicts()) {
+                    PIPED_RISKS.addAll(p.supportedExtractionTypes());
+                }
+            }
+        }
+        return PIPED_RISKS;
     }
 
     public static boolean wasWarned(String name, File src, File dest) {

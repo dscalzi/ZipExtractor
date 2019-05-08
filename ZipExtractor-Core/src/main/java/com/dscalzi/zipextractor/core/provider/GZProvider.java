@@ -54,7 +54,12 @@ public class GZProvider implements TypeProvider {
     }
     
     @Override
-    public void extract(ICommandSender sender, File src, File dest, boolean log) {
+    public boolean canDetectPipedConflicts() {
+        return true;
+    }
+    
+    @Override
+    public void extract(ICommandSender sender, File src, File dest, boolean log, boolean pipe) {
         final MessageManager mm = MessageManager.inst();
         mm.startingProcess(sender, ZTask.EXTRACT, src.getName());
         File realDest = new File(dest.getAbsolutePath(), PATH_END.matcher(src.getName()).replaceAll(""));
@@ -69,7 +74,8 @@ public class GZProvider implements TypeProvider {
                     throw new TaskInterruptedException();
                 fos.write(buf, 0, len);
             }
-            mm.extractionComplete(sender, realDest);
+            if(!pipe)
+                mm.extractionComplete(sender, realDest);
         } catch (TaskInterruptedException e) {
             mm.taskInterruption(sender, ZTask.EXTRACT);
         } catch (IOException e) {
