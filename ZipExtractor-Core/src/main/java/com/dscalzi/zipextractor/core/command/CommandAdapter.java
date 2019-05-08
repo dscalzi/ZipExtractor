@@ -402,7 +402,7 @@ public class CommandAdapter {
             
             final String arg0Normal = args[0].toLowerCase();
             
-            if(arg0Normal.equals("setdest") || arg0Normal.equals("setsrc")) {
+            if((arg0Normal.equals("setdest") && sender.hasPermission("zipextractor.admin.setdest")) || (arg0Normal.equals("setsrc") && sender.hasPermission("zipextractor.admin.setsrc"))) {
                 
                 if(cm.tabCompleteFiles()) {
                     ret.addAll(PathUtils.tabCompletePath(args));

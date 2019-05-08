@@ -49,14 +49,15 @@ public class RarProvider implements TypeProvider {
     public static final List<String> SUPPORTED = new ArrayList<String>(Arrays.asList("rar"));
 
     @Override
-    public List<String> scanForExtractionConflicts(ICommandSender sender, File src, File dest) {
+    public List<String> scanForExtractionConflicts(ICommandSender sender, File src, File dest, boolean silent) {
         List<String> existing = new ArrayList<String>();
         final MessageManager mm = MessageManager.inst();
 
         try (Archive a = new Archive(new FileVolumeManager(src))) {
 
             if (a != null) {
-                mm.scanningForConflics(sender);
+                if(!silent)
+                    mm.scanningForConflics(sender);
                 FileHeader fh = a.nextFileHeader();
                 while (fh != null) {
                     if (Thread.interrupted())

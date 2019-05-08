@@ -43,9 +43,10 @@ public class PackProvider implements TypeProvider {
     public static final List<String> SUPPORTED_COMPRESS = new ArrayList<String>(Arrays.asList("jar"));
 
     @Override
-    public List<String> scanForExtractionConflicts(ICommandSender sender, File src, File dest) {
+    public List<String> scanForExtractionConflicts(ICommandSender sender, File src, File dest, boolean silent) {
         final MessageManager mm = MessageManager.inst();
-        mm.scanningForConflics(sender);
+        if(!silent)
+            mm.scanningForConflics(sender);
         File realDest = new File(dest.getAbsolutePath(), PATH_END_EXTRACT.matcher(src.getName()).replaceAll(""));
         List<String> ret = new ArrayList<String>();
         if (realDest.exists()) {

@@ -46,10 +46,11 @@ public class ZipProvider implements TypeProvider {
     public static final List<String> SUPPORTED = new ArrayList<String>(Arrays.asList("zip"));
 
     @Override
-    public List<String> scanForExtractionConflicts(ICommandSender sender, File src, File dest) {
+    public List<String> scanForExtractionConflicts(ICommandSender sender, File src, File dest, boolean silent) {
         List<String> existing = new ArrayList<String>();
         final MessageManager mm = MessageManager.inst();
-        mm.scanningForConflics(sender);
+        if(!silent)
+            mm.scanningForConflics(sender);
         try (FileInputStream fis = new FileInputStream(src); ZipInputStream zis = new ZipInputStream(fis);) {
             ZipEntry ze = zis.getNextEntry();
 

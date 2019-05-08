@@ -298,14 +298,14 @@ public class MessageManager {
     public void startingProcess(ICommandSender sender, ZTask task, String fileName) {
         if (!sender.isConsole()) {
             sendSuccess(sender,
-                    "Starting " + task.getProcessName() + " of '" + fileName + "'.. See the console for more details.");
+                    "Starting " + task.getProcessName() + " of '" + fileName + "'..");
         }
         plugin.info("Starting asynchronous " + task.getProcessName() + " of the file '" + fileName + "'..");
     }
 
     public void extractionComplete(ICommandSender sender, File dest) {
         if (!sender.isConsole()) {
-            sendSuccess(sender, "Extraction complete.");
+            sendSuccess(sender, "Extraction complete (See console for details).");
         }
         plugin.info("---------------------------------------------------");
         plugin.info("Extraction complete.");
@@ -315,7 +315,7 @@ public class MessageManager {
 
     public void compressionComplete(ICommandSender sender, File dest) {
         if (!sender.isConsole()) {
-            sendSuccess(sender, "Compression complete.");
+            sendSuccess(sender, "Compression complete (See console for details).");
         }
         plugin.info("---------------------------------------------------");
         plugin.info("Compression complete.");

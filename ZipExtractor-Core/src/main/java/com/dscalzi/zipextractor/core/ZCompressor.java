@@ -91,6 +91,11 @@ public class ZCompressor {
             }
         }
         
+        // Ensure destination parents exist.
+        if(!dest.getParentFile().exists()) {
+            dest.getParentFile().mkdirs();
+        }
+        
         Runnable task = null;
         int c = 0;
         boolean piped = false;

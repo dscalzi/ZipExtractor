@@ -57,7 +57,7 @@ public class ZExtractor {
 
         // If the destination directory does not exist, create it.
         if (!dest.exists()) {
-            dest.mkdir();
+            dest.mkdirs();
         }
 
         // If the destination exists and it's not a directory, abort.
@@ -136,7 +136,8 @@ public class ZExtractor {
         if(!override && pipe) {
             List<String> atRisk = new ArrayList<String>();
             for(final OpTuple op : pDeque) {
-                atRisk.addAll(op.getProvider().scanForExtractionConflicts(sender, op.getSrc(), op.getDest()));
+                if(op.getProvider().canDetectPipedConflicts())
+                atRisk.addAll(op.getProvider().scanForExtractionConflicts(sender, op.getSrc(), op.getDest(), true));
             }
             if(atRisk.size() > 0) {
                 WARNED.put(sender.getName(), new WarnData(src, dest, new PageList<String>(4, atRisk)));
@@ -159,7 +160,7 @@ public class ZExtractor {
                 pipes[c] = () -> {
                     List<String> atRisk = new ArrayList<String>();
                     if (!override) {
-                        atRisk = op.getProvider().scanForExtractionConflicts(sender, op.getSrc(), op.getDest());
+                        atRisk = op.getProvider().scanForExtractionConflicts(sender, op.getSrc(), op.getDest(), false);
                     }
                     if (atRisk.size() == 0 || override) {
                         op.getProvider().extract(sender, op.getSrc(), op.getDest(), log, interOp);
@@ -175,7 +176,7 @@ public class ZExtractor {
                 pipes[c] = () -> {
                     List<String> atRisk = new ArrayList<String>();
                     if (!override) {
-                        atRisk = op.getProvider().scanForExtractionConflicts(sender, op.getSrc(), op.getDest());
+                        atRisk = op.getProvider().scanForExtractionConflicts(sender, op.getSrc(), op.getDest(), false);
                     }
                     if (atRisk.size() == 0 || override) {
                         op.getProvider().extract(sender, op.getSrc(), op.getDest(), log, interOp);

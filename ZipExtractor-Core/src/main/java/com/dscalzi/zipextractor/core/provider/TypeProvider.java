@@ -68,9 +68,11 @@ public interface TypeProvider {
      *            The source file to be scanned.
      * @param dest
      *            The destination file to be scanned.
+     * @param silent
+     *            If output should be sent.
      * @return A List containing the paths of the files which would be overridden.
      */
-    public default List<String> scanForExtractionConflicts(ICommandSender sender, File src, File dest) {
+    public default List<String> scanForExtractionConflicts(ICommandSender sender, File src, File dest, boolean silent) {
         throw new UnsupportedOperationException();
     }
 
