@@ -24,6 +24,7 @@ import com.dscalzi.zipextractor.core.ZServicer;
 import com.dscalzi.zipextractor.core.managers.MessageManager;
 import com.dscalzi.zipextractor.core.util.ICommandSender;
 import com.dscalzi.zipextractor.core.util.IPlugin;
+import org.bstats.bukkit.Metrics;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.ArrayList;
@@ -32,6 +33,9 @@ import java.util.logging.Level;
 
 public class ZipExtractor extends JavaPlugin implements IPlugin {
 
+    @SuppressWarnings("unused")
+    private Metrics metrics;
+
     @Override
     public void onEnable() {
         ConfigManager.initialize(this);
@@ -39,6 +43,7 @@ public class ZipExtractor extends JavaPlugin implements IPlugin {
         ZServicer.initalize(ConfigManager.getInstance().getMaxQueueSize(),
                 ConfigManager.getInstance().getMaxPoolSize());
         this.getCommand("zipextractor").setExecutor(new MainExecutor(this));
+        metrics = new Metrics(this);
     }
 
     @Override
