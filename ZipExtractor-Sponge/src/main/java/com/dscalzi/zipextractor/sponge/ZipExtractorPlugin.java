@@ -34,6 +34,9 @@ import org.spongepowered.api.Sponge;
 import org.spongepowered.api.config.ConfigDir;
 import org.spongepowered.api.config.DefaultConfig;
 import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.game.GameReloadEvent;
+import org.spongepowered.api.event.game.state.GamePostInitializationEvent;
+import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
 import org.spongepowered.api.plugin.Plugin;
 import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.scheduler.Task;
@@ -83,7 +86,7 @@ public class ZipExtractorPlugin implements IPlugin {
     }
     
     @Listener
-    public void onGamePreInitialization(){
+    public void onGamePreInitialization(GamePreInitializationEvent e) {
         logger.info("Enabling {} version {}.", plugin.getName(), plugin.getVersion().orElse("dev"));
         
         ConfigManager.initialize(this);
@@ -93,9 +96,8 @@ public class ZipExtractorPlugin implements IPlugin {
         Sponge.getCommandManager().register(this, new MainExecutor(this), Arrays.asList("zipextractor", "ze"));
     }
 
-    
     @Listener
-    public void onPostInit() {
+    public void onPostInit(GamePostInitializationEvent event) {
         Optional<PermissionService> ops = Sponge.getServiceManager().provide(PermissionService.class);
         if (ops.isPresent()) {
             Builder opdb = ops.get().newDescriptionBuilder(this);
@@ -120,9 +122,8 @@ public class ZipExtractorPlugin implements IPlugin {
         }
     }
 
-    
     @Listener
-    public void onReload(){
+    public void onReload(GameReloadEvent e){
         reload();
     }
 
