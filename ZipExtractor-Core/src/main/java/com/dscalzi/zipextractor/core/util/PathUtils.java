@@ -34,7 +34,7 @@ public class PathUtils {
     /**
      * Matches '/', '\', '\\'.
      */
-    public static final Pattern COMMON_SEPS = Pattern.compile("\\/|\\\\\\\\|\\\\");
+    public static final Pattern COMMON_SEPS = Pattern.compile("/|\\\\\\\\|\\\\");
 
     /**
      * Attempts to replace common path separators with the real separator for the
@@ -119,7 +119,7 @@ public class PathUtils {
     
     public static List<String> tabCompletePath(String[] args) {
         
-        List<String> ret = new ArrayList<String>();
+        List<String> ret = new ArrayList<>();
         
         String pathArg = join(args, ' ', 1, args.length);
         Path path;

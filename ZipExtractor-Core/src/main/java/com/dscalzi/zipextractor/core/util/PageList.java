@@ -44,7 +44,7 @@ public class PageList<T> implements Iterable<List<T>> {
 
     public PageList(int pageSize, List<T> list) {
         this.DEFAULT_PAGE_SIZE = pageSize;
-        this.cStore = new ArrayList<List<T>>();
+        this.cStore = new ArrayList<>();
         if (list != null)
             this.importFromList(list);
     }
@@ -54,7 +54,7 @@ public class PageList<T> implements Iterable<List<T>> {
             cStore.clear();
 
         for (int i = 0; i < (list.size() / DEFAULT_PAGE_SIZE) + 1; ++i) {
-            List<T> page = new ArrayList<T>();
+            List<T> page = new ArrayList<>();
             for (int k = 0; k < DEFAULT_PAGE_SIZE; ++k) {
                 int realIndex = (i * DEFAULT_PAGE_SIZE) + k;
                 if (realIndex < list.size())
@@ -72,14 +72,14 @@ public class PageList<T> implements Iterable<List<T>> {
     }
 
     public T add(T e, boolean overflow) {
-        if (cStore.size() > 0) {
+        if (!cStore.isEmpty()) {
             List<T> page = cStore.get(cStore.size() - 1);
             if (overflow || page.size() < DEFAULT_PAGE_SIZE) {
                 page.add(e);
                 return e;
             }
         }
-        List<T> newPage = new ArrayList<T>();
+        List<T> newPage = new ArrayList<>();
         newPage.add(e);
         cStore.add(newPage);
         return e;
@@ -91,7 +91,7 @@ public class PageList<T> implements Iterable<List<T>> {
 
     public List<T> getPage(int page, boolean includeNull) {
         try {
-            List<T> p = new ArrayList<T>(cStore.get(page));
+            List<T> p = new ArrayList<>(cStore.get(page));
             if (!includeNull)
                 p.removeAll(Collections.singleton(null));
             return Collections.unmodifiableList(p);
@@ -114,12 +114,12 @@ public class PageList<T> implements Iterable<List<T>> {
 
     @Override
     public String toString() {
-        String ret = "{";
+        StringBuilder ret = new StringBuilder("{");
         for (List<T> page : cStore) {
-            ret += page.toString() + ",";
+            ret.append(page.toString()).append(",");
         }
-        ret = ret.substring(0, ret.length() - 1) + "}";
-        return ret;
+        ret = new StringBuilder(ret.substring(0, ret.length() - 1) + "}");
+        return ret.toString();
     }
 
     @Override
@@ -127,7 +127,7 @@ public class PageList<T> implements Iterable<List<T>> {
 
         int currentSize = this.size();
 
-        Iterator<List<T>> it = new Iterator<List<T>>() {
+        return new Iterator<List<T>>() {
 
             private int currentIndex = 0;
 
@@ -146,7 +146,6 @@ public class PageList<T> implements Iterable<List<T>> {
                 throw new UnsupportedOperationException();
             }
         };
-        return it;
     }
 
 }

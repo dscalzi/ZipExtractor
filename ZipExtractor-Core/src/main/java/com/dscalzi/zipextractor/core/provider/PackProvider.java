@@ -25,6 +25,7 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.jar.JarFile;
 import java.util.jar.JarOutputStream;
@@ -39,8 +40,8 @@ public class PackProvider implements TypeProvider {
 
     public static final Pattern PATH_END_EXTRACT = Pattern.compile("\\.pack$");
     public static final Pattern PATH_END_COMPRESS = Pattern.compile("\\.jar$");
-    public static final List<String> SUPPORTED_EXTRACT = new ArrayList<String>(Arrays.asList("pack"));
-    public static final List<String> SUPPORTED_COMPRESS = new ArrayList<String>(Arrays.asList("jar"));
+    protected static final List<String> SUPPORTED_EXTRACT = new ArrayList<>(Collections.singletonList("pack"));
+    protected static final List<String> SUPPORTED_COMPRESS = new ArrayList<>(Collections.singletonList("jar"));
 
     @Override
     public List<String> scanForExtractionConflicts(ICommandSender sender, File src, File dest, boolean silent) {
@@ -48,7 +49,7 @@ public class PackProvider implements TypeProvider {
         if(!silent)
             mm.scanningForConflics(sender);
         File realDest = new File(dest.getAbsolutePath(), PATH_END_EXTRACT.matcher(src.getName()).replaceAll(""));
-        List<String> ret = new ArrayList<String>();
+        List<String> ret = new ArrayList<>();
         if (realDest.exists()) {
             ret.add(realDest.getAbsolutePath());
         }

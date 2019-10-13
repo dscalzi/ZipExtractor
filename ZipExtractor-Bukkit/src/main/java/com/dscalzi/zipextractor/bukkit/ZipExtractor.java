@@ -18,25 +18,19 @@
 
 package com.dscalzi.zipextractor.bukkit;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Level;
-
-import org.bstats.bukkit.Metrics;
-import org.bukkit.entity.Player;
-import org.bukkit.plugin.java.JavaPlugin;
-
 import com.dscalzi.zipextractor.bukkit.managers.ConfigManager;
 import com.dscalzi.zipextractor.bukkit.util.BukkitCommandSender;
 import com.dscalzi.zipextractor.core.ZServicer;
 import com.dscalzi.zipextractor.core.managers.MessageManager;
 import com.dscalzi.zipextractor.core.util.ICommandSender;
 import com.dscalzi.zipextractor.core.util.IPlugin;
+import org.bukkit.plugin.java.JavaPlugin;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Level;
 
 public class ZipExtractor extends JavaPlugin implements IPlugin {
-
-    @SuppressWarnings("unused")
-    private Metrics metrics;
 
     @Override
     public void onEnable() {
@@ -45,7 +39,6 @@ public class ZipExtractor extends JavaPlugin implements IPlugin {
         ZServicer.initalize(ConfigManager.getInstance().getMaxQueueSize(),
                 ConfigManager.getInstance().getMaxPoolSize());
         this.getCommand("zipextractor").setExecutor(new MainExecutor(this));
-        metrics = new Metrics(this);
     }
 
     @Override
@@ -61,10 +54,8 @@ public class ZipExtractor extends JavaPlugin implements IPlugin {
 
     @Override
     public List<? extends ICommandSender> getOnlinePlayers() {
-        List<BukkitCommandSender> l = new ArrayList<BukkitCommandSender>();
-        for(Player p : this.getServer().getOnlinePlayers()) {
-            l.add(new BukkitCommandSender(p));
-        }
+        List<BukkitCommandSender> l = new ArrayList<>();
+        this.getServer().getOnlinePlayers().forEach(p -> l.add(new BukkitCommandSender(p)));
         return l;
     }
 

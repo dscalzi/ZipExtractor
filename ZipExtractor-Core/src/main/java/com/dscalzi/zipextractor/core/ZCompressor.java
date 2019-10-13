@@ -59,7 +59,7 @@ public class ZCompressor {
         String[] srcExts = srcSplit.length > 1 ? srcSplit[1].split("\\.") : new String[0];
         String[] destExts = destSplit[1].split("\\.");
         
-        Deque<OpTuple> pDeque = new ArrayDeque<OpTuple>();
+        Deque<OpTuple> pDeque = new ArrayDeque<>();
         if(destExts.length < 2) {
             TypeProvider provider = getApplicableProvider(src, dest, mm, sender);
             if(provider == null) {
@@ -68,12 +68,12 @@ public class ZCompressor {
             pDeque.push(new OpTuple(src, dest, provider));
         } else {
             File dTemp = dest;
-            File sTemp = null;
+            File sTemp;
             
             String pth = destNorm.toString();
             
             for(int i=destExts.length-1; i>=0; i--) {
-                if(srcExts.length > 0 ? !destExts[i].equalsIgnoreCase(srcExts[srcExts.length-1]) : true) {
+                if(srcExts.length <= 0 || !destExts[i].equalsIgnoreCase(srcExts[srcExts.length - 1])) {
                     pth = pth.substring(0, pth.length()-destExts[i].length()-1);
                     sTemp = new File(pth);
                     
@@ -96,7 +96,7 @@ public class ZCompressor {
             dest.getParentFile().mkdirs();
         }
         
-        Runnable task = null;
+        Runnable task;
         int c = 0;
         boolean piped = false;
         final BooleanSupplier[] pipes = new BooleanSupplier[pDeque.size()];
@@ -116,9 +116,7 @@ public class ZCompressor {
                     return res;
                 };
             } else {
-                pipes[c] = () -> {
-                    return e.getProvider().compress(sender, e.getSrc(), e.getDest(), log, interOp);
-                };
+                pipes[c] = () -> e.getProvider().compress(sender, e.getSrc(), e.getDest(), log, interOp);
             }
             piped = true;
             c++;
@@ -161,7 +159,7 @@ public class ZCompressor {
     
     public static List<String> supportedExtensions() {
         if (SUPPORTED == null) {
-            SUPPORTED = new ArrayList<String>();
+            SUPPORTED = new ArrayList<>();
             for (final TypeProvider p : TypeProvider.getProviders()) {
                 SUPPORTED.addAll(p.canCompressTo());
             }

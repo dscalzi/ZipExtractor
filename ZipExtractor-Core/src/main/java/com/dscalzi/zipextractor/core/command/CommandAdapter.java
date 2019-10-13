@@ -207,9 +207,6 @@ public class CommandAdapter {
                     
                 }
             }
-            
-            
-            
 
             Optional<File> srcOpt = cm.getSourceFile();
             Optional<File> destOpt = cm.getDestFile();
@@ -392,7 +389,7 @@ public class CommandAdapter {
     }
     
     public List<String> tabComplete(ICommandSender sender, String[] args) {
-        List<String> ret = new ArrayList<String>();
+        List<String> ret = new ArrayList<>();
 
         if (args.length == 1) {
             ret.addAll(subCommands(sender, args));
@@ -421,7 +418,7 @@ public class CommandAdapter {
                     boolean d = sender.hasPermission("zipextractor.admin.compress")
                             && "compress".startsWith(arg0Normal);
                     
-                    if (a | b)
+                    if (a || b)
                         if ("--absolute".startsWith(args[1].toLowerCase()))
                             ret.add("--absolute");
                     if (sender.hasPermission("zipextractor.admin.use") && "help".startsWith(arg0Normal)) {
@@ -462,7 +459,7 @@ public class CommandAdapter {
     }
 
     private List<String> subCommands(ICommandSender sender, String[] args) {
-        List<String> ret = new ArrayList<String>();
+        List<String> ret = new ArrayList<>();
 
         if (args.length == 1) {
             if (sender.hasPermission("zipextractor.admin.use") && "help".startsWith(args[0].toLowerCase()))

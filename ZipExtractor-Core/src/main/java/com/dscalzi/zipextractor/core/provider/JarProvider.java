@@ -18,34 +18,34 @@
 
 package com.dscalzi.zipextractor.core.provider;
 
+import com.dscalzi.zipextractor.core.TaskInterruptedException;
+import com.dscalzi.zipextractor.core.ZTask;
+import com.dscalzi.zipextractor.core.managers.MessageManager;
+import com.dscalzi.zipextractor.core.util.ICommandSender;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.AccessDeniedException;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 import java.util.regex.Pattern;
 import java.util.zip.ZipException;
 
-import com.dscalzi.zipextractor.core.TaskInterruptedException;
-import com.dscalzi.zipextractor.core.ZTask;
-import com.dscalzi.zipextractor.core.managers.MessageManager;
-import com.dscalzi.zipextractor.core.util.ICommandSender;
-
 public class JarProvider implements TypeProvider {
 
     // Shared pattern by JarProviders
     public static final Pattern PATH_END = Pattern.compile("\\.jar$");
-    public static final List<String> SUPPORTED = new ArrayList<String>(Arrays.asList("jar"));
+    protected static final List<String> SUPPORTED = new ArrayList<>(Collections.singletonList("jar"));
 
     @Override
     public List<String> scanForExtractionConflicts(ICommandSender sender, File src, File dest, boolean silent) {
         
-        List<String> existing = new ArrayList<String>();
+        List<String> existing = new ArrayList<>();
         final MessageManager mm = MessageManager.inst();
         if(!silent)
             mm.scanningForConflics(sender);
@@ -152,7 +152,7 @@ public class JarProvider implements TypeProvider {
 
     @Override
     public List<String> canCompressTo() {
-        return new ArrayList<String>();
+        return new ArrayList<>();
     }
 
 }

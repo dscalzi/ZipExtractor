@@ -18,29 +18,29 @@
 
 package com.dscalzi.zipextractor.core.provider;
 
+import com.dscalzi.zipextractor.core.TaskInterruptedException;
+import com.dscalzi.zipextractor.core.ZTask;
+import com.dscalzi.zipextractor.core.managers.MessageManager;
+import com.dscalzi.zipextractor.core.util.ICommandSender;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 import java.util.zip.ZipException;
 
-import com.dscalzi.zipextractor.core.TaskInterruptedException;
-import com.dscalzi.zipextractor.core.ZTask;
-import com.dscalzi.zipextractor.core.managers.MessageManager;
-import com.dscalzi.zipextractor.core.util.ICommandSender;
-
 public class GZProvider implements TypeProvider {
 
     // Shared pattern by GZProviders
     public static final Pattern PATH_END = Pattern.compile("\\.gz$");
-    public static final List<String> SUPPORTED_EXTRACT = new ArrayList<String>(Arrays.asList("gz"));
-    public static final List<String> SUPPORTED_COMPRESS = new ArrayList<String>(Arrays.asList("non-directory"));
+    protected static final List<String> SUPPORTED_EXTRACT = new ArrayList<>(Collections.singletonList("gz"));
+    protected static final List<String> SUPPORTED_COMPRESS = new ArrayList<>(Collections.singletonList("non-directory"));
     
     @Override
     public List<String> scanForExtractionConflicts(ICommandSender sender, File src, File dest, boolean silent) {
@@ -48,7 +48,7 @@ public class GZProvider implements TypeProvider {
         if(!silent)
             mm.scanningForConflics(sender);
         File realDest = new File(dest.getAbsolutePath(), PATH_END.matcher(src.getName()).replaceAll(""));
-        List<String> ret = new ArrayList<String>();
+        List<String> ret = new ArrayList<>();
         if (realDest.exists()) {
             ret.add(realDest.getAbsolutePath());
         }
@@ -101,7 +101,7 @@ public class GZProvider implements TypeProvider {
             if (log)
                 mm.info("Compressing : " + src.getAbsolutePath());
             byte[] buf = new byte[65536];
-            int len = 0;
+            int len;
             while ((len = fis.read(buf)) > 0) {
                 if (Thread.interrupted())
                     throw new TaskInterruptedException();

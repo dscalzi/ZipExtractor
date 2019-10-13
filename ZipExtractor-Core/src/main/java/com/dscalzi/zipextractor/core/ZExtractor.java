@@ -37,7 +37,7 @@ import com.dscalzi.zipextractor.core.util.PageList;
 
 public class ZExtractor {
 
-    private static final Map<String, WarnData> WARNED = new HashMap<String, WarnData>();
+    private static final Map<String, WarnData> WARNED = new HashMap<>();
     private static List<String> SUPPORTED;
     private static List<String> PIPED_RISKS;
 
@@ -45,9 +45,7 @@ public class ZExtractor {
         final MessageManager mm = MessageManager.inst();
 
         // If the user was warned, clear it.
-        if (WARNED.containsKey(sender.getName())) {
-            WARNED.remove(sender.getName());
-        }
+        WARNED.remove(sender.getName());
 
         // If the source file does not exist, abort.
         if (!src.exists()) {
@@ -68,7 +66,7 @@ public class ZExtractor {
             }
         }
         
-        Deque<OpTuple> pDeque = new ArrayDeque<OpTuple>();
+        Deque<OpTuple> pDeque = new ArrayDeque<>();
         
         if(pipe) {
             
@@ -89,7 +87,7 @@ public class ZExtractor {
                 String queue = srcNorm.toString();
                 
                 for(int i=srcExts.length-1; i>=0; i--) {
-                    if((until != null && srcExts[i].equalsIgnoreCase(until))) {
+                    if((srcExts[i].equalsIgnoreCase(until))) {
                         if(i == srcExts.length-1) {
                             mm.nothingToDo(sender);
                             return;
@@ -142,13 +140,13 @@ public class ZExtractor {
         // This is so that we can detect ALL conflicts in every
         // stage of the operation, and report the full list to the user.
         if(!override && pipe) {
-            List<String> atRisk = new ArrayList<String>();
-            for(final OpTuple op : pDeque) {
+            List<String> atRisk = new ArrayList<>();
+            pDeque.forEach(op -> {
                 if(op.getProvider().canDetectPipedConflicts())
                     atRisk.addAll(op.getProvider().scanForExtractionConflicts(sender, op.getSrc(), op.getDest(), true));
-            }
-            if(atRisk.size() > 0) {
-                WARNED.put(sender.getName(), new WarnData(src, dest, new PageList<String>(4, atRisk)));
+            });
+            if(!atRisk.isEmpty()) {
+                WARNED.put(sender.getName(), new WarnData(src, dest, new PageList<>(4, atRisk)));
                 mm.warnOfConflicts(sender, atRisk.size());
                 return;
             }
@@ -157,7 +155,7 @@ public class ZExtractor {
         // Prepare the tasks.
         // We will still check for conflicts in this stage for added security.
         // If any exist, the operation will be terminated.
-        Runnable task = null;
+        Runnable task;
         int c = 0;
         boolean piped = false;
         final BooleanSupplier[] pipes = new BooleanSupplier[pDeque.size()];
@@ -166,30 +164,30 @@ public class ZExtractor {
 
             if(piped) {
                 pipes[c] = () -> {
-                    List<String> atRisk = new ArrayList<String>();
+                    List<String> atRisk = new ArrayList<>();
                     if (!override) {
                         atRisk = op.getProvider().scanForExtractionConflicts(sender, op.getSrc(), op.getDest(), false);
                     }
-                    if (atRisk.size() == 0 || override) {
+                    if (atRisk.isEmpty()) {
                         boolean res = op.getProvider().extract(sender, op.getSrc(), op.getDest(), log, interOp);
                         op.getSrc().delete();
                         return res;
                     } else {
-                        WARNED.put(sender.getName(), new WarnData(op.getSrc(), op.getDest(), new PageList<String>(4, atRisk)));
+                        WARNED.put(sender.getName(), new WarnData(op.getSrc(), op.getDest(), new PageList<>(4, atRisk)));
                         mm.warnOfConflicts(sender, atRisk.size());
                         return false;
                     }
                 };
             } else {
                 pipes[c] = () -> {
-                    List<String> atRisk = new ArrayList<String>();
+                    List<String> atRisk = new ArrayList<>();
                     if (!override) {
                         atRisk = op.getProvider().scanForExtractionConflicts(sender, op.getSrc(), op.getDest(), false);
                     }
-                    if (atRisk.size() == 0 || override) {
+                    if (atRisk.isEmpty()) {
                         return op.getProvider().extract(sender, op.getSrc(), op.getDest(), log, interOp);
                     } else {
-                        WARNED.put(sender.getName(), new WarnData(op.getSrc(), op.getDest(), new PageList<String>(4, atRisk)));
+                        WARNED.put(sender.getName(), new WarnData(op.getSrc(), op.getDest(), new PageList<>(4, atRisk)));
                         mm.warnOfConflicts(sender, atRisk.size());
                         return false;
                     }
@@ -230,7 +228,7 @@ public class ZExtractor {
     
     public static List<String> supportedExtensions() {
         if (SUPPORTED == null) {
-            SUPPORTED = new ArrayList<String>();
+            SUPPORTED = new ArrayList<>();
             for (final TypeProvider p : TypeProvider.getProviders()) {
                 SUPPORTED.addAll(p.supportedExtractionTypes());
             }
@@ -240,7 +238,7 @@ public class ZExtractor {
     
     public static List<String> pipedConflictRiskExtensions(){
         if(PIPED_RISKS == null) {
-            PIPED_RISKS = new ArrayList<String>();
+            PIPED_RISKS = new ArrayList<>();
             for(final TypeProvider p : TypeProvider.getProviders()) {
                 if(!p.canDetectPipedConflicts()) {
                     PIPED_RISKS.addAll(p.supportedExtractionTypes());

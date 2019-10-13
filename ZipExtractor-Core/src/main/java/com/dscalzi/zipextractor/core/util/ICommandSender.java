@@ -20,14 +20,14 @@ package com.dscalzi.zipextractor.core.util;
 
 public interface ICommandSender {
 
-    public void sendMessage(String msg);
+    void sendMessage(String msg);
     
-    public boolean isConsole();
+    boolean isConsole();
     
-    public boolean isCommandBlock();
+    boolean isCommandBlock();
     
-    public boolean hasPermission(String perm);
+    boolean hasPermission(String perm);
     
-    public String getName();
+    String getName();
     
 }

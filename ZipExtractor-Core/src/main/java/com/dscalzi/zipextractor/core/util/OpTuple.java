@@ -82,11 +82,8 @@ public class OpTuple {
         } else if (!dest.equals(other.dest))
             return false;
         if (src == null) {
-            if (other.src != null)
-                return false;
-        } else if (!src.equals(other.src))
-            return false;
-        return true;
+            return other.src == null;
+        } else return src.equals(other.src);
     }
     
 }

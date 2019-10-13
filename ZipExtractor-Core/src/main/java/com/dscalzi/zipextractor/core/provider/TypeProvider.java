@@ -31,15 +31,14 @@ import com.dscalzi.zipextractor.core.util.ICommandSender;
  * scan, extract, and other methods which may take a long time to complete MUST
  * often check to see if the thread was interrupted. If the thread was
  * interrupted, you can break the operation by throwing a
- * {@link com.dscalzi.zipextractor.bukkit.util.TaskInterruptedException.TaskInterruptedException
- * TaskInterruptedException} and handling it.
+ * {@link com.dscalzi.zipextractor.core.TaskInterruptedException TaskInterruptedException} and handling it.
  * 
  * @author Daniel D. Scalzi
  *
  */
 public interface TypeProvider {
 
-    public static final TypeProvider[] PROVIDERS = {
+    TypeProvider[] PROVIDERS = {
             new ZipProvider(),
             new RarProvider(),
             new JarProvider(),
@@ -53,7 +52,7 @@ public interface TypeProvider {
      * 
      * @return An array of all supported providers.
      */
-    public static TypeProvider[] getProviders() {
+    static TypeProvider[] getProviders() {
         return PROVIDERS;
     }
     
@@ -72,7 +71,7 @@ public interface TypeProvider {
      *            If output should be sent.
      * @return A List containing the paths of the files which would be overridden.
      */
-    public default List<String> scanForExtractionConflicts(ICommandSender sender, File src, File dest, boolean silent) {
+    default List<String> scanForExtractionConflicts(ICommandSender sender, File src, File dest, boolean silent) {
         throw new UnsupportedOperationException();
     }
 
@@ -91,7 +90,7 @@ public interface TypeProvider {
      *            Whether this output will be piped.
      * @return True if successful, false otherwise.
      */
-    public default boolean extract(ICommandSender sender, File src, File dest, boolean log, boolean pipe) {
+    default boolean extract(ICommandSender sender, File src, File dest, boolean log, boolean pipe) {
         throw new UnsupportedOperationException();
     }
 
@@ -110,7 +109,7 @@ public interface TypeProvider {
      *            Whether this output will be piped.
      * @return True if successful, false otherwise.
      */
-    public default boolean compress(ICommandSender sender, File src, File dest, boolean log, boolean pipe) {
+    default boolean compress(ICommandSender sender, File src, File dest, boolean log, boolean pipe) {
         throw new UnsupportedOperationException();
     }
 
@@ -122,7 +121,7 @@ public interface TypeProvider {
      *            The source file to be checked.
      * @return If this provider can extract the given type of file.
      */
-    public abstract boolean validForExtraction(File src);
+    boolean validForExtraction(File src);
 
     /**
      * Returns if the given source file can be compressed by this provider.
@@ -132,7 +131,7 @@ public interface TypeProvider {
      *            The source file to be checked.
      * @return If this provider can compress the given type of file.
      */
-    public abstract boolean srcValidForCompression(File src);
+    boolean srcValidForCompression(File src);
 
     /**
      * Returns if the given destination file matches the format of this provider.
@@ -142,21 +141,21 @@ public interface TypeProvider {
      *            The destination file to be checked.
      * @return If this provider can compress the given type of file.
      */
-    public abstract boolean destValidForCompression(File dest);
+    boolean destValidForCompression(File dest);
 
     /**
      * Returns a List of the file extensions this provider supports for extraction.
      * 
      * @return A List of the file extensions this provider supports for extraction.
      */
-    public abstract List<String> supportedExtractionTypes();
+    List<String> supportedExtractionTypes();
 
     /**
      * Returns a List of file extensions this provider can compress files to.
      * 
      * @return A List of file extensions this provider can compress files to.
      */
-    public abstract List<String> canCompressTo();
+    List<String> canCompressTo();
 
     /**
      * Returns a List of file extensions this provider can compress.
@@ -164,7 +163,7 @@ public interface TypeProvider {
      * @return A List of file extensions this provider can compress. If any file can
      *         be compressed, returns null.
      */
-    public default List<String> canCompressFrom() {
+    default List<String> canCompressFrom() {
         return null;
     }
     
@@ -177,6 +176,6 @@ public interface TypeProvider {
      * @return Whether or not this provider can scan for extraction conflicts in
      *         a piped operation.
      */
-    public abstract boolean canDetectPipedConflicts();
+    boolean canDetectPipedConflicts();
 
 }
