@@ -45,7 +45,8 @@ public interface TypeProvider {
             new JarProvider(),
             new PackProvider(),
             new XZProvider(),
-            new GZProvider()
+            new GZProvider(),
+            new TarProvider()
     };
     
     /**
