@@ -39,11 +39,11 @@ public class ZServicer {
     private ThreadPoolExecutor executor;
     private ArrayBlockingQueue<Runnable> queue;
 
-    private Collection<Future<?>> futures = new LinkedList<Future<?>>();
+    private Collection<Future<?>> futures = new LinkedList<>();
 
     private ZServicer(int maxQueueSize, int maxPoolSize) {
         this.maxQueueSize = maxQueueSize;
-        this.queue = new ArrayBlockingQueue<Runnable>(maxQueueSize);
+        this.queue = new ArrayBlockingQueue<>(maxQueueSize);
         this.executor = new ThreadPoolExecutor(1, maxPoolSize, 10, TimeUnit.SECONDS, queue);
     }
 
@@ -119,10 +119,10 @@ public class ZServicer {
                 executor.shutdownNow();
             } else {
                 executor.shutdown();
-                if ((executor.getActiveCount() > 0 || executor.getQueue().size() > 0) && wait) {
+                if ((executor.getActiveCount() > 0 || !executor.getQueue().isEmpty()) && wait) {
                     String info = "Waiting for any outstanding tasks to finish"
                             + ((executor.getActiveCount() > 0) ? " | Active : " + executor.getActiveCount() : "")
-                            + ((executor.getQueue().size() > 0) ? " | Queued : " + executor.getQueue().size() : "")
+                            + ((!executor.getQueue().isEmpty()) ? " | Queued : " + executor.getQueue().size() : "")
                             + ".";
                     mm.info(info);
                     mm.sendGlobal(info, "zipextractor.harmless.notify");

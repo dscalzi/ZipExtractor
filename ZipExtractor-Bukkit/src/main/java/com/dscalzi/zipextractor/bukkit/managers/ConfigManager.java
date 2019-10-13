@@ -38,8 +38,6 @@ public class ConfigManager implements IConfigManager {
     private static boolean initialized;
     private static ConfigManager instance;
 
-    // TODO Will be implemented in a later version
-    private final double configVersion = 1.9;
     private ZipExtractor plugin;
     private FileConfiguration config;
 
@@ -151,11 +149,12 @@ public class ConfigManager implements IConfigManager {
         int limit = this.config.getInt("general_settings.maximum_thread_pool", 1);
         if (limit < 1)
             limit = 1;
-        return limit > 0 ? limit : 1;
+        return limit;
     }
 
     public double getSystemConfigVersion() {
-        return this.configVersion;
+        // TODO Will be implemented in a later version
+        return 1.9;
     }
 
     public double getConfigVersion() {
@@ -163,47 +162,42 @@ public class ConfigManager implements IConfigManager {
     }
 
     public boolean updateValue(String path, String value) {
-        try {
-            BufferedReader file = new BufferedReader(
-                    new FileReader(this.plugin.getDataFolder() + File.separator + "config.yml"));
+        try (BufferedReader file = new BufferedReader(new FileReader(this.plugin.getDataFolder() + File.separator + "config.yml"))) {
             String line;
-            String input = "";
+            StringBuilder input = new StringBuilder();
 
-            List<String> paths = new ArrayList<String>(Arrays.asList(path.split("\\.")));
+            List<String> paths = new ArrayList<>(Arrays.asList(path.split("\\.")));
 
             while ((line = file.readLine()) != null) {
                 String lline = line.toLowerCase();
-                if (paths.size() > 0) {
+                if (!paths.isEmpty()) {
                     if (lline.contains(paths.get(0).toLowerCase())) {
                         paths.remove(0);
-                        if (paths.size() == 0) {
-                            int firstIndex = line.indexOf("\"");
-                            int lastIndex = line.lastIndexOf("\"");
+                        if (paths.isEmpty()) {
+                            int firstIndex = line.indexOf('\"');
+                            int lastIndex = line.lastIndexOf('\"');
                             if (firstIndex == -1) {
                                 line = line.replaceAll(" +$", "");
                                 line += " \"";
-                                firstIndex = line.indexOf("\"");
+                                firstIndex = line.indexOf('\"');
                             }
                             if (lastIndex == -1) {
                                 line += "\"";
-                                lastIndex = line.lastIndexOf("\"");
+                                lastIndex = line.lastIndexOf('\"');
                             }
                             line = line.substring(0, firstIndex + 1) + value + line.substring(lastIndex);
                         }
                     }
                 }
-                input += line + '\n';
+                input.append(line).append('\n');
             }
 
-            file.close();
-
-            if (paths.size() > 0)
+            if (!paths.isEmpty())
                 return false;
 
-            FileOutputStream fileOut = new FileOutputStream(
-                    this.plugin.getDataFolder() + File.separator + "config.yml");
-            fileOut.write(input.getBytes());
-            fileOut.close();
+            try (FileOutputStream fileOut = new FileOutputStream(this.plugin.getDataFolder() + File.separator + "config.yml")) {
+                fileOut.write(input.toString().getBytes());
+            }
             return true;
         } catch (Exception e) {
             e.printStackTrace();

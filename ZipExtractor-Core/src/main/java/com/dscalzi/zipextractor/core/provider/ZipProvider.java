@@ -18,37 +18,34 @@
 
 package com.dscalzi.zipextractor.core.provider;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.nio.file.AccessDeniedException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.regex.Pattern;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipException;
-import java.util.zip.ZipInputStream;
-import java.util.zip.ZipOutputStream;
-
 import com.dscalzi.zipextractor.core.TaskInterruptedException;
 import com.dscalzi.zipextractor.core.ZTask;
 import com.dscalzi.zipextractor.core.managers.MessageManager;
 import com.dscalzi.zipextractor.core.util.ICommandSender;
 
+import java.io.*;
+import java.nio.file.AccessDeniedException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.regex.Pattern;
+import java.util.stream.Stream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipException;
+import java.util.zip.ZipInputStream;
+import java.util.zip.ZipOutputStream;
+
 public class ZipProvider implements TypeProvider {
 
     // Shared pattern by ZipProviders
     public static final Pattern PATH_END = Pattern.compile("\\.zip$");
-    public static final List<String> SUPPORTED = new ArrayList<String>(Arrays.asList("zip"));
+    protected static final List<String> SUPPORTED = new ArrayList<>(Collections.singletonList("zip"));
 
     @Override
     public List<String> scanForExtractionConflicts(ICommandSender sender, File src, File dest, boolean silent) {
-        List<String> existing = new ArrayList<String>();
+        List<String> existing = new ArrayList<>();
         final MessageManager mm = MessageManager.inst();
         if(!silent)
             mm.scanningForConflics(sender);
@@ -137,9 +134,9 @@ public class ZipProvider implements TypeProvider {
     public boolean compress(ICommandSender sender, File src, File dest, boolean log, boolean pipe) {
         final MessageManager mm = MessageManager.inst();
         mm.startingProcess(sender, ZTask.COMPRESS, src.getName());
-        try (OutputStream os = Files.newOutputStream(dest.toPath()); ZipOutputStream zs = new ZipOutputStream(os);) {
+        try (OutputStream os = Files.newOutputStream(dest.toPath()); ZipOutputStream zs = new ZipOutputStream(os); Stream<Path> pathWalk = Files.walk(src.toPath())) {
             Path pp = src.toPath();
-            Files.walk(pp).filter(path -> !Files.isDirectory(path)).forEach(path -> {
+            pathWalk.filter(path -> !path.toFile().isDirectory()).forEach(path -> {
                 if (Thread.interrupted())
                     throw new TaskInterruptedException();
                 // Prevent recursive compressions

@@ -144,7 +144,7 @@ public class MessageManager {
 
     public void warnOfConflicts(ICommandSender sender, int amt) {
         sendError(sender,
-                "Warning, this extraction will override " + "&o" + Integer.toString(amt) + cError + " file"
+                "Warning, this extraction will override " + "&o" + amt + cError + " file"
                         + (amt == 1 ? "" : "s") + ". To view " + (amt == 1 ? "this" : "these") + " file"
                         + (amt == 1 ? "" : "s") + " run the command " + "&o" + "/ze extract view [page]");
         sendError(sender, "To proceed with the extraction: " + "&o" + "/ze extract --override");
@@ -359,22 +359,21 @@ public class MessageManager {
         final String listPrefix = cError + " " + BULLET + " ";
         final String header = prefix + cError + " The following files would be overriden:";
 
-        List<String> p = new ArrayList<String>(files.getPage(page));
+        List<String> p = new ArrayList<>(files.getPage(page));
         p.replaceAll(s -> listPrefix + s);
 
         String footer = cPrimary + "Page " + "&8" + (page + 1) + cPrimary + " of " + "&8"
                 + files.size();
 
         sender.sendMessage(header);
-        for (String s : p)
-            sender.sendMessage(s);
+        p.forEach(sender::sendMessage);
         sender.sendMessage(footer);
     }
     
     public void commandList(ICommandSender sender, int page) {
         final String listPrefix = cPrimary + " " + BULLET + " ";
 
-        PageList<String> cmds = new PageList<String>(7);
+        PageList<String> cmds = new PageList<>(7);
         String header = prefix + cPrimary + " Command List - <Required> [Optional]";
         if (sender.hasPermission("zipextractor.admin.use")) {
             cmds.add(listPrefix + "/ZipExtractor help [cmd] " + cTrim + "- View command list or info.");
@@ -414,8 +413,7 @@ public class MessageManager {
         }
 
         sender.sendMessage(header);
-        for (String s : cmds.getPage(page))
-            sender.sendMessage(s);
+        cmds.getPage(page).forEach(sender::sendMessage);
         sender.sendMessage(footer);
     }
 
@@ -530,7 +528,6 @@ public class MessageManager {
         if (cmd.equalsIgnoreCase("version")) {
             sendMessage(sender, cPrimary
                     + "Displays the plugin's version information and provides links to the source code and metrics page.");
-            return;
         }
 
     }
@@ -579,17 +576,17 @@ public class MessageManager {
         } else if (c.size() == 2) {
             return c.get(0).toString() + " and " + c.get(1).toString();
         } else {
-            String vals = "";
+            StringBuilder vals = new StringBuilder();
             int tracker = 0;
             for (final T t : c) {
                 if (tracker == c.size() - 1) {
-                    vals += "and " + t.toString();
+                    vals.append("and ").append(t.toString());
                     break;
                 }
-                vals += t.toString() + ", ";
+                vals.append(t.toString()).append(", ");
                 ++tracker;
             }
-            return vals;
+            return vals.toString();
         }
     }
 }

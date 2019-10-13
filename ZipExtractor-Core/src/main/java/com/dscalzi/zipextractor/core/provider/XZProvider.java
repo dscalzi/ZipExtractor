@@ -18,31 +18,30 @@
 
 package com.dscalzi.zipextractor.core.provider;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.regex.Pattern;
-
+import com.dscalzi.zipextractor.core.TaskInterruptedException;
+import com.dscalzi.zipextractor.core.ZTask;
+import com.dscalzi.zipextractor.core.managers.MessageManager;
+import com.dscalzi.zipextractor.core.util.ICommandSender;
 import org.tukaani.xz.LZMA2Options;
 import org.tukaani.xz.XZFormatException;
 import org.tukaani.xz.XZInputStream;
 import org.tukaani.xz.XZOutputStream;
 
-import com.dscalzi.zipextractor.core.TaskInterruptedException;
-import com.dscalzi.zipextractor.core.ZTask;
-import com.dscalzi.zipextractor.core.managers.MessageManager;
-import com.dscalzi.zipextractor.core.util.ICommandSender;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.regex.Pattern;
 
 public class XZProvider implements TypeProvider {
 
     // Shared pattern by XZProviders
     public static final Pattern PATH_END = Pattern.compile("\\.xz$");
-    public static final List<String> SUPPORTED_EXTRACT = new ArrayList<String>(Arrays.asList("xz"));
-    public static final List<String> SUPPORTED_COMPRESS = new ArrayList<String>(Arrays.asList("non-directory"));
+    protected static final List<String> SUPPORTED_EXTRACT = new ArrayList<>(Collections.singletonList("xz"));
+    protected static final List<String> SUPPORTED_COMPRESS = new ArrayList<>(Collections.singletonList("non-directory"));
 
     @Override
     public List<String> scanForExtractionConflicts(ICommandSender sender, File src, File dest, boolean silent) {
@@ -50,7 +49,7 @@ public class XZProvider implements TypeProvider {
         if(!silent)
             mm.scanningForConflics(sender);
         File realDest = new File(dest.getAbsolutePath(), PATH_END.matcher(src.getName()).replaceAll(""));
-        List<String> ret = new ArrayList<String>();
+        List<String> ret = new ArrayList<>();
         if (realDest.exists()) {
             ret.add(realDest.getAbsolutePath());
         }

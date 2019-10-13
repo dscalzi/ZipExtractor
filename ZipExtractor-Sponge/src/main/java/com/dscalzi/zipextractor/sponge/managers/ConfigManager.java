@@ -35,8 +35,6 @@ public class ConfigManager implements IConfigManager {
     private static boolean initialized;
     private static ConfigManager instance;
 
-    // TODO Will be implemented in a later version
-    private final double configVersion = 1.0;
     private ZipExtractorPlugin plugin;
     private CommentedConfigurationNode config;
 
@@ -218,12 +216,13 @@ public class ConfigManager implements IConfigManager {
             int limit = config.getNode("general_settings", "maximum_thread_pool").getInt(1);
             if (limit < 1)
                 limit = 1;
-            return limit > 0 ? limit : 1;
+            return limit;
         }
     }
 
     public double getSystemConfigVersion() {
-        return this.configVersion;
+        // TODO Will be implemented in a later version
+        return 1.0;
     }
 
     public double getConfigVersion() {

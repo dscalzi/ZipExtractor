@@ -23,34 +23,34 @@ import java.util.Optional;
 
 public interface IConfigManager {
 
-    public String getSourceRaw();
+    String getSourceRaw();
 
-    public String getDestRaw();
+    String getDestRaw();
 
-    public Optional<File> getSourceFile();
+    Optional<File> getSourceFile();
 
-    public Optional<File> getDestFile();
+    Optional<File> getDestFile();
 
-    public boolean setSourcePath(String path);
+    boolean setSourcePath(String path);
 
-    public boolean setDestPath(String path);
+    boolean setDestPath(String path);
 
-    public boolean getLoggingProperty();
+    boolean getLoggingProperty();
 
-    public boolean warnOnConflitcts();
+    boolean warnOnConflitcts();
     
-    public boolean tabCompleteFiles();
+    boolean tabCompleteFiles();
 
-    public boolean waitForTasksOnShutdown();
+    boolean waitForTasksOnShutdown();
 
-    public int getMaxQueueSize();
+    int getMaxQueueSize();
 
-    public int getMaxPoolSize();
+    int getMaxPoolSize();
     
-    public double getSystemConfigVersion();
+    double getSystemConfigVersion();
 
-    public double getConfigVersion();
+    double getConfigVersion();
     
-    public boolean reload();
+    boolean reload();
     
 }

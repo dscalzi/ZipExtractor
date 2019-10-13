@@ -57,7 +57,7 @@ public class MainExecutor implements CommandCallable {
         String[] args = arguments.endsWith(" ") ? new String[argsDirty.length + 1] : argsDirty;
         if(args != argsDirty) {
             System.arraycopy(argsDirty, 0, args, 0, argsDirty.length);
-            args[args.length-1] = new String();
+            args[args.length-1] = "";
         }
         
         return adapter.tabComplete(new SpongeCommandSender(source), args);

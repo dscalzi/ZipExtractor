@@ -18,21 +18,6 @@
 
 package com.dscalzi.zipextractor.core.provider;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InterruptedIOException;
-import java.nio.file.AccessDeniedException;
-import java.nio.file.DirectoryNotEmptyException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.regex.Pattern;
-
 import com.dscalzi.zipextractor.core.TaskInterruptedException;
 import com.dscalzi.zipextractor.core.ZTask;
 import com.dscalzi.zipextractor.core.managers.MessageManager;
@@ -43,32 +28,40 @@ import com.github.junrar.exception.RarException.RarExceptionType;
 import com.github.junrar.impl.FileVolumeManager;
 import com.github.junrar.rarfile.FileHeader;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InterruptedIOException;
+import java.nio.file.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.regex.Pattern;
+
 public class RarProvider implements TypeProvider {
 
     // Shared pattern by RarProviders
     public static final Pattern PATH_END = Pattern.compile("\\.rar$");
-    public static final List<String> SUPPORTED = new ArrayList<String>(Arrays.asList("rar"));
+    protected static final List<String> SUPPORTED = new ArrayList<>(Collections.singletonList("rar"));
 
     @Override
     public List<String> scanForExtractionConflicts(ICommandSender sender, File src, File dest, boolean silent) {
-        List<String> existing = new ArrayList<String>();
+        List<String> existing = new ArrayList<>();
         final MessageManager mm = MessageManager.inst();
 
         try (Archive a = new Archive(new FileVolumeManager(src))) {
 
-            if (a != null) {
-                if(!silent)
-                    mm.scanningForConflics(sender);
-                FileHeader fh = a.nextFileHeader();
-                while (fh != null) {
-                    if (Thread.interrupted())
-                        throw new TaskInterruptedException();
-                    File newFile = Paths.get(dest + File.separator + fh.getFileNameString()).toFile();
-                    if (newFile.exists()) {
-                        existing.add(fh.getFileNameString());
-                    }
-                    fh = a.nextFileHeader();
+            if(!silent)
+                mm.scanningForConflics(sender);
+            FileHeader fh = a.nextFileHeader();
+            while (fh != null) {
+                if (Thread.interrupted())
+                    throw new TaskInterruptedException();
+                File newFile = Paths.get(dest + File.separator + fh.getFileNameString()).toFile();
+                if (newFile.exists()) {
+                    existing.add(fh.getFileNameString());
                 }
+                fh = a.nextFileHeader();
             }
 
         } catch (TaskInterruptedException e) {
@@ -89,35 +82,33 @@ public class RarProvider implements TypeProvider {
     public boolean extract(ICommandSender sender, File src, File dest, boolean log, boolean pipe) {
         final MessageManager mm = MessageManager.inst();
         try (Archive a = new Archive(new FileVolumeManager(src))) {
-            if (a != null) {
-                FileHeader fh = a.nextFileHeader();
-                mm.startingProcess(sender, ZTask.EXTRACT, src.getName());
-                while (fh != null) {
-                    if (Thread.interrupted())
-                        throw new TaskInterruptedException();
-                    try (InputStream is = a.getInputStream(fh)) {
-                        Path p = Paths.get(dest + File.separator + fh.getFileNameString());
-                        File parent = p.toFile().getParentFile();
-                        if (!parent.exists() && !parent.mkdirs()) {
-                            throw new IllegalStateException("Couldn't create dir: " + parent);
-                        }
-                        try {
-                            if (log)
-                                mm.info("Extracting : " + p.toString());
-                            Files.copy(is, p, StandardCopyOption.REPLACE_EXISTING);
-                        } catch (DirectoryNotEmptyException e) {
-                            fh = a.nextFileHeader();
-                            continue;
-                        }
-                    } catch (AccessDeniedException e) {
-                        mm.fileAccessDenied(sender, ZTask.EXTRACT, e.getMessage());
-                    } catch (InterruptedIOException e) {
-                        throw new TaskInterruptedException();
-                    } catch (RarException | IOException e) {
-                        e.printStackTrace();
+            FileHeader fh = a.nextFileHeader();
+            mm.startingProcess(sender, ZTask.EXTRACT, src.getName());
+            while (fh != null) {
+                if (Thread.interrupted())
+                    throw new TaskInterruptedException();
+                try (InputStream is = a.getInputStream(fh)) {
+                    Path p = Paths.get(dest + File.separator + fh.getFileNameString());
+                    File parent = p.toFile().getParentFile();
+                    if (!parent.exists() && !parent.mkdirs()) {
+                        throw new IllegalStateException("Couldn't create dir: " + parent);
                     }
-                    fh = a.nextFileHeader();
+                    try {
+                        if (log)
+                            mm.info("Extracting : " + p.toString());
+                        Files.copy(is, p, StandardCopyOption.REPLACE_EXISTING);
+                    } catch (DirectoryNotEmptyException e) {
+                        fh = a.nextFileHeader();
+                        continue;
+                    }
+                } catch (AccessDeniedException e) {
+                    mm.fileAccessDenied(sender, ZTask.EXTRACT, e.getMessage());
+                } catch (InterruptedIOException e) {
+                    throw new TaskInterruptedException();
+                } catch (RarException | IOException e) {
+                    e.printStackTrace();
                 }
+                fh = a.nextFileHeader();
             }
             if(!pipe)
                 mm.extractionComplete(sender, dest);
@@ -165,7 +156,7 @@ public class RarProvider implements TypeProvider {
 
     @Override
     public List<String> canCompressTo() {
-        return new ArrayList<String>();
+        return new ArrayList<>();
     }
 
 }

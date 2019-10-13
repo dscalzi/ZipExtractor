@@ -22,22 +22,22 @@ import java.util.List;
 
 public interface IPlugin {
 
-    public String getVersion();
+    String getVersion();
     
-    public void info(String msg);
+    void info(String msg);
     
-    public void warn(String msg);
+    void warn(String msg);
     
-    public void severe(String msg);
+    void severe(String msg);
     
-    public void severe(String msg, Throwable t);
+    void severe(String msg, Throwable t);
     
-    public String getName();
+    String getName();
     
-    public String getPluginDirectory();
+    String getPluginDirectory();
     
-    public boolean reload();
+    boolean reload();
     
-    public List<? extends ICommandSender> getOnlinePlayers();
+    List<? extends ICommandSender> getOnlinePlayers();
     
 }
