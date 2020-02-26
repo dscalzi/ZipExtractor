@@ -552,7 +552,8 @@ public class MessageManager {
                 "Zip Extractor version " + plugin.getVersion() + "\n" + cPrimary + "| " + cTrim
                         + "Source" + cPrimary + " | " + "&r" + "https://github.com/dscalzi/ZipExtractor"
                         + "\n" + cPrimary + "| " + cTrim + "Metrics" + cPrimary + " | " + "&r"
-                        + "https://bstats.org/plugin/" + (bukkit ? "bukkit" : "sponge") + "/ZipExtractor");
+                        + "https://bstats.org/plugin/" + (bukkit ? "bukkit" : "sponge") + "/ZipExtractor"
+                        + (bukkit ? "/1117" : "/3629"));
     }
 
     public String ordinal(int i) {

@@ -47,7 +47,7 @@ Since the main purpose of this plugin deals with archive manipulation, the plugi
 * [Suggest Features or Report Bugs][issues]
 
 [thread_pools]: http://tutorials.jenkov.com/java-util-concurrent/threadpoolexecutor.html "Thread Pool Information"
-[bStats]: https://bstats.org/plugin/bukkit/ZipExtractor "bStats page"
+[bStats]: https://bstats.org/plugin/bukkit/ZipExtractor/1117 "bStats page"
 [wiki]: https://github.com/dscalzi/ZipExtractor/wiki "Wiki page"
 [gradle]: https://gradle.org/ "Gradle"
 [spigot]: https://www.spigotmc.org/resources/zipextractor.43482/ "Spigot"

@@ -43,7 +43,7 @@ public class ZipExtractor extends JavaPlugin implements IPlugin {
         ZServicer.initalize(ConfigManager.getInstance().getMaxQueueSize(),
                 ConfigManager.getInstance().getMaxPoolSize());
         this.getCommand("zipextractor").setExecutor(new MainExecutor(this));
-        metrics = new Metrics(this);
+        metrics = new Metrics(this, 1117);
     }
 
     @Override

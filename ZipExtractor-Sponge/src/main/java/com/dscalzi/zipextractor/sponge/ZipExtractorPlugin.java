@@ -57,8 +57,6 @@ public class ZipExtractorPlugin implements IPlugin {
     @Inject private PluginContainer plugin;
     @Inject private Logger logger;
     @Inject private Game game;
-    @SuppressWarnings("unused")
-    @Inject private Metrics2 metrics;
     
     @Inject
     @DefaultConfig(sharedRoot = false)
@@ -66,6 +64,14 @@ public class ZipExtractorPlugin implements IPlugin {
     @Inject
     @ConfigDir(sharedRoot = false)
     private File configDir;
+
+    @SuppressWarnings("unused")
+    private Metrics2 metrics;
+
+    @Inject
+    public ZipExtractorPlugin(Metrics2.Factory metricsFactory) {
+        metrics = metricsFactory.make(3629);
+    }
     
     public PluginContainer getPlugin() {
         return plugin;
