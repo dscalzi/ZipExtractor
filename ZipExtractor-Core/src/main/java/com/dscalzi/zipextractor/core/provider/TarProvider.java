@@ -95,6 +95,7 @@ public class TarProvider implements TypeProvider {
                     throw new IllegalStateException("Couldn't create dir: " + parent);
                 }
                 if (te.isDirectory()) {
+                    //noinspection ResultOfMethodCallIgnored
                     newFile.mkdir();
                     te = tis.getNextEntry();
                     continue;
@@ -128,20 +129,16 @@ public class TarProvider implements TypeProvider {
         final MessageManager mm = MessageManager.inst();
         mm.startingProcess(sender, ZTask.COMPRESS, src.getName());
         try (OutputStream os = Files.newOutputStream(dest.toPath()); TarOutputStream ts = new TarOutputStream(os); Stream<Path> pathWalk = Files.walk(src.toPath())) {
-            Path pp = src.toPath();
             pathWalk.filter(path -> !path.toFile().isDirectory()).forEach(path -> {
                 if (Thread.interrupted())
                     throw new TaskInterruptedException();
                 // Prevent recursive compressions
                 if (path.equals(dest.toPath()))
                     return;
-                String sp = path.toAbsolutePath().toString().replace(pp.toAbsolutePath().toString(), "");
-                if (sp.length() > 0)
-                    sp = sp.substring(1);
-                TarEntry tarEntry = new TarEntry(pp.getFileName() + ((sp.length() > 0) ? (File.separator + sp) : ""));
+                TarEntry tarEntry = new TarEntry(path.toFile());
                 try {
                     if (log)
-                        mm.info("Compressing : " + tarEntry.toString());
+                        mm.info("Compressing : " + tarEntry.getName());
                     ts.putNextEntry(tarEntry);
                     ts.write(Files.readAllBytes(path));
                     ts.closeEntry();

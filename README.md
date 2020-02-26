@@ -10,8 +10,8 @@ The source and destination file paths are saved inside of the config.yml. This m
 
 # Feature List
 
-* Extraction of **ZIP**, **RAR**, **JAR**, **PACK**, **GZ**, and **XZ** archives.
-* Compression of any file or directory into the **ZIP** format.
+* Extraction of **ZIP**, **RAR**, **JAR**, **PACK**, **TAR**, **GZ**, and **XZ** archives.
+* Compression of any file or directory into the **ZIP** or **TAR** formats.
 * Compression of any **JAR** file to the **PACK** format, and any non-directory file to the **GZ** or **XZ** formats.
 * Queueable operations if you have many extractions/compressions to perform.
 * Configurable [Thread Pool Executor][thread_pools] allowing you to set a maximum queue size and maximum number of threads to run at once. Incase of an emergency the Thread Pool can be shutdown at anytime.
