@@ -65,6 +65,10 @@ public class ZCompressor {
             if(provider == null) {
                 return;
             }
+            if(!provider.isSupported()) {
+                mm.providerUnsupported(sender, provider.getUnsupportedMessage());
+                return;
+            }
             pDeque.push(new OpTuple(src, dest, provider));
         } else {
             File dTemp = dest;
@@ -79,6 +83,10 @@ public class ZCompressor {
                     
                     TypeProvider provider = getApplicableProvider(sTemp, dTemp, mm, sender);
                     if(provider == null) {
+                        return;
+                    }
+                    if(!provider.isSupported()) {
+                        mm.providerUnsupported(sender, provider.getUnsupportedMessage());
                         return;
                     }
                     

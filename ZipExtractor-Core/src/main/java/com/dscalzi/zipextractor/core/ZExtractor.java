@@ -80,6 +80,10 @@ public class ZExtractor {
                     mm.invalidExtractionExtension(sender);
                     return;
                 }
+                if(!p.isSupported()) {
+                    mm.providerUnsupported(sender, p.getUnsupportedMessage());
+                    return;
+                }
                 pDeque.add(new OpTuple(src, dest, p));
             } else {
                 
@@ -103,6 +107,10 @@ public class ZExtractor {
                             break;
                         }
                     }
+                    if(!p.isSupported()) {
+                        mm.providerUnsupported(sender, p.getUnsupportedMessage());
+                        return;
+                    }
                     pDeque.add(new OpTuple(tSrc, dest, p));
                     queue = queue.substring(0, queue.lastIndexOf('.'));
                     tSrc = new File(dest + File.separator + new File(queue).getName());
@@ -115,6 +123,10 @@ public class ZExtractor {
             TypeProvider p = getApplicableProvider(src);
             if(p == null) {
                 mm.invalidExtractionExtension(sender);
+                return;
+            }
+            if(!p.isSupported()) {
+                mm.providerUnsupported(sender, p.getUnsupportedMessage());
                 return;
             }
             pDeque.add(new OpTuple(src, dest, p));

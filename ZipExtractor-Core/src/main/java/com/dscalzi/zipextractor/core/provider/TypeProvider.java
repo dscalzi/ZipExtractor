@@ -179,4 +179,19 @@ public interface TypeProvider {
      */
     boolean canDetectPipedConflicts();
 
+    /**
+     * Returns whether or not this provider is supported on the current runtime environment.
+     *
+     * @return True if the provider can be run, false otherwise.
+     */
+    default boolean isSupported() { return true; }
+
+    /**
+     * Returns an message to the user explaining why the provider is not supported. Must be
+     * defined if {@link TypeProvider#isSupported()} can return false.
+     *
+     * @return A message to the user explaining why the provider is not supported.
+     */
+    default String getUnsupportedMessage() { return ""; }
+
 }

@@ -215,6 +215,10 @@ public class MessageManager {
                 "Only " + listToString(sources) + " files can be compressed to " + listToString(dests) + " files.");
     }
 
+    public void providerUnsupported(ICommandSender sender, String providerMessage) {
+        sendError(sender, providerMessage);
+    }
+
     public void invalidPath(ICommandSender sender, String path, String type) {
         if (path == null || path.isEmpty()) {
             sendError(sender, "A " + type + " path must be specified.");
