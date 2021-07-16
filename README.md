@@ -12,6 +12,7 @@ The source and destination file paths are saved inside of the config.yml. This m
 
 * Extraction of **ZIP**, **RAR**, **JAR**, **PACK**, **TAR**, **GZ**, and **XZ** archives.
   * Note: Pack operations are only supported on JDK 13 and below.
+  * Note: RAR v5 is not supported.
 * Compression of any file or directory into the **ZIP** or **TAR** formats.
 * Compression of any **JAR** file to the **PACK** format, and any non-directory file to the **GZ** or **XZ** formats.
 * Queueable operations if you have many extractions/compressions to perform.
