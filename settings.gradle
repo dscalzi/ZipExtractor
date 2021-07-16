@@ -1,2 +1,2 @@
-rootProject.name = 'ZipExtractor'
-include 'ZipExtractor-Bukkit', 'ZipExtractor-Sponge', 'ZipExtractor-Core'
+rootProject.name = 'zipextractor'
+include 'zipextractor-bukkit', 'zipextractor-sponge', 'zipextractor-core'

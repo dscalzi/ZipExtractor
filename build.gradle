@@ -14,12 +14,9 @@ allprojects {
     }
 }
 
-apply plugin: 'eclipse'
-
 subprojects {
 
     apply plugin: 'java'
-    apply plugin: 'maven'
     apply plugin: 'com.github.johnrengelman.shadow'
     apply plugin: 'net.minecrell.licenser'
 
@@ -28,10 +25,10 @@ subprojects {
 
     def major = '2'
     def minor = '3'
-    def spongeRevision = '1'
-    def bukkitRevision = '1'
+    def spongeRevision = '2'
+    def bukkitRevision = '2'
 
-    version = "${major}.${minor}.${project.name.endsWith('Sponge') ? spongeRevision : bukkitRevision}"
+    version = "${major}.${minor}.${project.name.endsWith('sponge') ? spongeRevision : bukkitRevision}"
     
     tasks.withType(JavaCompile) {
         options.encoding = 'UTF-8'
@@ -51,7 +48,7 @@ subprojects {
         header = rootProject.file('HEADER.txt')
         ext {
             name = 'Daniel D. Scalzi'
-            year = '2016-2020'
+            year = '2016-2021'
             url = 'https://github.com/dscalzi/ZipExtractor'
         }
     }

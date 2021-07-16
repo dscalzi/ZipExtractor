@@ -1,0 +1,16 @@
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.tukaani:xz:1.9'
+    implementation 'com.github.junrar:junrar:7.4.0'
+    implementation 'org.apache.ant:ant:1.10.11'
+    implementation 'org.slf4j:slf4j-simple:1.7.31'
+
+
+}
+
+shadowJar {
+    minimize()
+}
