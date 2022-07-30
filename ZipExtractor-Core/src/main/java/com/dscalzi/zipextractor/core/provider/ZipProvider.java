@@ -90,7 +90,11 @@ public class ZipProvider implements TypeProvider {
                 if (Thread.interrupted())
                     throw new TaskInterruptedException();
 
-                File newFile = new File(dest + File.separator + ze.getName());
+                File newFile = new File(dest, ze.getName());
+
+                if (!newFile.toPath().normalize().startsWith(dest.toPath().normalize())) {
+                    throw new RuntimeException("Bad zip entry");
+                }
                 if (log)
                     mm.info("Extracting : " + newFile.getAbsoluteFile());
                 File parent = newFile.getParentFile();
